@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GoToCare — Launch and Run Your Care Agency in Days</title>
+  <meta name="description" content="GoToCare is the all-in-one platform to build your website, manage caregivers, schedule shifts, handle payroll, and grow your agency." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ───── RESET & BASE ───── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      color: #1a1a2e;
+      background: #fff;
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    img { max-width: 100%; display: block; }
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
+
+    /* ───── UTILITIES ───── */
+    .container { max-width: 1140px; margin: 0 auto; padding: 0 24px; }
+    .section { padding: 100px 0; }
+    .text-center { text-align: center; }
+    .mx-auto { margin-left: auto; margin-right: auto; }
+
+    /* ───── COLORS ───── */
+    :root {
+      --purple-50: #f5f0ff;
+      --purple-100: #ede5ff;
+      --purple-200: #d4c4ff;
+      --purple-400: #9b6dff;
+      --purple-500: #7c3aed;
+      --purple-600: #6d28d9;
+      --purple-700: #5b21b6;
+      --purple-800: #4c1d95;
+      --blue-500: #3b82f6;
+      --blue-600: #2563eb;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --gray-700: #374151;
+      --gray-800: #1f2937;
+      --gray-900: #111827;
+      --gradient: linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%);
+      --gradient-soft: linear-gradient(135deg, #f5f0ff 0%, #eff6ff 100%);
+      --gradient-hero: linear-gradient(160deg, #1a1a2e 0%, #2d1b69 40%, #1e3a5f 100%);
+      --shadow-sm: 0 1px 3px rgba(0,0,0,.08);
+      --shadow-md: 0 4px 20px rgba(0,0,0,.08);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,.12);
+      --shadow-purple: 0 8px 30px rgba(124,58,237,.18);
+      --radius: 12px;
+      --radius-lg: 20px;
+    }
+
+    /* ───── TYPOGRAPHY ───── */
+    h1, h2, h3, h4, h5, h6 { line-height: 1.2; font-weight: 700; }
+    h1 { font-size: clamp(2.2rem, 5vw, 3.5rem); font-weight: 800; letter-spacing: -0.03em; }
+    h2 { font-size: clamp(1.8rem, 3.5vw, 2.6rem); letter-spacing: -0.02em; }
+    h3 { font-size: 1.25rem; }
+    p { color: var(--gray-600); }
+
+    /* ───── BUTTONS ───── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 14px 32px; border-radius: 10px; font-weight: 600;
+      font-size: 1rem; border: none; cursor: pointer;
+      transition: all 0.25s ease; gap: 8px;
+    }
+    .btn-primary {
+      background: var(--gradient); color: #fff;
+      box-shadow: var(--shadow-purple);
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 35px rgba(124,58,237,.28); }
+    .btn-outline {
+      background: transparent; color: #fff;
+      border: 2px solid rgba(255,255,255,.35);
+    }
+    .btn-outline:hover { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.6); }
+    .btn-outline-dark {
+      background: transparent; color: var(--purple-600);
+      border: 2px solid var(--purple-200);
+    }
+    .btn-outline-dark:hover { background: var(--purple-50); border-color: var(--purple-400); }
+    .btn-group { display: flex; gap: 16px; flex-wrap: wrap; }
+
+    /* ───── NAVBAR ───── */
+    .navbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+      padding: 16px 0;
+      background: rgba(26,26,46,.6);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      transition: all .3s ease;
+    }
+    .navbar.scrolled { background: rgba(26,26,46,.92); padding: 12px 0; }
+    .navbar .container { display: flex; align-items: center; justify-content: space-between; }
+    .logo { font-size: 1.5rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 10px; }
+    .logo-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: var(--gradient); display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; color: #fff;
+    }
+    .nav-links { display: flex; gap: 32px; align-items: center; }
+    .nav-links a { color: rgba(255,255,255,.75); font-weight: 500; font-size: 0.95rem; transition: color .2s; }
+    .nav-links a:hover { color: #fff; }
+    .nav-cta .btn { padding: 10px 24px; font-size: 0.9rem; }
+    .mobile-toggle { display: none; background: none; border: none; cursor: pointer; padding: 8px; }
+    .mobile-toggle span { display: block; width: 24px; height: 2px; background: #fff; margin: 6px 0; border-radius: 2px; transition: .3s; }
+
+    /* ───── 1. HERO ───── */
+    .hero {
+      background: var(--gradient-hero);
+      padding: 160px 0 120px;
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: ''; position: absolute; top: -50%; right: -20%;
+      width: 800px; height: 800px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(124,58,237,.15) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero::after {
+      content: ''; position: absolute; bottom: -30%; left: -10%;
+      width: 600px; height: 600px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(59,130,246,.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero .container { position: relative; z-index: 1; }
+    .hero h1 { color: #fff; max-width: 720px; margin: 0 auto 24px; }
+    .hero h1 span { background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .hero-sub { color: rgba(255,255,255,.7); font-size: 1.2rem; max-width: 640px; margin: 0 auto 40px; line-height: 1.7; }
+    .hero-support { color: rgba(255,255,255,.45); font-size: 0.9rem; margin-top: 24px; letter-spacing: 0.02em; }
+    .hero .btn-group { justify-content: center; }
+
+    /* ───── 2. TRUST BAR ───── */
+    .trust-bar {
+      background: var(--gray-50);
+      border-top: 1px solid var(--gray-200);
+      border-bottom: 1px solid var(--gray-200);
+      padding: 40px 0;
+    }
+    .trust-items {
+      display: flex; justify-content: center; gap: 48px; flex-wrap: wrap; align-items: center;
+    }
+    .trust-item {
+      display: flex; align-items: center; gap: 12px;
+      color: var(--gray-600); font-weight: 500; font-size: 0.95rem;
+    }
+    .trust-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      background: var(--purple-50); display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; flex-shrink: 0;
+    }
+
+    /* ───── 3. PROBLEM ───── */
+    .problem { background: #fff; }
+    .problem h2 { margin-bottom: 56px; }
+    .pain-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px; max-width: 900px; margin: 0 auto 48px;
+    }
+    .pain-card {
+      display: flex; align-items: flex-start; gap: 16px;
+      padding: 24px; border-radius: var(--radius);
+      background: var(--gray-50); border: 1px solid var(--gray-100);
+      transition: all .25s;
+    }
+    .pain-card:hover { border-color: var(--purple-200); background: var(--purple-50); }
+    .pain-icon {
+      width: 44px; height: 44px; border-radius: 10px;
+      background: #fee2e2; display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; flex-shrink: 0;
+    }
+    .pain-card p { color: var(--gray-700); font-weight: 500; margin: 0; }
+    .problem-close {
+      font-size: 1.3rem; font-weight: 700; color: var(--purple-600);
+      font-style: italic; max-width: 500px; margin: 0 auto;
+    }
+
+    /* ───── 4. SOLUTION ───── */
+    .solution {
+      background: var(--gradient-hero); color: #fff;
+      position: relative; overflow: hidden;
+    }
+    .solution::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      pointer-events: none;
+    }
+    .solution h2 { color: #fff; margin-bottom: 20px; }
+    .solution p { color: rgba(255,255,255,.7); font-size: 1.15rem; max-width: 620px; margin: 0 auto; }
+
+    /* ───── 5. FEATURES ───── */
+    .features { background: var(--gradient-soft); }
+    .features h2 { margin-bottom: 56px; }
+    .features-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+    }
+    .feature-card {
+      background: #fff; border-radius: var(--radius-lg); padding: 36px;
+      border: 1px solid var(--gray-200);
+      transition: all .3s ease;
+    }
+    .feature-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--purple-200); }
+    .feature-emoji {
+      width: 56px; height: 56px; border-radius: 14px;
+      background: var(--purple-50); display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem; margin-bottom: 20px;
+    }
+    .feature-card h3 { margin-bottom: 10px; color: var(--gray-900); }
+    .feature-card p { font-size: 0.95rem; }
+    .feature-badge {
+      display: inline-block; padding: 4px 12px; border-radius: 20px;
+      background: linear-gradient(135deg, #dbeafe, #ede5ff);
+      color: var(--purple-600); font-size: 0.75rem; font-weight: 600;
+      margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.05em;
+    }
+
+    /* ───── 6. HOW IT WORKS ───── */
+    .how-it-works { background: #fff; }
+    .how-it-works h2 { margin-bottom: 64px; }
+    .steps {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 32px; max-width: 1000px; margin: 0 auto;
+    }
+    .step { text-align: center; position: relative; }
+    .step-number {
+      width: 64px; height: 64px; border-radius: 50%; margin: 0 auto 20px;
+      background: var(--gradient); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; font-weight: 800;
+      box-shadow: var(--shadow-purple);
+    }
+    .step h3 { margin-bottom: 8px; }
+    .step p { font-size: 0.9rem; max-width: 220px; margin: 0 auto; }
+    .step-connector {
+      display: none; position: absolute; top: 32px; left: calc(50% + 40px);
+      width: calc(100% - 80px); height: 2px;
+      background: linear-gradient(90deg, var(--purple-200), var(--blue-500));
+      opacity: .4;
+    }
+    @media (min-width: 768px) {
+      .step-connector { display: block; }
+    }
+
+    /* ───── 7. COMPARISON ───── */
+    .comparison { background: var(--gray-50); }
+    .comparison h2 { margin-bottom: 56px; }
+    .comparison-table {
+      max-width: 800px; margin: 0 auto;
+      border-radius: var(--radius-lg); overflow: hidden;
+      box-shadow: var(--shadow-md); background: #fff;
+    }
+    .comparison-table table { width: 100%; border-collapse: collapse; }
+    .comparison-table th {
+      padding: 20px 28px; font-weight: 700; font-size: 1rem; text-align: left;
+    }
+    .comparison-table th:first-child { background: var(--gray-100); color: var(--gray-500); }
+    .comparison-table th:last-child { background: var(--gradient); color: #fff; }
+    .comparison-table td {
+      padding: 18px 28px; border-top: 1px solid var(--gray-100);
+      font-size: 0.95rem;
+    }
+    .comparison-table td:first-child { color: var(--gray-500); }
+    .comparison-table td:last-child { color: var(--gray-800); font-weight: 500; }
+    .comparison-table tr:hover td { background: var(--purple-50); }
+
+    /* ───── 8. PRICING ───── */
+    .pricing { background: #fff; }
+    .pricing h2 { margin-bottom: 16px; }
+    .pricing-sub { margin-bottom: 56px; }
+    .pricing-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px; max-width: 1000px; margin: 0 auto 40px;
+    }
+    .pricing-card {
+      border-radius: var(--radius-lg); padding: 40px 32px;
+      border: 2px solid var(--gray-200); text-align: center;
+      transition: all .3s; position: relative; background: #fff;
+    }
+    .pricing-card:hover { border-color: var(--purple-200); }
+    .pricing-card.popular {
+      border-color: var(--purple-500);
+      box-shadow: var(--shadow-purple);
+      transform: scale(1.03);
+    }
+    .pricing-popular-badge {
+      position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
+      background: var(--gradient); color: #fff;
+      padding: 6px 20px; border-radius: 20px;
+      font-size: 0.8rem; font-weight: 600; letter-spacing: 0.03em;
+    }
+    .pricing-tier { font-size: 0.85rem; font-weight: 600; color: var(--purple-500); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+    .pricing-desc { font-size: 0.9rem; margin-bottom: 24px; }
+    .pricing-amount { font-size: 3rem; font-weight: 800; color: var(--gray-900); margin-bottom: 4px; }
+    .pricing-amount span { font-size: 1rem; font-weight: 500; color: var(--gray-400); }
+    .pricing-features { margin: 28px 0; text-align: left; }
+    .pricing-features li {
+      padding: 10px 0; font-size: 0.95rem; color: var(--gray-600);
+      display: flex; align-items: center; gap: 12px;
+      border-bottom: 1px solid var(--gray-100);
+    }
+    .pricing-features li:last-child { border: none; }
+    .pricing-check { color: var(--purple-500); font-weight: 700; font-size: 1.1rem; }
+    .pricing-card .btn { width: 100%; }
+
+    /* ───── 9. TESTIMONIAL ───── */
+    .testimonial {
+      background: var(--gradient-hero); color: #fff;
+      padding: 80px 0;
+    }
+    .testimonial-content {
+      max-width: 700px; margin: 0 auto; text-align: center;
+    }
+    .testimonial-quote {
+      font-size: clamp(1.2rem, 2.5vw, 1.6rem); font-weight: 500;
+      line-height: 1.6; color: rgba(255,255,255,.9);
+      margin-bottom: 28px; font-style: italic;
+    }
+    .testimonial-quote::before { content: '"'; }
+    .testimonial-quote::after { content: '"'; }
+    .testimonial-author { color: rgba(255,255,255,.5); font-size: 0.95rem; }
+    .testimonial-stars { font-size: 1.3rem; margin-bottom: 20px; letter-spacing: 4px; }
+
+    /* ───── REQUEST CARE FORM ───── */
+    .request-care { background: var(--gradient-soft); }
+    .request-care h2 { margin-bottom: 12px; }
+    .request-care-sub { margin-bottom: 48px; font-size: 1.05rem; }
+    .demo-wrapper {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 48px;
+      max-width: 960px; margin: 0 auto; align-items: start;
+    }
+    .demo-info h3 { font-size: 1.3rem; margin-bottom: 16px; color: var(--gray-900); }
+    .demo-info p { margin-bottom: 20px; }
+    .demo-benefits li {
+      padding: 12px 0; display: flex; gap: 12px; align-items: flex-start;
+      color: var(--gray-700); font-size: 0.95rem;
+    }
+    .demo-benefits .icon { font-size: 1.2rem; flex-shrink: 0; }
+    .demo-form {
+      background: #fff; border-radius: var(--radius-lg); padding: 36px;
+      box-shadow: var(--shadow-md); border: 1px solid var(--gray-200);
+    }
+    .demo-form h3 { font-size: 1.15rem; margin-bottom: 24px; text-align: center; color: var(--gray-900); }
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; font-weight: 600; font-size: 0.85rem; color: var(--gray-700); margin-bottom: 6px; }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%; padding: 12px 16px; border-radius: 8px;
+      border: 1.5px solid var(--gray-200); font-size: 0.95rem;
+      font-family: inherit; transition: border-color .2s;
+      background: var(--gray-50);
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      outline: none; border-color: var(--purple-400); background: #fff;
+      box-shadow: 0 0 0 3px rgba(124,58,237,.08);
+    }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .demo-form .btn { width: 100%; margin-top: 8px; }
+    .form-note { text-align: center; font-size: 0.8rem; color: var(--gray-400); margin-top: 12px; }
+
+    /* ───── 10. FINAL CTA ───── */
+    .final-cta {
+      background: var(--gradient); padding: 100px 0;
+      text-align: center; position: relative; overflow: hidden;
+    }
+    .final-cta::before {
+      content: ''; position: absolute; top: -100px; right: -100px;
+      width: 400px; height: 400px; border-radius: 50%;
+      background: rgba(255,255,255,.06); pointer-events: none;
+    }
+    .final-cta h2 { color: #fff; margin-bottom: 32px; }
+    .final-cta .btn-outline { border-color: rgba(255,255,255,.4); }
+    .final-cta .btn-primary { background: #fff; color: var(--purple-600); box-shadow: var(--shadow-md); }
+    .final-cta .btn-primary:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+    .final-cta .btn-group { justify-content: center; }
+
+    /* ───── 11. FOOTER ───── */
+    .footer {
+      background: var(--gray-900); color: rgba(255,255,255,.6);
+      padding: 48px 0 32px;
+    }
+    .footer-grid {
+      display: flex; justify-content: space-between; align-items: start;
+      flex-wrap: wrap; gap: 40px; margin-bottom: 40px;
+    }
+    .footer-brand { max-width: 300px; }
+    .footer-brand .logo { margin-bottom: 12px; }
+    .footer-brand p { font-size: 0.9rem; color: rgba(255,255,255,.4); }
+    .footer-links { display: flex; gap: 48px; flex-wrap: wrap; }
+    .footer-col h4 { color: #fff; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 16px; }
+    .footer-col a { display: block; padding: 4px 0; font-size: 0.9rem; color: rgba(255,255,255,.5); transition: color .2s; }
+    .footer-col a:hover { color: #fff; }
+    .footer-bottom {
+      border-top: 1px solid rgba(255,255,255,.08);
+      padding-top: 24px; text-align: center;
+      font-size: 0.85rem; color: rgba(255,255,255,.3);
+    }
+
+    /* ───── MOBILE NAV ───── */
+    .mobile-menu {
+      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(26,26,46,.98); z-index: 999;
+      flex-direction: column; align-items: center; justify-content: center; gap: 24px;
+    }
+    .mobile-menu.active { display: flex; }
+    .mobile-menu a { color: #fff; font-size: 1.3rem; font-weight: 600; }
+    .mobile-close {
+      position: absolute; top: 24px; right: 24px;
+      background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer;
+    }
+
+    /* ───── RESPONSIVE ───── */
+    @media (max-width: 768px) {
+      .nav-links, .nav-cta { display: none; }
+      .mobile-toggle { display: block; }
+      .hero { padding: 130px 0 80px; }
+      .hero h1 { font-size: 2rem; }
+      .hero-sub { font-size: 1rem; }
+      .section { padding: 64px 0; }
+      .trust-items { gap: 24px; }
+      .features-grid { grid-template-columns: 1fr; }
+      .demo-wrapper { grid-template-columns: 1fr; }
+      .pricing-grid { grid-template-columns: 1fr; }
+      .pricing-card.popular { transform: none; }
+      .steps { grid-template-columns: 1fr 1fr; }
+      .comparison-table th, .comparison-table td { padding: 14px 16px; font-size: 0.85rem; }
+      .footer-grid { flex-direction: column; }
+    }
+    @media (max-width: 480px) {
+      .steps { grid-template-columns: 1fr; }
+      .btn-group { flex-direction: column; align-items: stretch; }
+      .btn { width: 100%; }
+    }
+
+    /* ───── ANIMATIONS ───── */
+    .fade-up {
+      opacity: 0; transform: translateY(30px);
+      transition: opacity .6s ease, transform .6s ease;
+    }
+    .fade-up.visible { opacity: 1; transform: translateY(0); }
+  </style>
+</head>
+<body>
+
+<!-- ═══ NAVBAR ═══ -->
+<nav class="navbar" id="navbar">
+  <div class="container">
+    <a href="#" class="logo">
+      <div class="logo-icon">G</div>
+      GoToCare
+    </a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#how-it-works">How It Works</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#request-care">Request Care</a>
+    </div>
+    <div class="nav-cta">
+      <a href="#pricing" class="btn btn-primary" style="padding:10px 24px;font-size:.9rem;">Start Free Trial</a>
+    </div>
+    <button class="mobile-toggle" onclick="document.getElementById('mobileMenu').classList.add('active')">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobileMenu">
+  <button class="mobile-close" onclick="this.parentElement.classList.remove('active')">&times;</button>
+  <a href="#features" onclick="this.parentElement.classList.remove('active')">Features</a>
+  <a href="#how-it-works" onclick="this.parentElement.classList.remove('active')">How It Works</a>
+  <a href="#pricing" onclick="this.parentElement.classList.remove('active')">Pricing</a>
+  <a href="#request-care" onclick="this.parentElement.classList.remove('active')">Request Care</a>
+  <a href="#pricing" class="btn btn-primary" onclick="this.parentElement.classList.remove('active')">Start Free Trial</a>
+</div>
+
+<!-- ═══ 1. HERO ═══ -->
+<section class="hero">
+  <div class="container text-center">
+    <h1 class="fade-up">Launch and run your care agency <span>in days—not months</span></h1>
+    <p class="hero-sub fade-up">GoToCare is the all-in-one platform to build your website, manage caregivers, schedule shifts, handle payroll, and grow your agency—without the complexity of traditional software.</p>
+    <div class="btn-group fade-up">
+      <a href="#pricing" class="btn btn-primary">Start Free Trial →</a>
+      <a href="#request-care" class="btn btn-outline">Book a Demo</a>
+    </div>
+    <p class="hero-support fade-up">No contracts &nbsp;•&nbsp; Setup in minutes &nbsp;•&nbsp; Built for small to mid-sized agencies</p>
+  </div>
+</section>
+
+<!-- ═══ 2. TRUST BAR ═══ -->
+<section class="trust-bar">
+  <div class="container">
+    <div class="trust-items">
+      <div class="trust-item">
+        <div class="trust-icon">🏥</div>
+        Trusted by growing care agencies
+      </div>
+      <div class="trust-item">
+        <div class="trust-icon">🏠</div>
+        Built for home care, senior care &amp; private duty
+      </div>
+      <div class="trust-item">
+        <div class="trust-icon">🔒</div>
+        Secure and scalable infrastructure
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 3. THE PROBLEM ═══ -->
+<section class="section problem text-center">
+  <div class="container">
+    <h2 class="fade-up">Running a care agency shouldn't feel <em>this hard</em></h2>
+    <div class="pain-grid">
+      <div class="pain-card fade-up">
+        <div class="pain-icon">📋</div>
+        <p>Managing caregivers in spreadsheets</p>
+      </div>
+      <div class="pain-card fade-up">
+        <div class="pain-icon">⏳</div>
+        <p>Chasing timesheets and payroll errors</p>
+      </div>
+      <div class="pain-card fade-up">
+        <div class="pain-icon">🌐</div>
+        <p>No website or online presence</p>
+      </div>
+      <div class="pain-card fade-up">
+        <div class="pain-icon">📉</div>
+        <p>Losing clients due to slow response times</p>
+      </div>
+      <div class="pain-card fade-up">
+        <div class="pain-icon">🔧</div>
+        <p>Using 3–5 disconnected tools just to operate</p>
+      </div>
+    </div>
+    <p class="problem-close fade-up">You didn't start your agency to manage software.</p>
+  </div>
+</section>
+
+<!-- ═══ 4. THE SOLUTION ═══ -->
+<section class="section solution text-center">
+  <div class="container" style="position:relative;z-index:1;">
+    <h2 class="fade-up">Everything your agency needs. <br/>One platform.</h2>
+    <p class="fade-up">GoToCare replaces your website, CRM, scheduling, payroll, and admin tools—so you can focus on delivering care.</p>
+  </div>
+</section>
+
+<!-- ═══ 5. CORE FEATURES ═══ -->
+<section class="section features text-center" id="features">
+  <div class="container">
+    <h2 class="fade-up">Powerful features, zero complexity</h2>
+    <div class="features-grid">
+      <div class="feature-card fade-up">
+        <div class="feature-emoji">🧩</div>
+        <h3>Website Builder</h3>
+        <p>Launch a professional care agency website with built-in lead capture forms—no coding required.</p>
+      </div>
+      <div class="feature-card fade-up">
+        <div class="feature-emoji">👥</div>
+        <h3>CRM</h3>
+        <p>Manage clients, caregivers, and families all in one centralized place.</p>
+      </div>
+      <div class="feature-card fade-up">
+        <div class="feature-emoji">📅</div>
+        <h3>Scheduling &amp; Dispatch</h3>
+        <p>Assign shifts, track availability, and manage your team in real time.</p>
+      </div>
+      <div class="feature-card fade-up">
+        <div class="feature-emoji">⏱️</div>
+        <h3>Time Tracking</h3>
+        <p>Accurate clock-in/out with automated timesheets—no more manual tracking.</p>
+      </div>
+      <div class="feature-card fade-up">
+        <div class="feature-emoji">💰</div>
+        <h3>Payroll &amp; Invoicing</h3>
+        <p>Generate payroll summaries, invoices, and tax-ready reports effortlessly.</p>
+      </div>
+      <div class="feature-card fade-up">
+        <div class="feature-emoji">🤖</div>
+        <div class="feature-badge">Coming Soon</div>
+        <h3>AI Automation</h3>
+        <p>Automate intake, caregiver matching, and admin workflows—future-ready.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 6. HOW IT WORKS ═══ -->
+<section class="section how-it-works text-center" id="how-it-works">
+  <div class="container">
+    <h2 class="fade-up">Up and running in 4 simple steps</h2>
+    <div class="steps">
+      <div class="step fade-up">
+        <div class="step-number">1</div>
+        <div class="step-connector"></div>
+        <h3>Create Your Profile</h3>
+        <p>Set up your agency profile in minutes</p>
+      </div>
+      <div class="step fade-up">
+        <div class="step-number">2</div>
+        <div class="step-connector"></div>
+        <h3>Launch Your Website</h3>
+        <p>Go live and start receiving client requests</p>
+      </div>
+      <div class="step fade-up">
+        <div class="step-number">3</div>
+        <div class="step-connector"></div>
+        <h3>Manage &amp; Schedule</h3>
+        <p>Handle caregivers, shifts, and track hours</p>
+      </div>
+      <div class="step fade-up">
+        <div class="step-number">4</div>
+        <h3>Get Paid</h3>
+        <p>Run payroll and invoicing all in one system</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 7. WHY GOTOCARE ═══ -->
+<section class="section comparison text-center" id="comparison">
+  <div class="container">
+    <h2 class="fade-up">Built differently from traditional care software</h2>
+    <div class="comparison-table fade-up">
+      <table>
+        <thead>
+          <tr>
+            <th>Traditional Software</th>
+            <th>GoToCare ✨</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Complex setup (months)</td><td>Live in days</td></tr>
+          <tr><td>Expensive per-user pricing</td><td>Simple flat pricing</td></tr>
+          <tr><td>No website or growth tools</td><td>Built-in lead generation</td></tr>
+          <tr><td>Outdated UI</td><td>Modern, easy to use</td></tr>
+          <tr><td>Manual workflows</td><td>Automated operations</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 8. PRICING ═══ -->
+<section class="section pricing text-center" id="pricing">
+  <div class="container">
+    <h2 class="fade-up">Simple, transparent pricing</h2>
+    <p class="pricing-sub fade-up">No hidden fees. No long-term contracts. Cancel anytime.</p>
+    <div class="pricing-grid">
+      <!-- Starter -->
+      <div class="pricing-card fade-up">
+        <div class="pricing-tier">Starter</div>
+        <p class="pricing-desc">For new agencies</p>
+        <div class="pricing-amount">$99<span>/month</span></div>
+        <ul class="pricing-features">
+          <li><span class="pricing-check">✓</span> Professional website</li>
+          <li><span class="pricing-check">✓</span> CRM for clients &amp; caregivers</li>
+          <li><span class="pricing-check">✓</span> Lead capture forms</li>
+          <li><span class="pricing-check">✓</span> Email support</li>
+        </ul>
+        <a href="#" class="btn btn-outline-dark">Start Free Trial</a>
+      </div>
+      <!-- Growth -->
+      <div class="pricing-card popular fade-up">
+        <div class="pricing-popular-badge">Most Popular</div>
+        <div class="pricing-tier">Growth</div>
+        <p class="pricing-desc">For scaling agencies</p>
+        <div class="pricing-amount">$299<span>/month</span></div>
+        <ul class="pricing-features">
+          <li><span class="pricing-check">✓</span> Everything in Starter</li>
+          <li><span class="pricing-check">✓</span> Scheduling &amp; dispatch</li>
+          <li><span class="pricing-check">✓</span> Time tracking</li>
+          <li><span class="pricing-check">✓</span> Payroll summaries</li>
+          <li><span class="pricing-check">✓</span> Priority support</li>
+        </ul>
+        <a href="#" class="btn btn-primary">Start Free Trial</a>
+      </div>
+      <!-- Pro -->
+      <div class="pricing-card fade-up">
+        <div class="pricing-tier">Pro</div>
+        <p class="pricing-desc">For advanced operations</p>
+        <div class="pricing-amount">$599<span>/month</span></div>
+        <ul class="pricing-features">
+          <li><span class="pricing-check">✓</span> Everything in Growth</li>
+          <li><span class="pricing-check">✓</span> Full automation suite</li>
+          <li><span class="pricing-check">✓</span> Advanced reporting</li>
+          <li><span class="pricing-check">✓</span> Dedicated account manager</li>
+          <li><span class="pricing-check">✓</span> Priority support</li>
+        </ul>
+        <a href="#" class="btn btn-outline-dark">Start Free Trial</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 9. TESTIMONIAL ═══ -->
+<section class="testimonial">
+  <div class="container">
+    <div class="testimonial-content fade-up">
+      <div class="testimonial-stars">⭐⭐⭐⭐⭐</div>
+      <p class="testimonial-quote">GoToCare helped us go from spreadsheets to a fully operational agency in under a week.</p>
+      <p class="testimonial-author">— Agency Owner (Placeholder)</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ REQUEST CARE DEMO FORM ═══ -->
+<section class="section request-care text-center" id="request-care">
+  <div class="container">
+    <h2 class="fade-up">See how your clients will request care</h2>
+    <p class="request-care-sub fade-up">This is a live preview of the intake experience your clients will have. Watch how leads flow directly into your CRM.</p>
+    <div class="demo-wrapper fade-up">
+      <div class="demo-info" style="text-align:left;">
+        <h3>Why agencies love this</h3>
+        <p>Your clients get a seamless request experience, and every inquiry automatically flows into your GoToCare CRM—no copy-pasting, no missed leads.</p>
+        <ul class="demo-benefits">
+          <li><span class="icon">✅</span> Clients submit care requests 24/7 from your website</li>
+          <li><span class="icon">📥</span> Leads are automatically captured in your CRM</li>
+          <li><span class="icon">⚡</span> Respond faster and win more clients</li>
+          <li><span class="icon">📊</span> Track every inquiry from first touch to signed contract</li>
+        </ul>
+      </div>
+      <form class="demo-form" onsubmit="handleDemoSubmit(event)">
+        <h3>🩺 Request Care</h3>
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" placeholder="e.g. Jane Smith" required />
+        </div>
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="tel" placeholder="(555) 123-4567" required />
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" placeholder="jane@example.com" />
+        </div>
+        <div class="form-group">
+          <label>Type of Care Needed</label>
+          <select required>
+            <option value="" disabled selected>Select care type…</option>
+            <option>Home Care</option>
+            <option>Senior Care</option>
+            <option>Private Duty Nursing</option>
+            <option>Companionship</option>
+            <option>Respite Care</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Additional Details</label>
+          <textarea placeholder="Tell us about your care needs…"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit Request →</button>
+        <p class="form-note">This is a demo. No data is stored.</p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 10. FINAL CTA ═══ -->
+<section class="final-cta">
+  <div class="container" style="position:relative;z-index:1;">
+    <h2 class="fade-up">Ready to launch or grow<br/> your care agency?</h2>
+    <div class="btn-group fade-up">
+      <a href="#pricing" class="btn btn-primary">Start Free Trial →</a>
+      <a href="#request-care" class="btn btn-outline">Book a Demo</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ 11. FOOTER ═══ -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo">
+          <div class="logo-icon">G</div>
+          GoToCare
+        </div>
+        <p>The all-in-one platform for care agencies.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h4>Product</h4>
+          <a href="#features">Features</a>
+          <a href="#pricing">Pricing</a>
+          <a href="#how-it-works">How It Works</a>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <a href="#">About</a>
+          <a href="#">Contact</a>
+          <a href="#">Blog</a>
+        </div>
+        <div class="footer-col">
+          <h4>Legal</h4>
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      &copy; 2026 GoToCare. All rights reserved.
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Navbar scroll effect
+  window.addEventListener('scroll', () => {
+    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
+  });
+
+  // Fade-in on scroll
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+  // Demo form handler
+  function handleDemoSubmit(e) {
+    e.preventDefault();
+    const form = e.target;
+    const btn = form.querySelector('button[type="submit"]');
+    btn.textContent = '✓ Request Submitted!';
+    btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+    btn.style.boxShadow = '0 8px 30px rgba(16,185,129,.25)';
+    setTimeout(() => {
+      form.reset();
+      btn.textContent = 'Submit Request →';
+      btn.style.background = '';
+      btn.style.boxShadow = '';
+    }, 3000);
+  }
+
+  // Smooth scroll for anchor links
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', (e) => {
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    });
+  });
+</script>
+
+</body>
+</html>
