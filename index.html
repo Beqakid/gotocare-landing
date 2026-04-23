@@ -732,38 +732,44 @@
           <li><span class="icon">📊</span> Track every inquiry from first touch to signed contract</li>
         </ul>
       </div>
-      <form class="demo-form" onsubmit="handleDemoSubmit(event)">
+      <form class="demo-form" id="requestCareForm" onsubmit="handleCareSubmit(event)">
         <h3>🩺 Request Care</h3>
-        <div class="form-group">
-          <label>Full Name</label>
-          <input type="text" placeholder="e.g. Jane Smith" required />
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="form-group">
+            <label for="firstName">First Name</label>
+            <input type="text" id="firstName" name="firstName" placeholder="Jane" required />
+          </div>
+          <div class="form-group">
+            <label for="lastName">Last Name</label>
+            <input type="text" id="lastName" name="lastName" placeholder="Smith" required />
+          </div>
         </div>
         <div class="form-group">
           <label>Phone Number</label>
-          <input type="tel" placeholder="(555) 123-4567" required />
+          <input type="tel" id="phone" name="phone" placeholder="(555) 123-4567" required />
         </div>
         <div class="form-group">
           <label>Email</label>
-          <input type="email" placeholder="jane@example.com" />
+          <input type="email" id="email" name="email" placeholder="jane@example.com" required />
         </div>
         <div class="form-group">
           <label>Type of Care Needed</label>
-          <select required>
+          <select id="careType" name="careType" required>
             <option value="" disabled selected>Select care type…</option>
-            <option>Home Care</option>
-            <option>Senior Care</option>
-            <option>Private Duty Nursing</option>
-            <option>Companionship</option>
-            <option>Respite Care</option>
-            <option>Other</option>
+            <option value="home_care">Home Care</option>
+            <option value="senior_care">Senior Care</option>
+            <option value="private_duty">Private Duty Nursing</option>
+            <option value="companionship">Companionship</option>
+            <option value="respite">Respite Care</option>
+            <option value="other">Other</option>
           </select>
         </div>
         <div class="form-group">
           <label>Additional Details</label>
-          <textarea placeholder="Tell us about your care needs…"></textarea>
+          <textarea id="message" name="message" placeholder="Tell us about your care needs…"></textarea>
         </div>
-        <button type="submit" class="btn btn-primary">Submit Request →</button>
-        <p class="form-note">This is a demo. No data is stored.</p>
+        <button type="submit" class="btn btn-primary" id="careSubmitBtn">Submit Request →</button>
+        <p class="form-note" id="careFormNote">Your request goes directly into the agency's CRM.</p>
       </form>
     </div>
   </div>
@@ -829,21 +835,79 @@
   }, { threshold: 0.15 });
   document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
 
-  // Demo form handler
-  function handleDemoSubmit(e) {
+  // ─── CONFIG ───
+  const API_BASE = 'https://gotocare-original.jjioji.workers.dev/api';
+
+  // ─── Request Care form handler (posts to Payload CMS) ───
+  async function handleCareSubmit(e) {
     e.preventDefault();
     const form = e.target;
-    const btn = form.querySelector('button[type="submit"]');
-    btn.textContent = '✓ Request Submitted!';
-    btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
-    btn.style.boxShadow = '0 8px 30px rgba(16,185,129,.25)';
-    setTimeout(() => {
-      form.reset();
-      btn.textContent = 'Submit Request →';
-      btn.style.background = '';
-      btn.style.boxShadow = '';
-    }, 3000);
+    const btn = document.getElementById('careSubmitBtn');
+    const note = document.getElementById('careFormNote');
+
+    btn.disabled = true;
+    btn.textContent = 'Submitting…';
+    btn.style.opacity = '0.7';
+
+    const payload = {
+      firstName: form.firstName.value.trim(),
+      lastName: form.lastName.value.trim(),
+      email: form.email.value.trim(),
+      phone: form.phone.value.trim(),
+      careType: form.careType.value,
+      message: form.message.value.trim(),
+      source: 'website',
+    };
+
+    try {
+      const res = await fetch(API_BASE + '/submit-lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        btn.textContent = '✓ Request Submitted!';
+        btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+        btn.style.boxShadow = '0 8px 30px rgba(16,185,129,.25)';
+        btn.style.opacity = '1';
+        note.textContent = '✓ Lead captured in CRM — this is how every client request flows in.';
+        note.style.color = '#059669';
+        note.style.fontWeight = '600';
+
+        setTimeout(() => {
+          form.reset();
+          btn.textContent = 'Submit Request →';
+          btn.style.background = '';
+          btn.style.boxShadow = '';
+          btn.disabled = false;
+          note.textContent = "Your request goes directly into the agency's CRM.";
+          note.style.color = '';
+          note.style.fontWeight = '';
+        }, 4000);
+      } else {
+        throw new Error(data.error || 'Submission failed');
+      }
+    } catch (err) {
+      btn.textContent = '✗ Something went wrong';
+      btn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+      btn.style.opacity = '1';
+      note.textContent = 'Please try again or contact us directly.';
+      note.style.color = '#dc2626';
+
+      setTimeout(() => {
+        btn.textContent = 'Submit Request →';
+        btn.style.background = '';
+        btn.disabled = false;
+        note.textContent = "Your request goes directly into the agency's CRM.";
+        note.style.color = '';
+      }, 3000);
+    }
   }
+
+  // Legacy alias in case old onsubmit still in DOM
+  function handleDemoSubmit(e) { handleCareSubmit(e); }
 
   // Smooth scroll for anchor links
   document.querySelectorAll('a[href^="#"]').forEach(a => {
