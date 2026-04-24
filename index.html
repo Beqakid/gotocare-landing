@@ -468,7 +468,7 @@
       <a href="#request-care">Request Care</a>
     </div>
     <div class="nav-cta">
-      <a href="#pricing" class="btn btn-primary" style="padding:10px 24px;font-size:.9rem;">Start Free Trial</a>
+      <a href="#pricing" class="btn btn-primary" style="padding:10px 24px;font-size:.9rem;">Start Free</a>
     </div>
     <button class="mobile-toggle" onclick="document.getElementById('mobileMenu').classList.add('active')">
       <span></span><span></span><span></span>
@@ -483,7 +483,7 @@
   <a href="#how-it-works" onclick="this.parentElement.classList.remove('active')">How It Works</a>
   <a href="#pricing" onclick="this.parentElement.classList.remove('active')">Pricing</a>
   <a href="#request-care" onclick="this.parentElement.classList.remove('active')">Request Care</a>
-  <a href="#pricing" class="btn btn-primary" onclick="this.parentElement.classList.remove('active')">Start Free Trial</a>
+  <a href="#pricing" class="btn btn-primary" onclick="this.parentElement.classList.remove('active')">Start Free</a>
 </div>
 
 <!-- ═══ 1. HERO ═══ -->
@@ -492,7 +492,7 @@
     <h1 class="fade-up">Launch and run your care agency <span>in days—not months</span></h1>
     <p class="hero-sub fade-up">GoToCare is the all-in-one platform to build your website, manage caregivers, schedule shifts, handle payroll, and grow your agency—without the complexity of traditional software.</p>
     <div class="btn-group fade-up">
-      <a href="#pricing" class="btn btn-primary">Start Free Trial →</a>
+      <a href="#pricing" class="btn btn-primary">Start Free — No Card Needed →</a>
       <a href="#request-care" class="btn btn-outline">Book a Demo</a>
     </div>
     <p class="hero-support fade-up">No contracts &nbsp;•&nbsp; Setup in minutes &nbsp;•&nbsp; Built for small to mid-sized agencies</p>
@@ -656,51 +656,103 @@
 <!-- ═══ 8. PRICING ═══ -->
 <section class="section pricing text-center" id="pricing">
   <div class="container">
-    <h2 class="fade-up">Simple, transparent pricing</h2>
-    <p class="pricing-sub fade-up">No hidden fees. No long-term contracts. Cancel anytime.</p>
-    <div class="pricing-grid">
-      <!-- Starter -->
+    <h2 class="fade-up">Pricing that makes switching a no-brainer</h2>
+    <p class="pricing-sub fade-up">Start free. Upgrade when you're ready. No contracts, no hidden fees.</p>
+
+    <!-- Switcher Bonus Banner -->
+    <div class="fade-up" style="max-width:700px;margin:0 auto 48px;padding:20px 28px;border-radius:14px;background:linear-gradient(135deg,#f5f0ff,#eff6ff);border:2px solid var(--purple-200);display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+      <span style="font-size:2rem;">🔄</span>
+      <div style="flex:1;text-align:left;">
+        <p style="font-weight:700;color:var(--gray-900);margin-bottom:2px;font-size:1rem;">Switching from another platform?</p>
+        <p style="font-size:0.9rem;color:var(--gray-600);margin:0;">Get <strong style="color:var(--purple-600);">50% off your first 6 months</strong> + free data migration.</p>
+      </div>
+      <a href="#request-care" class="btn btn-outline-dark" style="padding:8px 20px;font-size:0.85rem;">Claim Offer →</a>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;max-width:1140px;margin:0 auto 40px;">
+
+      <!-- Launch — FREE -->
+      <div class="pricing-card fade-up" style="border-color:#10b981;">
+        <div style="position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#10b981,#059669);color:#fff;padding:6px 18px;border-radius:20px;font-size:0.8rem;font-weight:600;">FREE FOREVER</div>
+        <div class="pricing-tier">Launch</div>
+        <p class="pricing-desc">Start your agency risk-free</p>
+        <div class="pricing-amount">Free</div>
+        <ul class="pricing-features">
+          <li><span class="pricing-check">✓</span> Up to 5 clients</li>
+          <li><span class="pricing-check">✓</span> Up to 3 caregivers</li>
+          <li><span class="pricing-check">✓</span> 1 location</li>
+          <li><span class="pricing-check">✓</span> Scheduling &amp; timesheets</li>
+          <li><span class="pricing-check">✓</span> Basic invoicing</li>
+          <li><span class="pricing-check">✓</span> Caregiver mobile app</li>
+        </ul>
+        <a href="#request-care" class="btn btn-outline-dark">Get Started Free</a>
+      </div>
+
+      <!-- Starter $29 -->
       <div class="pricing-card fade-up">
         <div class="pricing-tier">Starter</div>
-        <p class="pricing-desc">For new agencies</p>
-        <div class="pricing-amount">$99<span>/month</span></div>
+        <p class="pricing-desc">For small growing agencies</p>
+        <div class="pricing-amount">$29<span>/month</span></div>
         <ul class="pricing-features">
-          <li><span class="pricing-check">✓</span> Professional website</li>
-          <li><span class="pricing-check">✓</span> CRM for clients &amp; caregivers</li>
-          <li><span class="pricing-check">✓</span> Lead capture forms</li>
-          <li><span class="pricing-check">✓</span> Email support</li>
+          <li><span class="pricing-check">✓</span> Up to 25 clients</li>
+          <li><span class="pricing-check">✓</span> Up to 10 caregivers</li>
+          <li><span class="pricing-check">✓</span> 2 locations</li>
+          <li><span class="pricing-check">✓</span> Lead management</li>
+          <li><span class="pricing-check">✓</span> Matching algorithm</li>
+          <li><span class="pricing-check">✓</span> Document tracking</li>
         </ul>
-        <a href="#" class="btn btn-outline-dark">Start Free Trial</a>
+        <a href="https://buy.stripe.com/test_28EfZaaxN0P86eN9mx4AU03" target="_blank" class="btn btn-outline-dark">Start 14-Day Trial</a>
       </div>
-      <!-- Growth -->
+
+      <!-- Growth $79 — Most Popular -->
       <div class="pricing-card popular fade-up">
         <div class="pricing-popular-badge">Most Popular</div>
         <div class="pricing-tier">Growth</div>
-        <p class="pricing-desc">For scaling agencies</p>
-        <div class="pricing-amount">$299<span>/month</span></div>
+        <p class="pricing-desc">For established agencies</p>
+        <div class="pricing-amount">$79<span>/month</span></div>
         <ul class="pricing-features">
-          <li><span class="pricing-check">✓</span> Everything in Starter</li>
-          <li><span class="pricing-check">✓</span> Scheduling &amp; dispatch</li>
-          <li><span class="pricing-check">✓</span> Time tracking</li>
-          <li><span class="pricing-check">✓</span> Payroll summaries</li>
-          <li><span class="pricing-check">✓</span> Priority support</li>
+          <li><span class="pricing-check">✓</span> Up to 75 clients</li>
+          <li><span class="pricing-check">✓</span> Up to 50 caregivers</li>
+          <li><span class="pricing-check">✓</span> 5 locations</li>
+          <li><span class="pricing-check">✓</span> Advanced scheduling</li>
+          <li><span class="pricing-check">✓</span> Analytics &amp; reporting</li>
+          <li><span class="pricing-check">✓</span> Caregiver onboarding</li>
         </ul>
-        <a href="#" class="btn btn-primary">Start Free Trial</a>
+        <a href="https://buy.stripe.com/test_3cI28kaxNapIbz77ep4AU04" target="_blank" class="btn btn-primary">Start 14-Day Trial</a>
       </div>
-      <!-- Pro -->
+
+      <!-- Professional $149 -->
       <div class="pricing-card fade-up">
-        <div class="pricing-tier">Pro</div>
-        <p class="pricing-desc">For advanced operations</p>
-        <div class="pricing-amount">$599<span>/month</span></div>
+        <div class="pricing-tier">Professional</div>
+        <p class="pricing-desc">For multi-location agencies</p>
+        <div class="pricing-amount">$149<span>/month</span></div>
         <ul class="pricing-features">
-          <li><span class="pricing-check">✓</span> Everything in Growth</li>
-          <li><span class="pricing-check">✓</span> Full automation suite</li>
-          <li><span class="pricing-check">✓</span> Advanced reporting</li>
-          <li><span class="pricing-check">✓</span> Dedicated account manager</li>
+          <li><span class="pricing-check">✓</span> Up to 200 clients</li>
+          <li><span class="pricing-check">✓</span> Unlimited caregivers</li>
+          <li><span class="pricing-check">✓</span> Unlimited locations</li>
+          <li><span class="pricing-check">✓</span> Multi-location mgmt</li>
+          <li><span class="pricing-check">✓</span> API access</li>
           <li><span class="pricing-check">✓</span> Priority support</li>
         </ul>
-        <a href="#" class="btn btn-outline-dark">Start Free Trial</a>
+        <a href="https://buy.stripe.com/test_8x24gs9tJ55o32B42d4AU05" target="_blank" class="btn btn-outline-dark">Start 14-Day Trial</a>
       </div>
+
+      <!-- Enterprise — Custom -->
+      <div class="pricing-card fade-up">
+        <div class="pricing-tier">Enterprise</div>
+        <p class="pricing-desc">For large operators</p>
+        <div class="pricing-amount" style="font-size:2.2rem;">Custom</div>
+        <ul class="pricing-features">
+          <li><span class="pricing-check">✓</span> Unlimited everything</li>
+          <li><span class="pricing-check">✓</span> Dedicated account mgr</li>
+          <li><span class="pricing-check">✓</span> Custom integrations</li>
+          <li><span class="pricing-check">✓</span> SSO &amp; SAML</li>
+          <li><span class="pricing-check">✓</span> SLA guarantee</li>
+          <li><span class="pricing-check">✓</span> White-label options</li>
+        </ul>
+        <a href="#request-care" class="btn btn-outline-dark">Contact Sales</a>
+      </div>
+
     </div>
   </div>
 </section>
