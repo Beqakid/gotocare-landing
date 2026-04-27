@@ -161,31 +161,52 @@
     .hero h1 span { background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
     .hero-sub { color: rgba(255,255,255,.7); font-size: 1.15rem; max-width: 620px; margin: 0 auto 48px; line-height: 1.7; }
 
-    /* Hero Search Bar */
-    .hero-search {
-      max-width: 680px; margin: 0 auto 32px;
-      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15);
-      border-radius: 16px; padding: 12px; backdrop-filter: blur(12px);
-      display: flex; gap: 10px; flex-wrap: wrap;
+    /* Hero Care Tiles */
+    .hero-care-tiles {
+      max-width: 640px; margin: 0 auto 24px;
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
     }
-    .hero-search input, .hero-search select {
-      flex: 1; min-width: 160px; padding: 12px 16px; border-radius: 10px;
-      border: 1.5px solid rgba(255,255,255,.15); background: rgba(255,255,255,.08);
-      color: #fff; font-size: 0.95rem; font-family: inherit;
-      outline: none; transition: border-color .2s;
+    .hero-care-tile {
+      background: rgba(255,255,255,.08); border: 2px solid rgba(255,255,255,.15);
+      border-radius: 14px; padding: 16px 8px; cursor: pointer;
+      transition: all .2s ease; text-align: center; color: white;
     }
-    .hero-search input::placeholder { color: rgba(255,255,255,.45); }
-    .hero-search select { color: rgba(255,255,255,.75); cursor: pointer; }
-    .hero-search select option { background: #1a1a2e; color: #fff; }
-    .hero-search input:focus, .hero-search select:focus { border-color: rgba(124,58,237,.6); background: rgba(255,255,255,.12); }
-    .hero-search .btn { white-space: nowrap; border-radius: 10px; padding: 12px 28px; }
-    .hero-tags { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 16px; }
-    .hero-tag {
-      padding: 6px 16px; border-radius: 50px; font-size: 0.82rem; font-weight: 500;
-      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
-      color: rgba(255,255,255,.7); cursor: pointer; transition: all .2s;
+    .hero-care-tile:hover { background: rgba(124,58,237,.3); border-color: #7c3aed; transform: translateY(-2px); }
+    .hero-care-tile.selected { background: rgba(124,58,237,.5); border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,.3); }
+    .hero-care-tile .tile-icon { font-size: 1.6rem; margin-bottom: 6px; }
+    .hero-care-tile .tile-label { font-size: 0.72rem; font-weight: 600; line-height: 1.3; opacity: .9; }
+
+    /* Hero location row */
+    .hero-location-row {
+      max-width: 560px; margin: 0 auto 16px;
+      display: flex; gap: 10px; align-items: center;
     }
-    .hero-tag:hover { background: rgba(124,58,237,.25); border-color: rgba(124,58,237,.4); color: #fff; }
+    .hero-location-input {
+      flex: 1; padding: 13px 16px; border-radius: 12px;
+      border: 1.5px solid rgba(255,255,255,.2); background: rgba(255,255,255,.08);
+      color: #fff; font-size: 0.95rem; font-family: inherit; outline: none;
+      transition: border-color .2s; backdrop-filter: blur(8px);
+    }
+    .hero-location-input::placeholder { color: rgba(255,255,255,.45); }
+    .hero-location-input:focus { border-color: rgba(124,58,237,.7); background: rgba(255,255,255,.12); }
+    .hero-gps-btn {
+      padding: 13px 18px; border-radius: 12px; border: none;
+      background: rgba(255,255,255,.15); color: white; font-weight: 700;
+      font-size: 0.82rem; cursor: pointer; white-space: nowrap;
+      transition: all .2s; backdrop-filter: blur(8px);
+      border: 1.5px solid rgba(255,255,255,.2);
+    }
+    .hero-gps-btn:hover { background: rgba(124,58,237,.4); border-color: rgba(124,58,237,.5); }
+
+    /* Urgency row */
+    .hero-urgency { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
+    .hero-urgency-pill {
+      padding: 8px 18px; border-radius: 50px; font-size: 0.82rem; font-weight: 600;
+      background: rgba(255,255,255,.08); border: 1.5px solid rgba(255,255,255,.15);
+      color: rgba(255,255,255,.8); cursor: pointer; transition: all .2s;
+    }
+    .hero-urgency-pill:hover { background: rgba(124,58,237,.25); border-color: rgba(124,58,237,.4); color: #fff; }
+    .hero-urgency-pill.selected { background: #7c3aed; border-color: #7c3aed; color: white; }
     .hero-support { color: rgba(255,255,255,.4); font-size: 0.85rem; }
 
     /* Hero Dual CTA (Caregiver) */
@@ -627,30 +648,56 @@
     <h1 class="fade-up">Find trusted caregivers <span>near you — fast</span></h1>
     <p class="hero-sub fade-up">GoToCare connects families with verified, background-checked caregivers for home care, senior care, companionship, and more. Browse real profiles, book instantly, pay securely.</p>
 
-    <!-- Search Bar -->
-    <div class="hero-search fade-up">
-      <input type="text" id="heroLocation" placeholder="📍 Your city or zip code" />
-      <select id="heroCareType">
-        <option value="">Type of care…</option>
-        <option value="home_care">Home Care</option>
-        <option value="senior_care">Senior Care</option>
-        <option value="private_duty">Private Duty Nursing</option>
-        <option value="companionship">Companionship</option>
-        <option value="respite_care">Respite Care</option>
-        <option value="dementia_care">Dementia Care</option>
-      </select>
-      <a href="https://gotocare-client-portal.pages.dev" target="_blank" class="btn btn-primary">Search →</a>
+    <!-- Care Type Tiles -->
+    <div class="hero-care-tiles fade-up" id="heroCareGrid">
+      <div class="hero-care-tile" onclick="heroSelectCare(this,'Elder Care')">
+        <div class="tile-icon">🧓</div><div class="tile-label">Elder Care</div>
+      </div>
+      <div class="hero-care-tile" onclick="heroSelectCare(this,'Child Care')">
+        <div class="tile-icon">👶</div><div class="tile-label">Child Care</div>
+      </div>
+      <div class="hero-care-tile" onclick="heroSelectCare(this,'Disability')">
+        <div class="tile-icon">♿</div><div class="tile-label">Disability</div>
+      </div>
+      <div class="hero-care-tile" onclick="heroSelectCare(this,'Post-Surgery')">
+        <div class="tile-icon">🏥</div><div class="tile-label">Post-Surgery</div>
+      </div>
+      <div class="hero-care-tile" onclick="heroSelectCare(this,'Dementia')">
+        <div class="tile-icon">🧠</div><div class="tile-label">Dementia</div>
+      </div>
+      <div class="hero-care-tile" onclick="heroSelectCare(this,'Companionship')">
+        <div class="tile-icon">🤝</div><div class="tile-label">Companion</div>
+      </div>
+      <div class="hero-care-tile" onclick="heroSelectCare(this,'Overnight')">
+        <div class="tile-icon">🌙</div><div class="tile-label">Overnight</div>
+      </div>
+      <div class="hero-care-tile" onclick="heroSelectCare(this,'Any Care')">
+        <div class="tile-icon">✨</div><div class="tile-label">Any Care</div>
+      </div>
     </div>
 
-    <div class="hero-tags fade-up">
-      <span class="hero-tag" onclick="quickSearch('Senior Care')">👴 Senior Care</span>
-      <span class="hero-tag" onclick="quickSearch('Dementia Care')">🧠 Dementia Care</span>
-      <span class="hero-tag" onclick="quickSearch('Home Care')">🏠 Home Care</span>
-      <span class="hero-tag" onclick="quickSearch('Companionship')">🤝 Companionship</span>
-      <span class="hero-tag" onclick="quickSearch('Private Duty')">💉 Private Duty</span>
+    <!-- Location + GPS -->
+    <div class="hero-location-row fade-up">
+      <input type="text" id="heroLocation" class="hero-location-input" placeholder="City or ZIP code…" />
+      <button class="hero-gps-btn" onclick="heroUseGPS()" id="heroGpsBtn">📍 Use GPS</button>
     </div>
 
-    <p class="hero-support fade-up">No subscription needed &nbsp;•&nbsp; Book in minutes &nbsp;•&nbsp; Cancel anytime</p>
+    <!-- Urgency pills -->
+    <div class="hero-urgency fade-up" id="heroUrgency">
+      <div class="hero-urgency-pill selected" onclick="heroSelectUrgency(this,'now')">🔴 Right Now</div>
+      <div class="hero-urgency-pill" onclick="heroSelectUrgency(this,'today')">Today</div>
+      <div class="hero-urgency-pill" onclick="heroSelectUrgency(this,'tomorrow')">Tomorrow</div>
+      <div class="hero-urgency-pill" onclick="heroSelectUrgency(this,'week')">This Week</div>
+    </div>
+
+    <!-- Big Find Button -->
+    <div class="fade-up" style="max-width:400px;margin:0 auto 16px;">
+      <button onclick="heroFindCare()" class="btn btn-primary" style="width:100%;padding:16px 32px;font-size:1.05rem;border-radius:14px;">
+        Find Available Caregivers →
+      </button>
+    </div>
+
+    <p class="hero-support fade-up">No account needed &nbsp;•&nbsp; Book in under 5 mins &nbsp;•&nbsp; 100% verified caregivers</p>
 
     <!-- Caregiver dual CTA -->
     <div class="hero-caregiver-cta fade-up">
@@ -1138,11 +1185,53 @@
     document.getElementById('panel-' + tab).classList.add('active');
   }
 
-  // Quick search tags
-  function quickSearch(type) {
-    document.getElementById('heroCareType').value =
-      type.toLowerCase().replace(/ /g, '_');
-    document.getElementById('heroLocation').focus();
+  // Hero tile selection
+  let heroCareType = 'Any Care';
+  let heroUrgencyVal = 'now';
+
+  function heroSelectCare(el, type) {
+    document.querySelectorAll('.hero-care-tile').forEach(t => t.classList.remove('selected'));
+    el.classList.add('selected');
+    heroCareType = type;
+  }
+
+  function heroSelectUrgency(el, urgency) {
+    document.querySelectorAll('.hero-urgency-pill').forEach(p => p.classList.remove('selected'));
+    el.classList.add('selected');
+    heroUrgencyVal = urgency;
+  }
+
+  function heroUseGPS() {
+    const btn = document.getElementById('heroGpsBtn');
+    btn.textContent = '⏳ Locating…';
+    btn.disabled = true;
+    if (!navigator.geolocation) {
+      document.getElementById('heroLocation').value = 'Atlanta, GA';
+      btn.textContent = '📍 Use GPS'; btn.disabled = false; return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json`);
+          const d = await r.json();
+          const city = d.address?.city || d.address?.town || d.address?.village || '';
+          const st = d.address?.state || '';
+          document.getElementById('heroLocation').value = city ? `${city}, ${st}` : 'Your location';
+        } catch(e) { document.getElementById('heroLocation').value = 'Atlanta, GA'; }
+        btn.textContent = '✅ Found!';
+        setTimeout(() => { btn.textContent = '📍 Use GPS'; btn.disabled = false; }, 2000);
+      },
+      () => { document.getElementById('heroLocation').value = 'Atlanta, GA'; btn.textContent = '📍 Use GPS'; btn.disabled = false; }
+    );
+  }
+
+  function heroFindCare() {
+    const loc = document.getElementById('heroLocation').value.trim();
+    const params = new URLSearchParams();
+    if (heroCareType && heroCareType !== 'Any Care') params.set('care', heroCareType);
+    if (loc) params.set('location', loc);
+    params.set('urgency', heroUrgencyVal);
+    window.open(`https://gotocare-client-portal.pages.dev?${params}`, '_blank');
   }
 
   // API
