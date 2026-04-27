@@ -104,6 +104,32 @@
     .hamburger { display: none; background: none; border: none; cursor: pointer; padding: 8px; }
     .hamburger span { display: block; width: 22px; height: 2px; background: #fff; margin: 5px 0; border-radius: 2px; transition: .3s; }
 
+
+    /* ── MOBILE NAV ── */
+    .mobile-nav-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(10,8,30,0.85);
+      backdrop-filter: blur(8px); z-index: 999; flex-direction: column;
+      align-items: center; justify-content: center; gap: 28px;
+    }
+    .mobile-nav-overlay.open { display: flex; }
+    .mobile-nav-overlay a {
+      color: #fff; font-size: 1.4rem; font-weight: 700; text-decoration: none;
+      opacity: 0; transform: translateY(20px); transition: opacity .3s, transform .3s;
+    }
+    .mobile-nav-overlay.open a { opacity: 1; transform: translateY(0); }
+    .mobile-nav-overlay a:nth-child(1) { transition-delay: .05s; }
+    .mobile-nav-overlay a:nth-child(2) { transition-delay: .1s; }
+    .mobile-nav-overlay a:nth-child(3) { transition-delay: .15s; }
+    .mobile-nav-overlay a:nth-child(4) { transition-delay: .2s; }
+    .mobile-nav-overlay a:nth-child(5) { transition-delay: .25s; }
+    .mobile-nav-close {
+      position: absolute; top: 24px; right: 24px; background: none; border: none;
+      color: #fff; font-size: 2rem; cursor: pointer; line-height: 1;
+    }
+    .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+    .hamburger.active span:nth-child(2) { opacity: 0; }
+    .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
     /* ── HERO ── */
     .hero {
       background: var(--hero-bg);
@@ -427,7 +453,7 @@
     .compare-section { background: var(--gray-50); padding: 80px 0; }
     .compare-section h2 { margin-bottom: 8px; }
     .compare-section > .container > p { max-width: 500px; margin: 0 auto 48px; }
-    .compare-table { max-width: 860px; margin: 0 auto; border-radius: var(--rl); overflow: hidden; box-shadow: var(--shadow-lg); }
+    .compare-table { max-width: 860px; margin: 0 auto; border-radius: var(--rl); overflow-x: auto; box-shadow: var(--shadow-lg); -webkit-overflow-scrolling: touch; }
     .compare-table table { width: 100%; border-collapse: collapse; }
     .compare-table th { padding: 18px 24px; font-size: 0.9rem; font-weight: 800; }
     .compare-table th:first-child { background: var(--gray-100); color: var(--gray-500); text-align: left; }
@@ -754,6 +780,9 @@
       .how-steps { grid-template-columns: 1fr 1fr; }
       .footer-top { flex-direction: column; }
       .footer-bottom { flex-direction: column; text-align: center; }
+      .compare-table { border-radius: 12px; }
+      .compare-table th, .compare-table td { padding: 12px 14px; font-size: 0.8rem; }
+      .unlike-inner { grid-template-columns: 1fr; }
     }
     @media (max-width: 480px) {
       .how-steps { grid-template-columns: 1fr; }
@@ -1615,6 +1644,35 @@
       if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
     });
   });
+
+// ── HAMBURGER MENU ──
+function closeMobileNav() {
+  document.getElementById('mobile-nav').classList.remove('open');
+  document.querySelector('.hamburger').classList.remove('active');
+  document.body.style.overflow = '';
+}
+document.querySelector('.hamburger').addEventListener('click', function() {
+  const nav = document.getElementById('mobile-nav');
+  const isOpen = nav.classList.toggle('open');
+  this.classList.toggle('active');
+  document.body.style.overflow = isOpen ? 'hidden' : '';
+});
+document.getElementById('mobile-nav-close').addEventListener('click', closeMobileNav);
+document.getElementById('mobile-nav').addEventListener('click', function(e) {
+  if (e.target === this) closeMobileNav();
+});
+
 </script>
+
+<!-- Mobile Nav Overlay -->
+<div class="mobile-nav-overlay" id="mobile-nav">
+  <button class="mobile-nav-close" id="mobile-nav-close">✕</button>
+  <a href="#how-it-works" onclick="closeMobileNav()">How It Works</a>
+  <a href="#caregivers" onclick="closeMobileNav()">Browse Caregivers</a>
+  <a href="#for-caregivers" onclick="closeMobileNav()">Earn with GoToCare</a>
+  <a href="https://gotocare-caregiver-portal.pages.dev" target="_blank" onclick="closeMobileNav()">Caregiver Login</a>
+  <a href="https://gotocare-client-portal.pages.dev?browse=true" target="_blank" onclick="closeMobileNav()" style="background:linear-gradient(135deg,#7c3aed,#3b82f6);padding:12px 32px;border-radius:50px;font-size:1.1rem;">Browse Free →</a>
+</div>
+
 </body>
 </html>
