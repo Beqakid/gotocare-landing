@@ -648,31 +648,41 @@
     <h1 class="fade-up">Find trusted caregivers <span>near you — fast</span></h1>
     <p class="hero-sub fade-up">GoToCare connects families with verified, background-checked caregivers for home care, senior care, companionship, and more. Browse real profiles, book instantly, pay securely.</p>
 
-    <!-- Care Type Tiles -->
+    <!-- Care Needs Tiles (multi-select) -->
+    <p class="fade-up" style="font-size:0.8rem;opacity:0.7;margin-bottom:8px;margin-top:4px;">Tap all needs that apply</p>
     <div class="hero-care-tiles fade-up" id="heroCareGrid">
       <div class="hero-care-tile" onclick="heroSelectCare(this,'Elder Care')">
         <div class="tile-icon">🧓</div><div class="tile-label">Elder Care</div>
       </div>
-      <div class="hero-care-tile" onclick="heroSelectCare(this,'Child Care')">
-        <div class="tile-icon">👶</div><div class="tile-label">Child Care</div>
+      <div class="hero-care-tile" onclick="heroSelectCare(this,'Dementia')">
+        <div class="tile-icon">🧠</div><div class="tile-label">Dementia</div>
       </div>
-      <div class="hero-care-tile" onclick="heroSelectCare(this,'Disability')">
-        <div class="tile-icon">♿</div><div class="tile-label">Disability</div>
+      <div class="hero-care-tile" onclick="heroSelectCare(this,'Wheelchair')">
+        <div class="tile-icon">♿</div><div class="tile-label">Wheelchair</div>
       </div>
       <div class="hero-care-tile" onclick="heroSelectCare(this,'Post-Surgery')">
         <div class="tile-icon">🏥</div><div class="tile-label">Post-Surgery</div>
       </div>
-      <div class="hero-care-tile" onclick="heroSelectCare(this,'Dementia')">
-        <div class="tile-icon">🧠</div><div class="tile-label">Dementia</div>
+      <div class="hero-care-tile" onclick="heroSelectCare(this,'Medication')">
+        <div class="tile-icon">💊</div><div class="tile-label">Medication</div>
+      </div>
+      <div class="hero-care-tile" onclick="heroSelectCare(this,'Bathing')">
+        <div class="tile-icon">🛁</div><div class="tile-label">Bathing</div>
+      </div>
+      <div class="hero-care-tile" onclick="heroSelectCare(this,'Meal Prep')">
+        <div class="tile-icon">🍽️</div><div class="tile-label">Meal Prep</div>
       </div>
       <div class="hero-care-tile" onclick="heroSelectCare(this,'Companionship')">
         <div class="tile-icon">🤝</div><div class="tile-label">Companion</div>
       </div>
+      <div class="hero-care-tile" onclick="heroSelectCare(this,'Transportation')">
+        <div class="tile-icon">🚗</div><div class="tile-label">Transport</div>
+      </div>
+      <div class="hero-care-tile" onclick="heroSelectCare(this,'Child Care')">
+        <div class="tile-icon">👶</div><div class="tile-label">Child Care</div>
+      </div>
       <div class="hero-care-tile" onclick="heroSelectCare(this,'Overnight')">
         <div class="tile-icon">🌙</div><div class="tile-label">Overnight</div>
-      </div>
-      <div class="hero-care-tile" onclick="heroSelectCare(this,'Any Care')">
-        <div class="tile-icon">✨</div><div class="tile-label">Any Care</div>
       </div>
     </div>
 
@@ -692,7 +702,7 @@
 
     <!-- Big Find Button -->
     <div class="fade-up" style="max-width:400px;margin:0 auto 16px;">
-      <button onclick="heroFindCare()" class="btn btn-primary" style="width:100%;padding:16px 32px;font-size:1.05rem;border-radius:14px;">
+      <button onclick="heroFindCare()" id="heroFindBtn" class="btn btn-primary" style="width:100%;padding:16px 32px;font-size:1.05rem;border-radius:14px;">
         Find Available Caregivers →
       </button>
     </div>
@@ -1185,14 +1195,22 @@
     document.getElementById('panel-' + tab).classList.add('active');
   }
 
-  // Hero tile selection
-  let heroCareType = 'Any Care';
+  // Hero tile selection (multi-select)
+  let heroCareTypes = [];
   let heroUrgencyVal = 'now';
 
   function heroSelectCare(el, type) {
-    document.querySelectorAll('.hero-care-tile').forEach(t => t.classList.remove('selected'));
-    el.classList.add('selected');
-    heroCareType = type;
+    el.classList.toggle('selected');
+    const idx = heroCareTypes.indexOf(type);
+    if (idx > -1) heroCareTypes.splice(idx, 1);
+    else heroCareTypes.push(type);
+    const btn = document.getElementById('heroFindBtn');
+    if (btn) {
+      const n = heroCareTypes.length;
+      btn.textContent = n === 0
+        ? 'Find Available Caregivers →'
+        : `Find Caregivers for ${n} Need${n > 1 ? 's' : ''} →`;
+    }
   }
 
   function heroSelectUrgency(el, urgency) {
@@ -1228,7 +1246,7 @@
   function heroFindCare() {
     const loc = document.getElementById('heroLocation').value.trim();
     const params = new URLSearchParams();
-    if (heroCareType && heroCareType !== 'Any Care') params.set('care', heroCareType);
+    if (heroCareTypes.length) params.set('care', heroCareTypes.join(','));
     if (loc) params.set('location', loc);
     params.set('urgency', heroUrgencyVal);
     window.open(`https://gotocare-client-portal.pages.dev?${params}`, '_blank');
