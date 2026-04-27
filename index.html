@@ -3,1025 +3,1163 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GoToCare — Find Trusted Caregivers Near You</title>
-  <meta name="description" content="GoToCare connects families with verified, background-checked caregivers for home care, senior care, and more. Browse profiles, book instantly, and pay securely." />
+  <title>GoToCare — Browse Caregivers Free. No Subscription.</title>
+  <meta name="description" content="Browse verified caregivers near you — completely free, no credit card, no subscription. Only pay when you're ready to connect. GoToCare is the care marketplace that puts families first." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
   <style>
-    /* ───── RESET & BASE ───── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; font-size: 16px; }
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      color: #1a1a2e;
-      background: #fff;
-      line-height: 1.6;
-      -webkit-font-smoothing: antialiased;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: #1a1a2e; background: #fff;
+      line-height: 1.6; -webkit-font-smoothing: antialiased;
     }
-    img { max-width: 100%; display: block; }
     a { text-decoration: none; color: inherit; }
     ul { list-style: none; }
+    img { max-width: 100%; display: block; }
 
-    /* ───── UTILITIES ───── */
-    .container { max-width: 1140px; margin: 0 auto; padding: 0 24px; }
-    .section { padding: 100px 0; }
-    .text-center { text-align: center; }
-    .mx-auto { margin-left: auto; margin-right: auto; }
-
-    /* ───── COLORS ───── */
     :root {
-      --purple-50: #f5f0ff;
-      --purple-100: #ede5ff;
-      --purple-200: #d4c4ff;
-      --purple-400: #9b6dff;
-      --purple-500: #7c3aed;
-      --purple-600: #6d28d9;
-      --purple-700: #5b21b6;
-      --purple-800: #4c1d95;
-      --blue-500: #3b82f6;
-      --blue-600: #2563eb;
+      --purple: #7c3aed;
+      --purple-light: #9b6dff;
+      --purple-dark: #5b21b6;
+      --blue: #3b82f6;
+      --blue-dark: #2563eb;
+      --green: #10b981;
+      --amber: #f59e0b;
+      --red: #ef4444;
       --gray-50: #f9fafb;
       --gray-100: #f3f4f6;
       --gray-200: #e5e7eb;
-      --gray-300: #d1d5db;
       --gray-400: #9ca3af;
       --gray-500: #6b7280;
       --gray-600: #4b5563;
       --gray-700: #374151;
       --gray-800: #1f2937;
       --gray-900: #111827;
-      --gradient: linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%);
-      --gradient-soft: linear-gradient(135deg, #f5f0ff 0%, #eff6ff 100%);
-      --gradient-hero: linear-gradient(160deg, #1a1a2e 0%, #2d1b69 40%, #1e3a5f 100%);
+      --navy: #1a1a2e;
+      --hero-bg: linear-gradient(160deg, #1a1a2e 0%, #2d1b69 40%, #1e3a5f 100%);
+      --grad: linear-gradient(135deg, #7c3aed 0%, #3b82f6 100%);
+      --grad-soft: linear-gradient(135deg, #f5f0ff 0%, #eff6ff 100%);
       --shadow-sm: 0 1px 3px rgba(0,0,0,.08);
       --shadow-md: 0 4px 20px rgba(0,0,0,.08);
       --shadow-lg: 0 12px 40px rgba(0,0,0,.12);
-      --shadow-purple: 0 8px 30px rgba(124,58,237,.18);
-      --radius: 12px;
-      --radius-lg: 20px;
+      --shadow-purple: 0 8px 30px rgba(124,58,237,.2);
+      --r: 12px; --rl: 20px;
     }
 
-    /* ───── TYPOGRAPHY ───── */
-    h1, h2, h3, h4, h5, h6 { line-height: 1.2; font-weight: 700; }
-    h1 { font-size: clamp(2.2rem, 5vw, 3.5rem); font-weight: 800; letter-spacing: -0.03em; }
-    h2 { font-size: clamp(1.8rem, 3.5vw, 2.6rem); letter-spacing: -0.02em; }
-    h3 { font-size: 1.25rem; }
+    .container { max-width: 1160px; margin: 0 auto; padding: 0 24px; }
+    .section { padding: 96px 0; }
+    .text-center { text-align: center; }
+
+    /* ── TYPOGRAPHY ── */
+    h1 { font-size: clamp(2.4rem, 5.5vw, 3.8rem); font-weight: 900; line-height: 1.1; letter-spacing: -0.035em; }
+    h2 { font-size: clamp(1.9rem, 3.5vw, 2.8rem); font-weight: 800; line-height: 1.2; letter-spacing: -0.025em; }
+    h3 { font-size: 1.2rem; font-weight: 700; }
     p { color: var(--gray-600); }
 
-    /* ───── BUTTONS ───── */
+    /* ── BUTTONS ── */
     .btn {
       display: inline-flex; align-items: center; justify-content: center;
-      padding: 14px 32px; border-radius: 10px; font-weight: 600;
+      padding: 15px 32px; border-radius: 12px; font-weight: 700;
       font-size: 1rem; border: none; cursor: pointer;
-      transition: all 0.25s ease; gap: 8px;
+      transition: all 0.22s ease; gap: 8px; white-space: nowrap;
     }
-    .btn-primary {
-      background: var(--gradient); color: #fff;
-      box-shadow: var(--shadow-purple);
-    }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 35px rgba(124,58,237,.28); }
-    .btn-secondary {
-      background: rgba(255,255,255,.12); color: #fff;
-      border: 2px solid rgba(255,255,255,.3); backdrop-filter: blur(8px);
-    }
-    .btn-secondary:hover { background: rgba(255,255,255,.2); border-color: rgba(255,255,255,.6); }
-    .btn-outline {
-      background: transparent; color: #fff;
-      border: 2px solid rgba(255,255,255,.35);
-    }
-    .btn-outline:hover { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.6); }
-    .btn-outline-dark {
-      background: transparent; color: var(--purple-600);
-      border: 2px solid var(--purple-200);
-    }
-    .btn-outline-dark:hover { background: var(--purple-50); border-color: var(--purple-400); }
-    .btn-white {
-      background: #fff; color: var(--purple-600);
-      box-shadow: var(--shadow-md);
-    }
+    .btn-primary { background: var(--grad); color: #fff; box-shadow: var(--shadow-purple); }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 14px 35px rgba(124,58,237,.32); }
+    .btn-white { background: #fff; color: var(--purple); box-shadow: var(--shadow-md); }
     .btn-white:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
-    .btn-group { display: flex; gap: 16px; flex-wrap: wrap; }
+    .btn-ghost { background: rgba(255,255,255,.1); color: #fff; border: 2px solid rgba(255,255,255,.25); backdrop-filter: blur(8px); }
+    .btn-ghost:hover { background: rgba(255,255,255,.18); border-color: rgba(255,255,255,.5); }
+    .btn-outline-purple { background: transparent; color: var(--purple); border: 2px solid var(--purple); }
+    .btn-outline-purple:hover { background: var(--purple); color: #fff; }
+    .btn-green { background: linear-gradient(135deg, #10b981, #059669); color: #fff; box-shadow: 0 8px 24px rgba(16,185,129,.25); }
+    .btn-green:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(16,185,129,.35); }
+    .btn-lg { padding: 18px 40px; font-size: 1.1rem; border-radius: 14px; }
+    .btn-sm { padding: 10px 20px; font-size: 0.875rem; }
 
-    /* ───── NAVBAR ───── */
+    /* ── NAVBAR ── */
     .navbar {
       position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
       padding: 16px 0;
-      background: rgba(26,26,46,.6);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      background: rgba(26,26,46,.5);
+      backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
       border-bottom: 1px solid rgba(255,255,255,.06);
-      transition: all .3s ease;
+      transition: all .3s;
     }
-    .navbar.scrolled { background: rgba(26,26,46,.92); padding: 12px 0; }
+    .navbar.scrolled { background: rgba(26,26,46,.95); padding: 12px 0; }
     .navbar .container { display: flex; align-items: center; justify-content: space-between; }
-    .logo { font-size: 1.5rem; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 10px; }
-    .logo-icon {
+    .logo { display: flex; align-items: center; gap: 10px; font-size: 1.4rem; font-weight: 800; color: #fff; }
+    .logo-mark {
       width: 36px; height: 36px; border-radius: 10px;
-      background: var(--gradient); display: flex; align-items: center; justify-content: center;
-      font-size: 1.1rem; color: #fff;
+      background: var(--grad); display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; box-shadow: var(--shadow-purple);
     }
-    .nav-links { display: flex; gap: 32px; align-items: center; }
-    .nav-links a { color: rgba(255,255,255,.75); font-weight: 500; font-size: 0.95rem; transition: color .2s; }
+    .nav-links { display: flex; gap: 28px; align-items: center; }
+    .nav-links a { color: rgba(255,255,255,.7); font-weight: 500; font-size: 0.9rem; transition: color .2s; }
     .nav-links a:hover { color: #fff; }
-    .nav-cta { display: flex; gap: 10px; align-items: center; }
-    .nav-cta .btn { padding: 10px 22px; font-size: 0.88rem; }
-    .mobile-toggle { display: none; background: none; border: none; cursor: pointer; padding: 8px; }
-    .mobile-toggle span { display: block; width: 24px; height: 2px; background: #fff; margin: 6px 0; border-radius: 2px; transition: .3s; }
+    .nav-actions { display: flex; gap: 10px; }
+    .nav-actions .btn { padding: 9px 20px; font-size: 0.85rem; }
+    .hamburger { display: none; background: none; border: none; cursor: pointer; padding: 8px; }
+    .hamburger span { display: block; width: 22px; height: 2px; background: #fff; margin: 5px 0; border-radius: 2px; transition: .3s; }
 
-    /* ───── 1. HERO ───── */
+    /* ── HERO ── */
     .hero {
-      background: var(--gradient-hero);
-      padding: 160px 0 100px;
+      background: var(--hero-bg);
+      min-height: 100vh; padding: 0;
+      display: flex; align-items: center;
       position: relative; overflow: hidden;
     }
-    .hero::before {
-      content: ''; position: absolute; top: -50%; right: -20%;
-      width: 800px; height: 800px; border-radius: 50%;
-      background: radial-gradient(circle, rgba(124,58,237,.15) 0%, transparent 70%);
+    .hero-orb1 {
+      position: absolute; top: -200px; right: -100px;
+      width: 700px; height: 700px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(124,58,237,.18) 0%, transparent 65%);
       pointer-events: none;
     }
-    .hero::after {
-      content: ''; position: absolute; bottom: -30%; left: -10%;
+    .hero-orb2 {
+      position: absolute; bottom: -200px; left: -100px;
       width: 600px; height: 600px; border-radius: 50%;
-      background: radial-gradient(circle, rgba(59,130,246,.12) 0%, transparent 70%);
+      background: radial-gradient(circle, rgba(59,130,246,.14) 0%, transparent 65%);
       pointer-events: none;
     }
-    .hero .container { position: relative; z-index: 1; }
-    .hero-badge {
+    .hero-inner {
+      width: 100%; padding: 160px 0 80px;
+      position: relative; z-index: 1;
+    }
+    .hero-split {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 64px;
+      align-items: center;
+    }
+
+    /* Hero left */
+    .hero-eyebrow {
       display: inline-flex; align-items: center; gap: 8px;
-      background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.15);
-      border-radius: 50px; padding: 8px 18px;
-      color: rgba(255,255,255,.85); font-size: 0.85rem; font-weight: 500;
-      margin-bottom: 28px; backdrop-filter: blur(8px);
+      background: rgba(16,185,129,.15); border: 1px solid rgba(16,185,129,.3);
+      border-radius: 50px; padding: 7px 16px;
+      color: #34d399; font-size: 0.82rem; font-weight: 600;
+      margin-bottom: 24px; letter-spacing: 0.02em;
     }
-    .hero-badge span { width: 8px; height: 8px; background: #10b981; border-radius: 50%; animation: pulse 2s infinite; }
-    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.6;transform:scale(1.3)} }
-    .hero h1 { color: #fff; max-width: 780px; margin: 0 auto 24px; }
-    .hero h1 span { background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
-    .hero-sub { color: rgba(255,255,255,.7); font-size: 1.15rem; max-width: 620px; margin: 0 auto 48px; line-height: 1.7; }
+    .hero-eyebrow .dot { width: 7px; height: 7px; background: #10b981; border-radius: 50%; animation: blink 2s infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+    .hero h1 { color: #fff; margin-bottom: 20px; }
+    .hero h1 .highlight {
+      background: linear-gradient(135deg, #a78bfa, #60a5fa);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .hero h1 .underline-word { position: relative; }
+    .hero h1 .underline-word::after {
+      content: ''; position: absolute; bottom: -4px; left: 0; right: 0;
+      height: 3px; border-radius: 2px;
+      background: linear-gradient(90deg, #7c3aed, #3b82f6);
+    }
+    .hero-sub { color: rgba(255,255,255,.65); font-size: 1.1rem; line-height: 1.75; margin-bottom: 36px; max-width: 480px; }
+    .hero-sub strong { color: rgba(255,255,255,.9); }
 
-    /* Hero Care Tiles */
-    .hero-care-tiles {
-      max-width: 640px; margin: 0 auto 24px;
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+    /* Free promise badge */
+    .hero-promise {
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 36px;
     }
-    .hero-care-tile {
-      background: rgba(255,255,255,.08); border: 2px solid rgba(255,255,255,.15);
-      border-radius: 14px; padding: 16px 8px; cursor: pointer;
-      transition: all .2s ease; text-align: center; color: white;
+    .hero-promise-item {
+      display: flex; align-items: center; gap: 6px;
+      color: rgba(255,255,255,.8); font-size: 0.82rem; font-weight: 600;
     }
-    .hero-care-tile:hover { background: rgba(124,58,237,.3); border-color: #7c3aed; transform: translateY(-2px); }
-    .hero-care-tile.selected { background: rgba(124,58,237,.5); border-color: #7c3aed; box-shadow: 0 0 0 3px rgba(124,58,237,.3); }
-    .hero-care-tile .tile-icon { font-size: 1.6rem; margin-bottom: 6px; }
-    .hero-care-tile .tile-label { font-size: 0.72rem; font-weight: 600; line-height: 1.3; opacity: .9; }
+    .hero-promise-item .icon { font-size: 0.95rem; }
 
-    /* Hero location row */
-    .hero-location-row {
-      max-width: 560px; margin: 0 auto 16px;
-      display: flex; gap: 10px; align-items: center;
+    /* Search widget */
+    .hero-search-box {
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 18px; padding: 20px;
+      backdrop-filter: blur(12px);
+      margin-bottom: 20px;
     }
-    .hero-location-input {
-      flex: 1; padding: 13px 16px; border-radius: 12px;
-      border: 1.5px solid rgba(255,255,255,.2); background: rgba(255,255,255,.08);
-      color: #fff; font-size: 0.95rem; font-family: inherit; outline: none;
-      transition: border-color .2s; backdrop-filter: blur(8px);
+    .hero-search-label { color: rgba(255,255,255,.5); font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
+    .hero-care-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px; }
+    .care-chip {
+      background: rgba(255,255,255,.07); border: 1.5px solid rgba(255,255,255,.12);
+      border-radius: 10px; padding: 10px 6px; cursor: pointer;
+      transition: all .2s; text-align: center; color: #fff; user-select: none;
     }
-    .hero-location-input::placeholder { color: rgba(255,255,255,.45); }
-    .hero-location-input:focus { border-color: rgba(124,58,237,.7); background: rgba(255,255,255,.12); }
-    .hero-gps-btn {
-      padding: 13px 18px; border-radius: 12px; border: none;
-      background: rgba(255,255,255,.15); color: white; font-weight: 700;
-      font-size: 0.82rem; cursor: pointer; white-space: nowrap;
-      transition: all .2s; backdrop-filter: blur(8px);
-      border: 1.5px solid rgba(255,255,255,.2);
+    .care-chip:hover { background: rgba(124,58,237,.25); border-color: rgba(124,58,237,.5); }
+    .care-chip.on { background: rgba(124,58,237,.45); border-color: #7c3aed; box-shadow: 0 0 0 2px rgba(124,58,237,.25); }
+    .care-chip .ci { font-size: 1.4rem; margin-bottom: 4px; }
+    .care-chip .cl { font-size: 0.68rem; font-weight: 600; line-height: 1.2; opacity: .9; }
+    .hero-loc-row { display: flex; gap: 8px; margin-bottom: 14px; }
+    .hero-loc-input {
+      flex: 1; padding: 12px 14px; border-radius: 10px;
+      border: 1.5px solid rgba(255,255,255,.15); background: rgba(255,255,255,.07);
+      color: #fff; font-size: 0.9rem; font-family: inherit; outline: none;
+      transition: border-color .2s;
     }
-    .hero-gps-btn:hover { background: rgba(124,58,237,.4); border-color: rgba(124,58,237,.5); }
+    .hero-loc-input::placeholder { color: rgba(255,255,255,.35); }
+    .hero-loc-input:focus { border-color: rgba(124,58,237,.6); background: rgba(255,255,255,.1); }
+    .gps-btn {
+      padding: 12px 14px; border-radius: 10px; border: 1.5px solid rgba(255,255,255,.15);
+      background: rgba(255,255,255,.07); color: #fff; font-size: 0.8rem; font-weight: 700;
+      cursor: pointer; white-space: nowrap; transition: all .2s;
+    }
+    .gps-btn:hover { background: rgba(124,58,237,.3); border-color: rgba(124,58,237,.5); }
+    .hero-find-btn {
+      width: 100%; padding: 16px; border-radius: 12px; border: none;
+      background: var(--grad); color: #fff; font-size: 1rem; font-weight: 700;
+      cursor: pointer; transition: all .22s; box-shadow: var(--shadow-purple);
+      font-family: inherit;
+    }
+    .hero-find-btn:hover { transform: translateY(-2px); box-shadow: 0 14px 35px rgba(124,58,237,.35); }
 
-    /* Urgency row */
-    .hero-urgency { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 20px; }
-    .hero-urgency-pill {
-      padding: 8px 18px; border-radius: 50px; font-size: 0.82rem; font-weight: 600;
-      background: rgba(255,255,255,.08); border: 1.5px solid rgba(255,255,255,.15);
-      color: rgba(255,255,255,.8); cursor: pointer; transition: all .2s;
-    }
-    .hero-urgency-pill:hover { background: rgba(124,58,237,.25); border-color: rgba(124,58,237,.4); color: #fff; }
-    .hero-urgency-pill.selected { background: #7c3aed; border-color: #7c3aed; color: white; }
-    .hero-support { color: rgba(255,255,255,.4); font-size: 0.85rem; }
+    .hero-no-card { color: rgba(255,255,255,.4); font-size: 0.8rem; text-align: center; }
 
-    /* Hero Dual CTA (Caregiver) */
-    .hero-caregiver-cta {
-      margin-top: 40px; padding-top: 40px;
-      border-top: 1px solid rgba(255,255,255,.08);
-      display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap;
+    /* Hero right — floating caregiver cards */
+    .hero-cards { position: relative; height: 480px; }
+    .floating-card {
+      position: absolute; background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 18px; padding: 20px;
+      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      width: 240px; cursor: pointer; transition: all .3s;
     }
-    .hero-caregiver-cta p { color: rgba(255,255,255,.55); margin: 0; font-size: 0.95rem; }
+    .floating-card:hover { transform: translateY(-4px) scale(1.02); background: rgba(255,255,255,.1); border-color: rgba(124,58,237,.4); }
+    .fc-1 { top: 0; left: 20px; animation: float1 6s ease-in-out infinite; }
+    .fc-2 { top: 120px; right: 0; animation: float2 7s ease-in-out infinite; }
+    .fc-3 { bottom: 40px; left: 40px; animation: float3 5.5s ease-in-out infinite; }
+    @keyframes float1 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
+    @keyframes float2 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} }
+    @keyframes float3 { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+    .fc-head { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+    .fc-avatar {
+      width: 46px; height: 46px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; font-weight: 700; color: #fff; flex-shrink: 0;
+    }
+    .fc-name { color: #fff; font-size: 0.9rem; font-weight: 700; margin-bottom: 1px; }
+    .fc-loc { color: rgba(255,255,255,.5); font-size: 0.72rem; }
+    .fc-rating { color: #f59e0b; font-size: 0.75rem; margin-bottom: 10px; }
+    .fc-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 12px; }
+    .fc-tag {
+      padding: 3px 10px; border-radius: 50px; font-size: 0.68rem; font-weight: 600;
+      background: rgba(124,58,237,.25); color: rgba(255,255,255,.85);
+      border: 1px solid rgba(124,58,237,.3);
+    }
+    .fc-footer { display: flex; align-items: center; justify-content: space-between; }
+    .fc-rate { color: #fff; font-weight: 800; font-size: 0.95rem; }
+    .fc-rate span { color: rgba(255,255,255,.4); font-weight: 400; font-size: 0.75rem; }
+    .fc-avail { display: flex; align-items: center; gap: 4px; color: #34d399; font-size: 0.72rem; font-weight: 600; }
+    .fc-avail::before { content:''; width:6px; height:6px; background:#10b981; border-radius:50%; }
+    .fc-unlock {
+      width: 100%; margin-top: 10px; padding: 8px; border-radius: 8px; border: none;
+      background: var(--grad); color: #fff; font-size: 0.78rem; font-weight: 700;
+      cursor: pointer; font-family: inherit;
+    }
 
-    /* ───── 2. TRUST BAR ───── */
+    /* Live feed badge */
+    .live-feed {
+      position: absolute; bottom: 0; right: 0; left: 0;
+      background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1);
+      border-radius: 12px; padding: 10px 14px;
+      backdrop-filter: blur(12px); z-index: 10;
+    }
+    .lf-title { color: rgba(255,255,255,.4); font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+    .lf-items { display: flex; flex-direction: column; gap: 4px; }
+    .lf-item { display: flex; align-items: center; gap: 8px; color: rgba(255,255,255,.75); font-size: 0.75rem; }
+    .lf-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .lf-dot.green { background: #10b981; }
+    .lf-dot.purple { background: #7c3aed; }
+    .lf-dot.blue { background: #3b82f6; }
+    .lf-time { color: rgba(255,255,255,.3); font-size: 0.7rem; margin-left: auto; }
+
+    /* ── MARQUEE TRUST BAR ── */
     .trust-bar {
-      background: var(--gray-50);
-      border-top: 1px solid var(--gray-200);
-      border-bottom: 1px solid var(--gray-200);
-      padding: 36px 0;
+      background: var(--gray-900); border-top: 1px solid rgba(255,255,255,.06);
+      padding: 20px 0; overflow: hidden;
     }
-    .trust-items {
-      display: flex; justify-content: center; gap: 48px; flex-wrap: wrap; align-items: center;
+    .marquee-track {
+      display: flex; gap: 0;
+      animation: marquee 30s linear infinite;
+      width: max-content;
     }
-    .trust-item {
-      display: flex; align-items: center; gap: 12px;
-      color: var(--gray-600); font-weight: 500; font-size: 0.95rem;
+    .marquee-track:hover { animation-play-state: paused; }
+    @keyframes marquee { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+    .marquee-item {
+      display: flex; align-items: center; gap: 8px; padding: 0 32px;
+      color: rgba(255,255,255,.5); font-size: 0.85rem; font-weight: 500;
+      white-space: nowrap; border-right: 1px solid rgba(255,255,255,.06);
     }
-    .trust-icon {
-      width: 40px; height: 40px; border-radius: 10px;
-      background: var(--purple-50); display: flex; align-items: center; justify-content: center;
-      font-size: 1.2rem; flex-shrink: 0;
-    }
-    .trust-stat { font-size: 1.3rem; font-weight: 800; color: var(--gray-900); }
+    .marquee-item .mi { font-size: 1rem; }
+    .marquee-item strong { color: rgba(255,255,255,.8); }
 
-    /* ───── 3. PROBLEM ───── */
-    .problem { background: #fff; }
-    .problem h2 { margin-bottom: 56px; }
-    .pain-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 20px; max-width: 960px; margin: 0 auto 48px;
+    /* ── "UNLIKE CARE.COM" CALLOUT ── */
+    .unlike-section {
+      background: var(--gray-50); padding: 80px 0;
     }
-    .pain-card {
-      display: flex; align-items: flex-start; gap: 16px;
-      padding: 24px; border-radius: var(--radius);
-      background: var(--gray-50); border: 1px solid var(--gray-100);
+    .unlike-inner {
+      max-width: 900px; margin: 0 auto;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 2px;
+      border-radius: var(--rl); overflow: hidden;
+      box-shadow: var(--shadow-lg);
+    }
+    .unlike-side {
+      padding: 48px 40px;
+    }
+    .unlike-side.them {
+      background: #fff; border: 1px solid var(--gray-200);
+    }
+    .unlike-side.us {
+      background: var(--hero-bg); color: #fff;
+    }
+    .unlike-label {
+      display: inline-block; padding: 5px 14px; border-radius: 50px; font-size: 0.75rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 20px;
+    }
+    .unlike-side.them .unlike-label { background: #fee2e2; color: #991b1b; }
+    .unlike-side.us .unlike-label { background: rgba(16,185,129,.2); color: #34d399; }
+    .unlike-side.them h3 { color: var(--gray-800); font-size: 1.3rem; margin-bottom: 24px; }
+    .unlike-side.us h3 { color: #fff; font-size: 1.3rem; margin-bottom: 24px; }
+    .unlike-list { display: flex; flex-direction: column; gap: 14px; }
+    .unlike-item { display: flex; align-items: flex-start; gap: 12px; font-size: 0.9rem; }
+    .unlike-side.them .unlike-item { color: var(--gray-600); }
+    .unlike-side.us .unlike-item { color: rgba(255,255,255,.8); }
+    .unlike-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+
+    /* ── WHAT'S FREE ── */
+    .free-section { background: #fff; padding: 80px 0; }
+    .free-section h2 { margin-bottom: 12px; }
+    .free-section > .container > p { max-width: 520px; margin: 0 auto 52px; font-size: 1.05rem; }
+    .free-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; max-width: 920px; margin: 0 auto 48px; }
+    .free-card {
+      border-radius: var(--r); padding: 28px 24px; text-align: center;
       transition: all .25s;
     }
-    .pain-card:hover { border-color: var(--purple-200); background: var(--purple-50); }
-    .pain-icon {
-      width: 44px; height: 44px; border-radius: 10px;
-      background: #fee2e2; display: flex; align-items: center; justify-content: center;
-      font-size: 1.2rem; flex-shrink: 0;
+    .free-card.is-free {
+      background: linear-gradient(135deg, #f0fdf4, #ecfdf5);
+      border: 1.5px solid #a7f3d0;
     }
-    .pain-card p { color: var(--gray-700); font-weight: 500; margin: 0; }
-    .problem-close {
-      font-size: 1.3rem; font-weight: 700; color: var(--purple-600);
-      font-style: italic; max-width: 560px; margin: 0 auto;
+    .free-card.is-paid {
+      background: var(--gray-50); border: 1.5px solid var(--gray-200);
     }
+    .free-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+    .free-badge {
+      display: inline-block; padding: 4px 14px; border-radius: 50px; font-size: 0.75rem; font-weight: 700;
+      margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.06em;
+    }
+    .free-card.is-free .free-badge { background: #10b981; color: #fff; }
+    .free-card.is-paid .free-badge { background: var(--gray-200); color: var(--gray-600); }
+    .free-card .fc-icon { font-size: 1.8rem; margin-bottom: 10px; }
+    .free-card h4 { font-size: 0.95rem; margin-bottom: 6px; color: var(--gray-800); }
+    .free-card p { font-size: 0.82rem; color: var(--gray-500); margin: 0; }
+    .free-card.is-paid .price-tag { font-size: 0.78rem; font-weight: 700; color: var(--purple); margin-top: 8px; }
 
-    /* ───── 4. SOLUTION ───── */
-    .solution {
-      background: var(--gradient-hero); color: #fff;
-      position: relative; overflow: hidden;
+    /* ── CAREGIVER CAROUSEL ── */
+    .caregivers-section { background: var(--grad-soft); padding: 80px 0; }
+    .caregivers-section h2 { margin-bottom: 8px; }
+    .caregivers-section > .container > p { max-width: 540px; margin: 0 auto 40px; }
+    .carousel-scroll {
+      display: flex; gap: 20px; overflow-x: auto;
+      padding: 8px 4px 20px; scrollbar-width: none;
+      scroll-snap-type: x mandatory;
     }
-    .solution::before {
-      content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%239C92AC' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-      pointer-events: none;
+    .carousel-scroll::-webkit-scrollbar { display: none; }
+    .cg-card {
+      background: #fff; border-radius: var(--rl); padding: 28px 24px;
+      border: 1px solid var(--gray-200); min-width: 260px; flex-shrink: 0;
+      scroll-snap-align: start; transition: all .3s; cursor: pointer;
     }
-    .solution h2 { color: #fff; margin-bottom: 20px; }
-    .solution > .container > p { color: rgba(255,255,255,.7); font-size: 1.15rem; max-width: 640px; margin: 0 auto 56px; }
-    .solution-pillars {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 20px; max-width: 900px; margin: 0 auto;
+    .cg-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: #c4b5fd; }
+    .cg-top { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+    .cg-av {
+      width: 52px; height: 52px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; font-weight: 700; color: #fff; flex-shrink: 0;
     }
-    .solution-pillar {
-      background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1);
-      border-radius: var(--radius-lg); padding: 28px 24px; text-align: center;
-      backdrop-filter: blur(8px); transition: all .3s;
-    }
-    .solution-pillar:hover { background: rgba(255,255,255,.12); border-color: rgba(124,58,237,.4); transform: translateY(-4px); }
-    .solution-pillar-icon { font-size: 2rem; margin-bottom: 12px; }
-    .solution-pillar h3 { color: #fff; font-size: 1rem; margin-bottom: 6px; }
-    .solution-pillar p { color: rgba(255,255,255,.6); font-size: 0.85rem; margin: 0; }
+    .cg-name { font-weight: 700; color: var(--gray-900); font-size: 0.95rem; margin-bottom: 1px; }
+    .cg-meta { font-size: 0.78rem; color: var(--gray-500); }
+    .cg-stars { color: var(--amber); font-size: 0.78rem; margin-bottom: 12px; }
+    .cg-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 14px; }
+    .cg-chip { padding: 3px 10px; border-radius: 50px; font-size: 0.7rem; font-weight: 600; background: #ede9fe; color: var(--purple); }
+    .cg-foot { display: flex; align-items: center; justify-content: space-between; }
+    .cg-rate { font-weight: 800; color: var(--gray-900); font-size: 1rem; }
+    .cg-rate em { font-weight: 400; color: var(--gray-400); font-size: 0.78rem; font-style: normal; }
+    .cg-status { font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; gap: 4px; }
+    .cg-status.avail { color: var(--green); }
+    .cg-status.avail::before { content:''; width:6px; height:6px; background:var(--green); border-radius:50%; }
+    .cg-status.soon { color: var(--amber); }
+    .cg-status.soon::before { content:''; width:6px; height:6px; background:var(--amber); border-radius:50%; }
+    .carousel-cta { text-align: center; margin-top: 32px; }
 
-    /* ───── 5. FEATURES ───── */
-    .features { background: var(--gradient-soft); }
-    .features h2 { margin-bottom: 16px; }
-    .features > .container > p { max-width: 560px; margin: 0 auto 56px; font-size: 1.05rem; }
-    .features-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 24px;
-    }
-    .feature-card {
-      background: #fff; border-radius: var(--radius-lg); padding: 36px;
-      border: 1px solid var(--gray-200);
-      transition: all .3s ease;
-    }
-    .feature-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--purple-200); }
-    .feature-emoji {
-      width: 56px; height: 56px; border-radius: 14px;
-      background: var(--purple-50); display: flex; align-items: center; justify-content: center;
-      font-size: 1.6rem; margin-bottom: 20px;
-    }
-    .feature-card h3 { margin-bottom: 10px; color: var(--gray-900); }
-    .feature-card p { font-size: 0.95rem; }
-    .feature-badge {
-      display: inline-block; padding: 4px 12px; border-radius: 20px;
-      background: linear-gradient(135deg, #dbeafe, #ede5ff);
-      color: var(--purple-600); font-size: 0.75rem; font-weight: 600;
-      margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.05em;
-    }
-
-    /* ───── 6. HOW IT WORKS ───── */
-    .how-it-works { background: #fff; }
-    .how-it-works h2 { margin-bottom: 16px; }
-    .how-it-works > .container > p { max-width: 540px; margin: 0 auto 56px; }
-    .how-tabs {
-      display: flex; gap: 8px; justify-content: center; margin-bottom: 48px;
-    }
+    /* ── HOW IT WORKS ── */
+    .how-section { background: #fff; padding: 96px 0; }
+    .how-section h2 { margin-bottom: 8px; }
+    .how-section > .container > .sub { max-width: 520px; margin: 0 auto 48px; font-size: 1.05rem; }
+    .how-tabs { display: flex; gap: 8px; justify-content: center; margin-bottom: 52px; }
     .how-tab {
-      padding: 10px 28px; border-radius: 50px; font-weight: 600; font-size: 0.9rem;
+      padding: 11px 28px; border-radius: 50px; font-weight: 700; font-size: 0.88rem;
       cursor: pointer; border: 2px solid var(--gray-200); background: #fff;
       color: var(--gray-500); transition: all .2s;
     }
-    .how-tab.active {
-      background: var(--gradient); color: #fff; border-color: transparent;
-      box-shadow: var(--shadow-purple);
-    }
-    .how-steps-panel { display: none; }
-    .how-steps-panel.active { display: block; }
-    .steps {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    .how-tab.active { background: var(--grad); color: #fff; border-color: transparent; box-shadow: var(--shadow-purple); }
+    .how-panel { display: none; }
+    .how-panel.active { display: block; }
+    .how-steps {
+      display: grid; grid-template-columns: repeat(4, 1fr);
       gap: 32px; max-width: 1000px; margin: 0 auto;
+      position: relative;
     }
-    .step { text-align: center; position: relative; }
-    .step-number {
+    .how-steps::before {
+      content: ''; position: absolute; top: 32px; left: 60px; right: 60px;
+      height: 2px; background: linear-gradient(90deg, var(--purple), var(--blue));
+      opacity: .15; z-index: 0;
+    }
+    .how-step { text-align: center; position: relative; z-index: 1; }
+    .step-num {
       width: 64px; height: 64px; border-radius: 50%; margin: 0 auto 20px;
-      background: var(--gradient); color: #fff;
+      background: var(--grad); color: #fff;
       display: flex; align-items: center; justify-content: center;
-      font-size: 1.5rem; font-weight: 800;
-      box-shadow: var(--shadow-purple);
+      font-size: 1.4rem; font-weight: 900; box-shadow: var(--shadow-purple);
     }
-    .step h3 { margin-bottom: 8px; }
-    .step p { font-size: 0.9rem; max-width: 220px; margin: 0 auto; }
-    .step-connector {
-      display: none; position: absolute; top: 32px; left: calc(50% + 40px);
-      width: calc(100% - 80px); height: 2px;
-      background: linear-gradient(90deg, var(--purple-200), var(--blue-500));
-      opacity: .4;
-    }
-    @media (min-width: 768px) {
-      .step-connector { display: block; }
+    .how-step h3 { font-size: 1rem; margin-bottom: 8px; }
+    .how-step p { font-size: 0.85rem; color: var(--gray-500); max-width: 180px; margin: 0 auto; }
+    .step-free-tag {
+      display: inline-block; padding: 2px 10px; border-radius: 50px; font-size: 0.68rem; font-weight: 700;
+      background: #d1fae5; color: #065f46; margin-top: 8px;
     }
 
-    /* ───── 7. CAREGIVER PROFILES ───── */
-    .profiles-section { background: var(--gray-50); }
-    .profiles-section h2 { margin-bottom: 12px; }
-    .profiles-section > .container > p { max-width: 560px; margin: 0 auto 52px; }
-    .profiles-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 24px; margin-bottom: 48px;
-    }
-    .profile-card {
-      background: #fff; border-radius: var(--radius-lg); padding: 28px;
-      border: 1px solid var(--gray-200); transition: all .3s;
-      cursor: pointer;
-    }
-    .profile-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--purple-200); }
-    .profile-top { display: flex; gap: 16px; align-items: center; margin-bottom: 16px; }
-    .profile-avatar {
-      width: 60px; height: 60px; border-radius: 50%;
-      background: var(--gradient); display: flex; align-items: center; justify-content: center;
-      font-size: 1.5rem; color: #fff; flex-shrink: 0; font-weight: 700;
-    }
-    .profile-meta h3 { font-size: 1.05rem; color: var(--gray-900); margin-bottom: 2px; }
-    .profile-meta span { font-size: 0.82rem; color: var(--gray-500); }
-    .profile-stars { color: #f59e0b; font-size: 0.85rem; }
-    .profile-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
-    .profile-tag {
-      padding: 4px 12px; border-radius: 50px; font-size: 0.78rem; font-weight: 500;
-      background: var(--purple-50); color: var(--purple-600); border: 1px solid var(--purple-100);
-    }
-    .profile-footer { display: flex; align-items: center; justify-content: space-between; }
-    .profile-rate { font-weight: 700; color: var(--gray-900); font-size: 1rem; }
-    .profile-rate span { font-weight: 400; color: var(--gray-500); font-size: 0.85rem; }
-    .profile-avail { font-size: 0.8rem; color: #10b981; font-weight: 500; display: flex; align-items: center; gap: 4px; }
-    .profile-avail::before { content:''; width:7px; height:7px; background:#10b981; border-radius:50%; }
+    /* ── COMPARISON ── */
+    .compare-section { background: var(--gray-50); padding: 80px 0; }
+    .compare-section h2 { margin-bottom: 8px; }
+    .compare-section > .container > p { max-width: 500px; margin: 0 auto 48px; }
+    .compare-table { max-width: 860px; margin: 0 auto; border-radius: var(--rl); overflow: hidden; box-shadow: var(--shadow-lg); }
+    .compare-table table { width: 100%; border-collapse: collapse; }
+    .compare-table th { padding: 18px 24px; font-size: 0.9rem; font-weight: 800; }
+    .compare-table th:first-child { background: var(--gray-100); color: var(--gray-500); text-align: left; }
+    .compare-table th.col-them { background: #fef3c7; color: #78350f; text-align: center; width: 28%; }
+    .compare-table th.col-us { background: var(--grad); color: #fff; text-align: center; width: 28%; }
+    .compare-table td { padding: 14px 24px; border-top: 1px solid var(--gray-100); font-size: 0.88rem; }
+    .compare-table td:first-child { color: var(--gray-700); font-weight: 500; }
+    .compare-table td.col-them { text-align: center; color: var(--gray-500); background: #fffbeb; }
+    .compare-table td.col-us { text-align: center; font-weight: 700; color: var(--gray-800); background: #faf5ff; }
+    .compare-table tr:hover td { opacity: .92; }
+    .c-bad { color: #ef4444 !important; }
+    .c-ok { color: var(--amber) !important; }
+    .c-good { color: var(--green) !important; }
 
-    /* ───── 8. WHY GOTOCARE ───── */
-    .comparison { background: #fff; }
-    .comparison h2 { margin-bottom: 56px; }
-    .comparison-table {
-      max-width: 820px; margin: 0 auto;
-      border-radius: var(--radius-lg); overflow: hidden;
-      box-shadow: var(--shadow-md); background: #fff;
+    /* ── FOR CAREGIVERS ── */
+    .cg-section {
+      background: var(--hero-bg); padding: 96px 0; position: relative; overflow: hidden;
     }
-    .comparison-table table { width: 100%; border-collapse: collapse; }
-    .comparison-table th {
-      padding: 20px 28px; font-weight: 700; font-size: 1rem; text-align: left;
+    .cg-section::before {
+      content: ''; position: absolute; top: -150px; right: -150px;
+      width: 600px; height: 600px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(124,58,237,.2) 0%, transparent 65%);
+      pointer-events: none;
     }
-    .comparison-table th:first-child { background: var(--gray-100); color: var(--gray-500); }
-    .comparison-table th:nth-child(2) { background: #fef3c7; color: #92400e; }
-    .comparison-table th:last-child { background: var(--gradient); color: #fff; }
-    .comparison-table td {
-      padding: 16px 28px; border-top: 1px solid var(--gray-100);
-      font-size: 0.92rem;
+    .cg-section .container { position: relative; z-index: 1; }
+    .cg-split { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+    .cg-left h2 { color: #fff; margin-bottom: 16px; }
+    .cg-left > p { color: rgba(255,255,255,.65); font-size: 1.05rem; margin-bottom: 36px; }
+    .cg-earn-box {
+      background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1);
+      border-radius: var(--r); padding: 20px 24px; margin-bottom: 32px;
+      display: flex; align-items: center; gap: 20px; backdrop-filter: blur(8px);
     }
-    .comparison-table td:first-child { color: var(--gray-600); font-weight: 500; }
-    .comparison-table td:nth-child(2) { color: var(--gray-500); }
-    .comparison-table td:last-child { color: var(--gray-800); font-weight: 600; }
-    .comparison-table tr:hover td { background: var(--purple-50); }
-
-    /* ───── 9. TESTIMONIALS ───── */
-    .testimonials { background: var(--gradient-soft); }
-    .testimonials h2 { margin-bottom: 52px; }
-    .testimonials-grid {
-      display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 24px; max-width: 960px; margin: 0 auto;
+    .cg-earn-num { font-size: 2.4rem; font-weight: 900; color: #fff; line-height: 1; }
+    .cg-earn-num span { font-size: 1rem; color: rgba(255,255,255,.5); font-weight: 400; }
+    .cg-earn-text { color: rgba(255,255,255,.65); font-size: 0.88rem; }
+    .cg-earn-text strong { color: rgba(255,255,255,.9); display: block; font-size: 0.95rem; margin-bottom: 2px; }
+    .cg-perks { display: flex; flex-direction: column; gap: 12px; }
+    .cg-perk { display: flex; align-items: center; gap: 12px; color: rgba(255,255,255,.8); font-size: 0.9rem; }
+    .cg-perk-icon {
+      width: 36px; height: 36px; border-radius: 10px; flex-shrink: 0;
+      background: rgba(255,255,255,.1); display: flex; align-items: center; justify-content: center; font-size: 1rem;
     }
-    .testimonial-card {
-      background: #fff; border-radius: var(--radius-lg); padding: 32px;
-      border: 1px solid var(--gray-200); box-shadow: var(--shadow-sm);
+    .cg-right {
+      background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1);
+      border-radius: var(--rl); padding: 36px; backdrop-filter: blur(12px);
     }
-    .testimonial-stars { color: #f59e0b; font-size: 1rem; margin-bottom: 14px; letter-spacing: 2px; }
-    .testimonial-text {
-      font-size: 0.95rem; color: var(--gray-700); line-height: 1.7;
-      margin-bottom: 20px; font-style: italic;
-    }
-    .testimonial-author { display: flex; align-items: center; gap: 12px; }
-    .testimonial-avatar {
-      width: 42px; height: 42px; border-radius: 50%;
-      background: var(--gradient); color: #fff;
+    .cg-right h3 { color: #fff; font-size: 1.2rem; margin-bottom: 24px; text-align: center; }
+    .cg-model-steps { display: flex; flex-direction: column; gap: 20px; }
+    .cg-model-step { display: flex; gap: 16px; align-items: flex-start; }
+    .cms-num {
+      width: 32px; height: 32px; border-radius: 50%; background: var(--grad);
       display: flex; align-items: center; justify-content: center;
-      font-weight: 700; font-size: 0.9rem; flex-shrink: 0;
+      font-size: 0.8rem; font-weight: 800; color: #fff; flex-shrink: 0;
     }
-    .testimonial-author-meta strong { display: block; font-size: 0.9rem; color: var(--gray-900); }
-    .testimonial-author-meta span { font-size: 0.82rem; color: var(--gray-400); }
+    .cms-text { color: rgba(255,255,255,.8); font-size: 0.88rem; line-height: 1.5; }
+    .cms-text strong { color: #fff; display: block; margin-bottom: 2px; }
+    .cms-tag {
+      display: inline-block; padding: 3px 10px; border-radius: 50px; font-size: 0.7rem; font-weight: 700;
+      margin-top: 4px;
+    }
+    .cms-tag.free { background: rgba(16,185,129,.2); color: #34d399; }
+    .cms-tag.paid { background: rgba(124,58,237,.3); color: #c4b5fd; }
 
-    /* ───── REQUEST CARE FORM ───── */
-    .request-care { background: #fff; }
-    .request-care h2 { margin-bottom: 12px; }
-    .request-care-sub { margin-bottom: 48px; font-size: 1.05rem; }
-    .demo-wrapper {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 48px;
-      max-width: 960px; margin: 0 auto; align-items: start;
+    /* ── TESTIMONIALS ── */
+    .testimonials-section { background: #fff; padding: 80px 0; }
+    .testimonials-section h2 { margin-bottom: 8px; }
+    .testimonials-section > .container > p { max-width: 500px; margin: 0 auto 48px; }
+    .testi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; max-width: 1000px; margin: 0 auto; }
+    .testi-card {
+      border-radius: var(--rl); padding: 32px; border: 1px solid var(--gray-200);
+      transition: all .25s;
     }
-    .demo-info h3 { font-size: 1.3rem; margin-bottom: 16px; color: var(--gray-900); }
-    .demo-info p { margin-bottom: 20px; }
-    .demo-benefits li {
-      padding: 12px 0; display: flex; gap: 12px; align-items: flex-start;
-      color: var(--gray-700); font-size: 0.95rem;
+    .testi-card:hover { box-shadow: var(--shadow-lg); border-color: #c4b5fd; transform: translateY(-3px); }
+    .testi-card.featured { background: var(--hero-bg); border-color: rgba(255,255,255,.1); }
+    .testi-stars { font-size: 0.9rem; color: var(--amber); margin-bottom: 14px; letter-spacing: 2px; }
+    .testi-text { font-size: 0.9rem; line-height: 1.75; margin-bottom: 20px; font-style: italic; }
+    .testi-card:not(.featured) .testi-text { color: var(--gray-700); }
+    .testi-card.featured .testi-text { color: rgba(255,255,255,.75); }
+    .testi-author { display: flex; align-items: center; gap: 12px; }
+    .testi-av {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: var(--grad); color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 0.85rem; flex-shrink: 0;
     }
-    .demo-benefits .icon { font-size: 1.2rem; flex-shrink: 0; }
-    .demo-form {
-      background: #fff; border-radius: var(--radius-lg); padding: 36px;
-      box-shadow: var(--shadow-md); border: 1px solid var(--gray-200);
+    .testi-card.featured .testi-av { background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.2); }
+    .testi-name { font-weight: 700; font-size: 0.88rem; }
+    .testi-card:not(.featured) .testi-name { color: var(--gray-900); }
+    .testi-card.featured .testi-name { color: #fff; }
+    .testi-role { font-size: 0.78rem; }
+    .testi-card:not(.featured) .testi-role { color: var(--gray-400); }
+    .testi-card.featured .testi-role { color: rgba(255,255,255,.4); }
+    .testi-quote-mark {
+      font-size: 4rem; color: var(--gray-100); font-family: Georgia, serif;
+      line-height: 0.5; margin-bottom: 8px; display: block;
     }
-    .demo-form h3 { font-size: 1.15rem; margin-bottom: 24px; text-align: center; color: var(--gray-900); }
-    .form-group { margin-bottom: 18px; }
-    .form-group label { display: block; font-weight: 600; font-size: 0.85rem; color: var(--gray-700); margin-bottom: 6px; }
-    .form-group input, .form-group select, .form-group textarea {
-      width: 100%; padding: 12px 16px; border-radius: 8px;
-      border: 1.5px solid var(--gray-200); font-size: 0.95rem;
-      font-family: inherit; transition: border-color .2s;
-      background: var(--gray-50);
-    }
-    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
-      outline: none; border-color: var(--purple-400); background: #fff;
-      box-shadow: 0 0 0 3px rgba(124,58,237,.08);
-    }
-    .form-group textarea { resize: vertical; min-height: 80px; }
-    .demo-form .btn { width: 100%; margin-top: 8px; }
-    .form-note { text-align: center; font-size: 0.8rem; color: var(--gray-400); margin-top: 12px; }
+    .testi-card.featured .testi-quote-mark { color: rgba(255,255,255,.08); }
 
-    /* ───── CAREGIVER JOIN CTA ───── */
-    .caregiver-cta {
-      background: var(--gradient-hero);
-      padding: 96px 0; text-align: center; position: relative; overflow: hidden;
+    /* ── FINAL CTA ── */
+    .final-section {
+      background: var(--grad); padding: 100px 0; text-align: center; position: relative; overflow: hidden;
     }
-    .caregiver-cta::before {
-      content: ''; position: absolute; top: -100px; right: -100px;
-      width: 400px; height: 400px; border-radius: 50%;
-      background: rgba(124,58,237,.2); pointer-events: none;
-    }
-    .caregiver-cta::after {
-      content: ''; position: absolute; bottom: -80px; left: -80px;
-      width: 350px; height: 350px; border-radius: 50%;
-      background: rgba(59,130,246,.15); pointer-events: none;
-    }
-    .caregiver-cta .container { position: relative; z-index: 1; }
-    .caregiver-cta h2 { color: #fff; margin-bottom: 16px; }
-    .caregiver-cta > .container > p { color: rgba(255,255,255,.7); max-width: 560px; margin: 0 auto 40px; font-size: 1.1rem; }
-    .caregiver-perks {
-      display: flex; justify-content: center; gap: 32px; flex-wrap: wrap; margin-bottom: 40px;
-    }
-    .caregiver-perk {
-      display: flex; align-items: center; gap: 10px;
-      color: rgba(255,255,255,.8); font-size: 0.95rem; font-weight: 500;
-    }
-    .caregiver-perk span { font-size: 1.2rem; }
-
-    /* ───── FINAL CTA ───── */
-    .final-cta {
-      background: var(--gradient); padding: 100px 0;
-      text-align: center; position: relative; overflow: hidden;
-    }
-    .final-cta::before {
-      content: ''; position: absolute; top: -100px; right: -100px;
-      width: 400px; height: 400px; border-radius: 50%;
+    .final-section::before {
+      content: ''; position: absolute; top: -120px; right: -120px;
+      width: 500px; height: 500px; border-radius: 50%;
       background: rgba(255,255,255,.06); pointer-events: none;
     }
-    .final-cta h2 { color: #fff; margin-bottom: 16px; }
-    .final-cta > .container > p { color: rgba(255,255,255,.75); margin-bottom: 40px; font-size: 1.05rem; }
-    .final-cta .btn-outline { border-color: rgba(255,255,255,.4); }
-    .final-cta .btn-white { background: #fff; color: var(--purple-600); box-shadow: var(--shadow-md); }
-    .final-cta .btn-white:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
-    .final-cta .btn-group { justify-content: center; }
+    .final-section .container { position: relative; z-index: 1; }
+    .final-section h2 { color: #fff; margin-bottom: 16px; }
+    .final-section > .container > p { color: rgba(255,255,255,.75); max-width: 520px; margin: 0 auto 40px; font-size: 1.05rem; }
+    .final-btns { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+    .final-note { color: rgba(255,255,255,.4); font-size: 0.8rem; margin-top: 20px; }
 
-    /* ───── FOOTER ───── */
-    .footer {
-      background: var(--gray-900); color: rgba(255,255,255,.6);
-      padding: 56px 0 32px;
-    }
-    .footer-grid {
-      display: flex; justify-content: space-between; align-items: start;
-      flex-wrap: wrap; gap: 40px; margin-bottom: 40px;
-    }
-    .footer-brand { max-width: 300px; }
-    .footer-brand .logo { margin-bottom: 12px; }
-    .footer-brand p { font-size: 0.9rem; color: rgba(255,255,255,.4); margin-bottom: 20px; }
-    .footer-social { display: flex; gap: 12px; }
+    /* ── FOOTER ── */
+    .footer { background: var(--gray-900); padding: 56px 0 28px; }
+    .footer-top { display: flex; justify-content: space-between; gap: 40px; flex-wrap: wrap; margin-bottom: 40px; }
+    .footer-brand { max-width: 280px; }
+    .footer-logo { display: flex; align-items: center; gap: 10px; font-size: 1.3rem; font-weight: 800; color: #fff; margin-bottom: 12px; }
+    .footer-logo .logo-mark { width: 32px; height: 32px; font-size: 0.9rem; }
+    .footer-tagline { color: rgba(255,255,255,.35); font-size: 0.85rem; margin-bottom: 20px; }
+    .footer-social { display: flex; gap: 10px; }
     .footer-social a {
-      width: 36px; height: 36px; border-radius: 8px;
-      background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1);
+      width: 34px; height: 34px; border-radius: 8px;
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.08);
       display: flex; align-items: center; justify-content: center;
-      color: rgba(255,255,255,.5); font-size: 0.9rem; transition: all .2s;
+      color: rgba(255,255,255,.4); font-size: 0.85rem; transition: all .2s;
     }
     .footer-social a:hover { background: rgba(124,58,237,.3); color: #fff; border-color: rgba(124,58,237,.4); }
-    .footer-links { display: flex; gap: 48px; flex-wrap: wrap; }
-    .footer-col h4 { color: #fff; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 16px; }
-    .footer-col a { display: block; padding: 4px 0; font-size: 0.9rem; color: rgba(255,255,255,.5); transition: color .2s; }
+    .footer-cols { display: flex; gap: 48px; flex-wrap: wrap; }
+    .footer-col h5 { color: #fff; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 14px; }
+    .footer-col a { display: block; padding: 3px 0; font-size: 0.85rem; color: rgba(255,255,255,.4); transition: color .2s; }
     .footer-col a:hover { color: #fff; }
-    .footer-bottom {
-      border-top: 1px solid rgba(255,255,255,.08);
-      padding-top: 24px; display: flex; align-items: center; justify-content: space-between;
-      flex-wrap: wrap; gap: 12px;
-      font-size: 0.85rem; color: rgba(255,255,255,.3);
-    }
-    .footer-bottom-links { display: flex; gap: 20px; }
-    .footer-bottom-links a { color: rgba(255,255,255,.3); transition: color .2s; }
-    .footer-bottom-links a:hover { color: rgba(255,255,255,.6); }
+    .footer-bottom { border-top: 1px solid rgba(255,255,255,.06); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+    .footer-copy { color: rgba(255,255,255,.25); font-size: 0.8rem; }
+    .footer-legal { display: flex; gap: 20px; }
+    .footer-legal a { color: rgba(255,255,255,.25); font-size: 0.8rem; transition: color .2s; }
+    .footer-legal a:hover { color: rgba(255,255,255,.5); }
 
-    /* ───── MOBILE NAV ───── */
-    .mobile-menu {
-      display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(26,26,46,.98); z-index: 999;
-      flex-direction: column; align-items: center; justify-content: center; gap: 24px;
+    /* ── MOBILE MENU ── */
+    .mobile-nav {
+      display: none; position: fixed; inset: 0; background: rgba(26,26,46,.98);
+      z-index: 999; flex-direction: column; align-items: center; justify-content: center; gap: 20px;
     }
-    .mobile-menu.active { display: flex; }
-    .mobile-menu a { color: #fff; font-size: 1.3rem; font-weight: 600; }
-    .mobile-close {
-      position: absolute; top: 24px; right: 24px;
-      background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer;
-    }
+    .mobile-nav.open { display: flex; }
+    .mobile-nav a { color: #fff; font-size: 1.2rem; font-weight: 700; }
+    .mobile-nav .close-btn { position: absolute; top: 20px; right: 20px; background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer; }
 
-    /* ───── RESPONSIVE ───── */
+    /* ── ANIMATIONS ── */
+    .fade-in { opacity: 0; transform: translateY(24px); transition: opacity .65s ease, transform .65s ease; }
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .hero-split { grid-template-columns: 1fr; }
+      .hero-cards { display: none; }
+      .how-steps { grid-template-columns: repeat(2, 1fr); }
+      .how-steps::before { display: none; }
+      .cg-split { grid-template-columns: 1fr; }
+      .testi-grid { grid-template-columns: 1fr; max-width: 480px; }
+      .unlike-inner { grid-template-columns: 1fr; }
+      .unlike-side { padding: 36px 28px; }
+    }
     @media (max-width: 768px) {
-      .nav-links, .nav-cta { display: none; }
-      .mobile-toggle { display: block; }
-      .hero { padding: 130px 0 80px; }
-      .hero h1 { font-size: 2rem; }
-      .hero-sub { font-size: 1rem; }
-      .section { padding: 64px 0; }
-      .trust-items { gap: 24px; }
-      .features-grid { grid-template-columns: 1fr; }
-      .demo-wrapper { grid-template-columns: 1fr; }
-      .steps { grid-template-columns: 1fr 1fr; }
-      .comparison-table th, .comparison-table td { padding: 12px 14px; font-size: 0.82rem; }
-      .footer-grid { flex-direction: column; }
-      .hero-search { flex-direction: column; }
-      .testimonials-grid { grid-template-columns: 1fr; }
-      .profiles-grid { grid-template-columns: 1fr; }
-      .footer-bottom { flex-direction: column; align-items: center; text-align: center; }
+      .nav-links, .nav-actions { display: none; }
+      .hamburger { display: block; }
+      .section, .how-section, .caregivers-section, .free-section, .unlike-section, .compare-section, .cg-section, .testimonials-section, .final-section { padding: 64px 0; }
+      .hero-inner { padding: 130px 0 64px; }
+      h1 { font-size: 2.2rem; }
+      h2 { font-size: 1.8rem; }
+      .hero-care-grid { grid-template-columns: repeat(4, 1fr); }
+      .how-steps { grid-template-columns: 1fr 1fr; }
+      .footer-top { flex-direction: column; }
+      .footer-bottom { flex-direction: column; text-align: center; }
     }
     @media (max-width: 480px) {
-      .steps { grid-template-columns: 1fr; }
-      .btn-group { flex-direction: column; align-items: stretch; }
-      .btn { width: 100%; }
-      .caregiver-perks { flex-direction: column; align-items: center; gap: 16px; }
+      .how-steps { grid-template-columns: 1fr; }
+      .final-btns { flex-direction: column; align-items: center; }
+      .hero-care-grid { grid-template-columns: repeat(3, 1fr); }
     }
-
-    /* ───── ANIMATIONS ───── */
-    .fade-up {
-      opacity: 0; transform: translateY(30px);
-      transition: opacity .6s ease, transform .6s ease;
-    }
-    .fade-up.visible { opacity: 1; transform: translateY(0); }
   </style>
 </head>
 <body>
 
-<!-- ═══ NAVBAR ═══ -->
+<!-- NAVBAR -->
 <nav class="navbar" id="navbar">
   <div class="container">
     <a href="#" class="logo">
-      <div class="logo-icon">G</div>
+      <div class="logo-mark">G</div>
       GoToCare
     </a>
     <div class="nav-links">
       <a href="#how-it-works">How It Works</a>
       <a href="#caregivers">Browse Caregivers</a>
-      <a href="#for-caregivers">For Caregivers</a>
-      <a href="#find-care">Find Care</a>
+      <a href="#for-caregivers">Earn with GoToCare</a>
     </div>
-    <div class="nav-cta">
-      <a href="https://gotocare-caregiver-portal.pages.dev" target="_blank" class="btn btn-outline" style="padding:10px 18px;font-size:.85rem;border-color:rgba(255,255,255,.25);">Caregiver Login</a>
-      <a href="#find-care" class="btn btn-primary" style="padding:10px 22px;font-size:.88rem;">Find a Caregiver</a>
+    <div class="nav-actions">
+      <a href="https://gotocare-caregiver-portal.pages.dev" target="_blank" class="btn btn-ghost btn-sm">Caregiver Login</a>
+      <a href="https://gotocare-client-portal.pages.dev?browse=true" target="_blank" class="btn btn-primary btn-sm">Browse Free →</a>
     </div>
-    <button class="mobile-toggle" onclick="document.getElementById('mobileMenu').classList.add('active')">
+    <button class="hamburger" onclick="document.getElementById('mobileNav').classList.add('open')">
       <span></span><span></span><span></span>
     </button>
   </div>
 </nav>
 
-<!-- Mobile Menu -->
-<div class="mobile-menu" id="mobileMenu">
-  <button class="mobile-close" onclick="this.parentElement.classList.remove('active')">&times;</button>
-  <a href="#how-it-works" onclick="this.parentElement.classList.remove('active')">How It Works</a>
-  <a href="#caregivers" onclick="this.parentElement.classList.remove('active')">Browse Caregivers</a>
-  <a href="#for-caregivers" onclick="this.parentElement.classList.remove('active')">For Caregivers</a>
-  <a href="#find-care" onclick="this.parentElement.classList.remove('active')">Find Care</a>
-  <a href="#find-care" class="btn btn-primary" onclick="this.parentElement.classList.remove('active')">Find a Caregiver →</a>
+<div class="mobile-nav" id="mobileNav">
+  <button class="close-btn" onclick="this.parentElement.classList.remove('open')">&times;</button>
+  <a href="#how-it-works" onclick="this.parentElement.classList.remove('open')">How It Works</a>
+  <a href="#caregivers" onclick="this.parentElement.classList.remove('open')">Browse Caregivers</a>
+  <a href="#for-caregivers" onclick="this.parentElement.classList.remove('open')">Earn with GoToCare</a>
+  <a href="https://gotocare-client-portal.pages.dev?browse=true" target="_blank" class="btn btn-primary">Browse Caregivers Free →</a>
 </div>
 
-<!-- ═══ 1. HERO ═══ -->
+<!-- ═══ HERO ═══ -->
 <section class="hero">
-  <div class="container text-center">
-    <div class="hero-badge fade-up">
-      <span></span> Now live in Georgia, Florida &amp; Texas
-    </div>
-    <h1 class="fade-up">Find trusted caregivers <span>near you — fast</span></h1>
-    <p class="hero-sub fade-up">GoToCare connects families with verified, background-checked caregivers for home care, senior care, companionship, and more. Browse real profiles, book instantly, pay securely.</p>
+  <div class="hero-orb1"></div>
+  <div class="hero-orb2"></div>
+  <div class="hero-inner">
+    <div class="container">
+      <div class="hero-split">
+        <!-- LEFT: Copy + Search -->
+        <div class="hero-left">
+          <div class="hero-eyebrow fade-in">
+            <span class="dot"></span>
+            No subscription wall · Browse 100% free
+          </div>
 
-    <!-- Care Needs Tiles (multi-select) -->
-    <p class="fade-up" style="font-size:0.8rem;opacity:0.7;margin-bottom:8px;margin-top:4px;">Tap all needs that apply</p>
-    <div class="hero-care-tiles fade-up" id="heroCareGrid">
-      <div class="hero-care-tile" onclick="heroSelectCare(this,'Elder Care')">
-        <div class="tile-icon">🧓</div><div class="tile-label">Elder Care</div>
-      </div>
-      <div class="hero-care-tile" onclick="heroSelectCare(this,'Dementia')">
-        <div class="tile-icon">🧠</div><div class="tile-label">Dementia</div>
-      </div>
-      <div class="hero-care-tile" onclick="heroSelectCare(this,'Wheelchair')">
-        <div class="tile-icon">♿</div><div class="tile-label">Wheelchair</div>
-      </div>
-      <div class="hero-care-tile" onclick="heroSelectCare(this,'Post-Surgery')">
-        <div class="tile-icon">🏥</div><div class="tile-label">Post-Surgery</div>
-      </div>
-      <div class="hero-care-tile" onclick="heroSelectCare(this,'Medication')">
-        <div class="tile-icon">💊</div><div class="tile-label">Medication</div>
-      </div>
-      <div class="hero-care-tile" onclick="heroSelectCare(this,'Bathing')">
-        <div class="tile-icon">🛁</div><div class="tile-label">Bathing</div>
-      </div>
-      <div class="hero-care-tile" onclick="heroSelectCare(this,'Meal Prep')">
-        <div class="tile-icon">🍽️</div><div class="tile-label">Meal Prep</div>
-      </div>
-      <div class="hero-care-tile" onclick="heroSelectCare(this,'Companionship')">
-        <div class="tile-icon">🤝</div><div class="tile-label">Companion</div>
-      </div>
-      <div class="hero-care-tile" onclick="heroSelectCare(this,'Transportation')">
-        <div class="tile-icon">🚗</div><div class="tile-label">Transport</div>
-      </div>
-      <div class="hero-care-tile" onclick="heroSelectCare(this,'Child Care')">
-        <div class="tile-icon">👶</div><div class="tile-label">Child Care</div>
-      </div>
-      <div class="hero-care-tile" onclick="heroSelectCare(this,'Overnight')">
-        <div class="tile-icon">🌙</div><div class="tile-label">Overnight</div>
-      </div>
-    </div>
+          <h1 class="fade-in">
+            Find a <span class="highlight">trusted caregiver</span><br/>
+            before you spend a <span class="underline-word">single dollar</span>
+          </h1>
 
-    <!-- Location + GPS -->
-    <div class="hero-location-row fade-up">
-      <input type="text" id="heroLocation" class="hero-location-input" placeholder="City or ZIP code…" />
-      <button class="hero-gps-btn" onclick="heroUseGPS()" id="heroGpsBtn">📍 Use GPS</button>
-    </div>
+          <p class="hero-sub fade-in">
+            <strong>Unlike Care.com — you never pay to browse.</strong><br/>
+            See real profiles, read real reviews, and only unlock contact info
+            when you've found your person. Care should be this easy.
+          </p>
 
-    <!-- Urgency pills -->
-    <div class="hero-urgency fade-up" id="heroUrgency">
-      <div class="hero-urgency-pill selected" onclick="heroSelectUrgency(this,'now')">🔴 Right Now</div>
-      <div class="hero-urgency-pill" onclick="heroSelectUrgency(this,'today')">Today</div>
-      <div class="hero-urgency-pill" onclick="heroSelectUrgency(this,'tomorrow')">Tomorrow</div>
-      <div class="hero-urgency-pill" onclick="heroSelectUrgency(this,'week')">This Week</div>
-    </div>
+          <div class="hero-promise fade-in">
+            <div class="hero-promise-item"><span class="icon">🆓</span> Free to browse</div>
+            <div class="hero-promise-item"><span class="icon">✅</span> 100% background verified</div>
+            <div class="hero-promise-item"><span class="icon">⚡</span> Match in under 2 hrs</div>
+            <div class="hero-promise-item"><span class="icon">🔒</span> No credit card needed</div>
+          </div>
 
-    <!-- Big Find Button -->
-    <div class="fade-up" style="max-width:400px;margin:0 auto 16px;">
-      <button onclick="heroFindCare()" id="heroFindBtn" class="btn btn-primary" style="width:100%;padding:16px 32px;font-size:1.05rem;border-radius:14px;">
-        Find Available Caregivers →
-      </button>
-    </div>
+          <div class="hero-search-box fade-in">
+            <div class="hero-search-label">What type of care do you need? (select all that apply)</div>
+            <div class="hero-care-grid" id="heroCareGrid">
+              <div class="care-chip" onclick="toggleCare(this,'Elder Care')"><div class="ci">🧓</div><div class="cl">Elder Care</div></div>
+              <div class="care-chip" onclick="toggleCare(this,'Dementia')"><div class="ci">🧠</div><div class="cl">Dementia</div></div>
+              <div class="care-chip" onclick="toggleCare(this,'Wheelchair')"><div class="ci">♿</div><div class="cl">Wheelchair</div></div>
+              <div class="care-chip" onclick="toggleCare(this,'Post-Surgery')"><div class="ci">🏥</div><div class="cl">Post-Surgery</div></div>
+              <div class="care-chip" onclick="toggleCare(this,'Medication')"><div class="ci">💊</div><div class="cl">Medication</div></div>
+              <div class="care-chip" onclick="toggleCare(this,'Bathing')"><div class="ci">🛁</div><div class="cl">Bathing</div></div>
+              <div class="care-chip" onclick="toggleCare(this,'Meal Prep')"><div class="ci">🍽️</div><div class="cl">Meal Prep</div></div>
+              <div class="care-chip" onclick="toggleCare(this,'Companionship')"><div class="ci">🤝</div><div class="cl">Companion</div></div>
+              <div class="care-chip" onclick="toggleCare(this,'Transportation')"><div class="ci">🚗</div><div class="cl">Transport</div></div>
+              <div class="care-chip" onclick="toggleCare(this,'Overnight')"><div class="ci">🌙</div><div class="cl">Overnight</div></div>
+              <div class="care-chip" onclick="toggleCare(this,'Child Care')"><div class="ci">👶</div><div class="cl">Child Care</div></div>
+              <div class="care-chip" onclick="toggleCare(this,'Physical Therapy')"><div class="ci">💪</div><div class="cl">Physio</div></div>
+            </div>
+            <div class="hero-loc-row">
+              <input type="text" id="heroLoc" class="hero-loc-input" placeholder="City or ZIP code…" />
+              <button class="gps-btn" onclick="useGPS()" id="gpsBtn">📍 GPS</button>
+            </div>
+            <button class="hero-find-btn" id="heroFindBtn" onclick="findCare()">
+              Show Me Available Caregivers →
+            </button>
+          </div>
 
-    <p class="hero-support fade-up">No account needed &nbsp;•&nbsp; Book in under 5 mins &nbsp;•&nbsp; 100% verified caregivers</p>
-
-    <!-- Caregiver dual CTA -->
-    <div class="hero-caregiver-cta fade-up">
-      <p>Are you a caregiver? Join our network and start earning.</p>
-      <a href="https://gotocare-caregiver-portal.pages.dev" target="_blank" class="btn btn-secondary" style="padding:10px 24px;font-size:.9rem;">Join as a Caregiver →</a>
-    </div>
-  </div>
-</section>
-
-<!-- ═══ 2. TRUST BAR ═══ -->
-<section class="trust-bar">
-  <div class="container">
-    <div class="trust-items">
-      <div class="trust-item">
-        <div class="trust-icon">✅</div>
-        <div>
-          <div class="trust-stat">100%</div>
-          Background Verified
+          <p class="hero-no-card fade-in">No account · No credit card · No subscription to just look</p>
         </div>
-      </div>
-      <div class="trust-item">
-        <div class="trust-icon">⭐</div>
-        <div>
-          <div class="trust-stat">4.9 / 5</div>
-          Average Caregiver Rating
-        </div>
-      </div>
-      <div class="trust-item">
-        <div class="trust-icon">⚡</div>
-        <div>
-          <div class="trust-stat">&lt; 2 hrs</div>
-          Average Match Time
-        </div>
-      </div>
-      <div class="trust-item">
-        <div class="trust-icon">🔒</div>
-        <div>
-          <div class="trust-stat">Secure</div>
-          Payments &amp; Data
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
 
-<!-- ═══ 3. THE PROBLEM ═══ -->
-<section class="section problem text-center">
-  <div class="container">
-    <h2 class="fade-up">Finding reliable care shouldn't feel <em>this hard</em></h2>
-    <div class="pain-grid">
-      <div class="pain-card fade-up">
-        <div class="pain-icon">😰</div>
-        <p>Searching dozens of websites with no clear vetting process</p>
-      </div>
-      <div class="pain-card fade-up">
-        <div class="pain-icon">⏳</div>
-        <p>Waiting days or weeks for an agency to send someone</p>
-      </div>
-      <div class="pain-card fade-up">
-        <div class="pain-icon">💸</div>
-        <p>Paying agency markups of 40–60% on top of caregiver rates</p>
-      </div>
-      <div class="pain-card fade-up">
-        <div class="pain-icon">🎲</div>
-        <p>Getting a caregiver who doesn't match your loved one's needs</p>
-      </div>
-      <div class="pain-card fade-up">
-        <div class="pain-icon">📵</div>
-        <p>No easy way to communicate, reschedule, or leave feedback</p>
-      </div>
-      <div class="pain-card fade-up">
-        <div class="pain-icon">📋</div>
-        <p>Unclear credentials, certifications, and experience history</p>
-      </div>
-    </div>
-    <p class="problem-close fade-up">Your family deserves better — and faster.</p>
-  </div>
-</section>
+        <!-- RIGHT: Floating cards -->
+        <div class="hero-cards fade-in">
+          <div class="floating-card fc-1" onclick="window.open('https://gotocare-client-portal.pages.dev?browse=true','_blank')">
+            <div class="fc-head">
+              <div class="fc-avatar" style="background:linear-gradient(135deg,#7c3aed,#3b82f6)">M</div>
+              <div>
+                <div class="fc-name">Maria Santos</div>
+                <div class="fc-loc">Atlanta, GA · 8 yrs</div>
+              </div>
+            </div>
+            <div class="fc-rating">★★★★★ 4.9 · 47 reviews</div>
+            <div class="fc-tags">
+              <span class="fc-tag">Senior Care</span>
+              <span class="fc-tag">Dementia</span>
+              <span class="fc-tag">CNA</span>
+              <span class="fc-tag">Spanish</span>
+            </div>
+            <div class="fc-footer">
+              <div class="fc-rate">$28<span>/hr</span></div>
+              <div class="fc-avail">Available now</div>
+            </div>
+            <button class="fc-unlock">View Profile Free →</button>
+          </div>
 
-<!-- ═══ 4. THE SOLUTION ═══ -->
-<section class="section solution text-center">
-  <div class="container" style="position:relative;z-index:1;">
-    <h2 class="fade-up">The smarter way to find care.</h2>
-    <p class="fade-up">GoToCare is a marketplace that directly connects families with qualified, vetted caregivers — no agency middlemen, no hidden fees, no delays.</p>
-    <div class="solution-pillars">
-      <div class="solution-pillar fade-up">
-        <div class="solution-pillar-icon">🔍</div>
-        <h3>Smart Matching</h3>
-        <p>AI-powered ranking by skills, location, availability &amp; fit</p>
-      </div>
-      <div class="solution-pillar fade-up">
-        <div class="solution-pillar-icon">✅</div>
-        <h3>Verified Profiles</h3>
-        <p>Background checks, certifications, and references — all confirmed</p>
-      </div>
-      <div class="solution-pillar fade-up">
-        <div class="solution-pillar-icon">📅</div>
-        <h3>Instant Booking</h3>
-        <p>Browse, select, and book a caregiver in under 10 minutes</p>
-      </div>
-      <div class="solution-pillar fade-up">
-        <div class="solution-pillar-icon">💳</div>
-        <h3>Secure Payments</h3>
-        <p>Transparent pricing, no hidden fees, money-back guarantee</p>
-      </div>
-    </div>
-  </div>
-</section>
+          <div class="floating-card fc-2" onclick="window.open('https://gotocare-client-portal.pages.dev?browse=true','_blank')">
+            <div class="fc-head">
+              <div class="fc-avatar" style="background:linear-gradient(135deg,#0ea5e9,#6366f1)">J</div>
+              <div>
+                <div class="fc-name">James Carter</div>
+                <div class="fc-loc">Miami, FL · 5 yrs</div>
+              </div>
+            </div>
+            <div class="fc-rating">★★★★★ 4.8 · 31 reviews</div>
+            <div class="fc-tags">
+              <span class="fc-tag">Home Care</span>
+              <span class="fc-tag">Post-Surgery</span>
+              <span class="fc-tag">Companion</span>
+            </div>
+            <div class="fc-footer">
+              <div class="fc-rate">$24<span>/hr</span></div>
+              <div class="fc-avail">Available now</div>
+            </div>
+            <button class="fc-unlock">View Profile Free →</button>
+          </div>
 
-<!-- ═══ 5. HOW IT WORKS ═══ -->
-<section class="section how-it-works text-center" id="how-it-works">
-  <div class="container">
-    <h2 class="fade-up">How GoToCare works</h2>
-    <p class="fade-up">Simple for families. Rewarding for caregivers.</p>
+          <div class="floating-card fc-3" onclick="window.open('https://gotocare-client-portal.pages.dev?browse=true','_blank')">
+            <div class="fc-head">
+              <div class="fc-avatar" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">A</div>
+              <div>
+                <div class="fc-name">Ava Thompson</div>
+                <div class="fc-loc">Houston, TX · 12 yrs</div>
+              </div>
+            </div>
+            <div class="fc-rating">★★★★★ 5.0 · 62 reviews</div>
+            <div class="fc-tags">
+              <span class="fc-tag">Palliative</span>
+              <span class="fc-tag">Private Duty</span>
+              <span class="fc-tag">RN</span>
+            </div>
+            <div class="fc-footer">
+              <div class="fc-rate">$42<span>/hr</span></div>
+              <div class="fc-avail">Available this week</div>
+            </div>
+            <button class="fc-unlock">View Profile Free →</button>
+          </div>
 
-    <div class="how-tabs">
-      <button class="how-tab active" onclick="switchTab('families', this)">👨‍👩‍👧 Finding Care</button>
-      <button class="how-tab" onclick="switchTab('caregivers', this)">🩺 Giving Care</button>
-    </div>
-
-    <div class="how-steps-panel active" id="panel-families">
-      <div class="steps">
-        <div class="step fade-up">
-          <div class="step-number">1</div>
-          <div class="step-connector"></div>
-          <h3>Describe Your Needs</h3>
-          <p>Tell us about your loved one and the type of care required</p>
-        </div>
-        <div class="step fade-up">
-          <div class="step-number">2</div>
-          <div class="step-connector"></div>
-          <h3>Browse Matched Caregivers</h3>
-          <p>See ranked profiles with ratings, experience, and hourly rates</p>
-        </div>
-        <div class="step fade-up">
-          <div class="step-number">3</div>
-          <div class="step-connector"></div>
-          <h3>Book Instantly</h3>
-          <p>Select your preferred caregiver and confirm your first session</p>
-        </div>
-        <div class="step fade-up">
-          <div class="step-number">4</div>
-          <h3>Care Begins</h3>
-          <p>Track visits, communicate, and review your caregiver in-app</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="how-steps-panel" id="panel-caregivers">
-      <div class="steps">
-        <div class="step fade-up">
-          <div class="step-number">1</div>
-          <div class="step-connector"></div>
-          <h3>Create Your Profile</h3>
-          <p>Upload your certifications, experience, and availability</p>
-        </div>
-        <div class="step fade-up">
-          <div class="step-number">2</div>
-          <div class="step-connector"></div>
-          <h3>Get Verified</h3>
-          <p>Complete background check and credential verification</p>
-        </div>
-        <div class="step fade-up">
-          <div class="step-number">3</div>
-          <div class="step-connector"></div>
-          <h3>Receive Requests</h3>
-          <p>Browse care requests or get matched automatically to families nearby</p>
-        </div>
-        <div class="step fade-up">
-          <div class="step-number">4</div>
-          <h3>Earn &amp; Grow</h3>
-          <p>Set your own rates, build your reputation, grow your client base</p>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══ 6. SAMPLE CAREGIVER PROFILES ═══ -->
-<section class="section profiles-section text-center" id="caregivers">
-  <div class="container">
-    <h2 class="fade-up">Meet some of our caregivers</h2>
-    <p class="fade-up">Every caregiver on GoToCare is background-checked, credentialed, and reviewed by real families.</p>
-
-    <div class="profiles-grid">
-      <div class="profile-card fade-up" onclick="window.open('https://gotocare-client-portal.pages.dev?browse=true','_blank')">
-        <div class="profile-top">
-          <div class="profile-avatar">M</div>
-          <div class="profile-meta">
-            <h3>Maria Santos</h3>
-            <span>Atlanta, GA &nbsp;•&nbsp; 8 yrs exp</span>
-            <div class="profile-stars">★★★★★ 4.9 (47 reviews)</div>
+          <!-- Live feed -->
+          <div class="live-feed">
+            <div class="lf-title">🔴 Live activity</div>
+            <div class="lf-items" id="liveFeed">
+              <div class="lf-item"><span class="lf-dot green"></span> Maria accepted a booking in Atlanta<span class="lf-time">2m ago</span></div>
+              <div class="lf-item"><span class="lf-dot purple"></span> New caregiver joined in Dallas<span class="lf-time">5m ago</span></div>
+              <div class="lf-item"><span class="lf-dot blue"></span> Family found a match in Miami<span class="lf-time">8m ago</span></div>
+            </div>
           </div>
         </div>
-        <div class="profile-tags">
-          <span class="profile-tag">Senior Care</span>
-          <span class="profile-tag">Dementia Care</span>
-          <span class="profile-tag">CNA Certified</span>
-          <span class="profile-tag">Bilingual (Spanish)</span>
-        </div>
-        <div class="profile-footer">
-          <div class="profile-rate">$28<span>/hr</span></div>
-          <div class="profile-avail">Available now</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ TRUST MARQUEE ═══ -->
+<div class="trust-bar">
+  <div class="marquee-track" id="marquee">
+    <div class="marquee-item"><span class="mi">✅</span> <strong>100% background verified</strong></div>
+    <div class="marquee-item"><span class="mi">🆓</span> <strong>Free to browse — always</strong></div>
+    <div class="marquee-item"><span class="mi">⭐</span> <strong>4.9 / 5</strong> avg caregiver rating</div>
+    <div class="marquee-item"><span class="mi">⚡</span> Match in <strong>under 2 hours</strong></div>
+    <div class="marquee-item"><span class="mi">💳</span> No credit card to browse</div>
+    <div class="marquee-item"><span class="mi">🛡️</span> <strong>Identity verified</strong> caregivers</div>
+    <div class="marquee-item"><span class="mi">📍</span> Live in <strong>Georgia, Florida &amp; Texas</strong></div>
+    <div class="marquee-item"><span class="mi">💬</span> <strong>3,200+</strong> caregiver profiles</div>
+    <div class="marquee-item"><span class="mi">🔒</span> Secure, encrypted payments</div>
+    <div class="marquee-item"><span class="mi">🩺</span> <strong>CNA, RN, HHA</strong> certified</div>
+    <!-- Duplicate for seamless loop -->
+    <div class="marquee-item"><span class="mi">✅</span> <strong>100% background verified</strong></div>
+    <div class="marquee-item"><span class="mi">🆓</span> <strong>Free to browse — always</strong></div>
+    <div class="marquee-item"><span class="mi">⭐</span> <strong>4.9 / 5</strong> avg caregiver rating</div>
+    <div class="marquee-item"><span class="mi">⚡</span> Match in <strong>under 2 hours</strong></div>
+    <div class="marquee-item"><span class="mi">💳</span> No credit card to browse</div>
+    <div class="marquee-item"><span class="mi">🛡️</span> <strong>Identity verified</strong> caregivers</div>
+    <div class="marquee-item"><span class="mi">📍</span> Live in <strong>Georgia, Florida &amp; Texas</strong></div>
+    <div class="marquee-item"><span class="mi">💬</span> <strong>3,200+</strong> caregiver profiles</div>
+    <div class="marquee-item"><span class="mi">🔒</span> Secure, encrypted payments</div>
+    <div class="marquee-item"><span class="mi">🩺</span> <strong>CNA, RN, HHA</strong> certified</div>
+  </div>
+</div>
+
+<!-- ═══ UNLIKE CARE.COM ═══ -->
+<section class="unlike-section">
+  <div class="container">
+    <div class="text-center" style="margin-bottom:48px;">
+      <h2 class="fade-in">We built what <em>you</em> always wanted<br/>from a care platform</h2>
+      <p class="fade-in" style="max-width:500px;margin:12px auto 0;font-size:1.05rem;">No dark patterns. No bait-and-switch. Just honesty.</p>
+    </div>
+    <div class="unlike-inner fade-in">
+      <div class="unlike-side them">
+        <div class="unlike-label">😤 The old way (Care.com & agencies)</div>
+        <h3>Pay first. Hope for the best.</h3>
+        <div class="unlike-list">
+          <div class="unlike-item"><span class="unlike-icon">🔒</span> Subscribe at $40/mo before seeing a single profile</div>
+          <div class="unlike-item"><span class="unlike-icon">🎲</span> No guarantee caregivers are even in your area</div>
+          <div class="unlike-item"><span class="unlike-icon">📞</span> Agency decides who comes — you don't choose</div>
+          <div class="unlike-item"><span class="unlike-icon">💸</span> Agency takes 40–60% cut on top of caregiver rate</div>
+          <div class="unlike-item"><span class="unlike-icon">📋</span> Days of paperwork before care even starts</div>
+          <div class="unlike-item"><span class="unlike-icon">👤</span> Fake profiles, outdated photos, no real reviews</div>
         </div>
       </div>
-
-      <div class="profile-card fade-up" onclick="window.open('https://gotocare-client-portal.pages.dev?browse=true','_blank')">
-        <div class="profile-top">
-          <div class="profile-avatar" style="background:linear-gradient(135deg,#0ea5e9,#6366f1)">J</div>
-          <div class="profile-meta">
-            <h3>James Carter</h3>
-            <span>Miami, FL &nbsp;•&nbsp; 5 yrs exp</span>
-            <div class="profile-stars">★★★★★ 4.8 (31 reviews)</div>
-          </div>
-        </div>
-        <div class="profile-tags">
-          <span class="profile-tag">Home Care</span>
-          <span class="profile-tag">Post-Surgery Recovery</span>
-          <span class="profile-tag">Companionship</span>
-        </div>
-        <div class="profile-footer">
-          <div class="profile-rate">$24<span>/hr</span></div>
-          <div class="profile-avail">Available now</div>
-        </div>
-      </div>
-
-      <div class="profile-card fade-up" onclick="window.open('https://gotocare-client-portal.pages.dev?browse=true','_blank')">
-        <div class="profile-top">
-          <div class="profile-avatar" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">A</div>
-          <div class="profile-meta">
-            <h3>Ava Thompson</h3>
-            <span>Houston, TX &nbsp;•&nbsp; 12 yrs exp</span>
-            <div class="profile-stars">★★★★★ 5.0 (62 reviews)</div>
-          </div>
-        </div>
-        <div class="profile-tags">
-          <span class="profile-tag">Private Duty Nursing</span>
-          <span class="profile-tag">Palliative Care</span>
-          <span class="profile-tag">RN Licensed</span>
-        </div>
-        <div class="profile-footer">
-          <div class="profile-rate">$42<span>/hr</span></div>
-          <div class="profile-avail">Available this week</div>
+      <div class="unlike-side us">
+        <div class="unlike-label">✨ The GoToCare way</div>
+        <h3>See everything. Pay nothing to look.</h3>
+        <div class="unlike-list">
+          <div class="unlike-item"><span class="unlike-icon">🆓</span> Browse every profile, read every review — completely free</div>
+          <div class="unlike-item"><span class="unlike-icon">📍</span> See real availability in your exact city before committing</div>
+          <div class="unlike-item"><span class="unlike-icon">🎯</span> You shortlist who you like — AI ranks the best matches</div>
+          <div class="unlike-item"><span class="unlike-icon">💰</span> Direct caregiver rates — no agency markup, ever</div>
+          <div class="unlike-item"><span class="unlike-icon">⚡</span> Book an interview in under 5 minutes</div>
+          <div class="unlike-item"><span class="unlike-icon">✅</span> Every profile is identity-verified and background-checked</div>
         </div>
       </div>
     </div>
+  </div>
+</section>
 
-    <a href="https://gotocare-client-portal.pages.dev?browse=true" target="_blank" class="btn btn-primary fade-up">
-      Browse All Caregivers →
+<!-- ═══ WHAT'S FREE vs PAID ═══ -->
+<section class="free-section text-center">
+  <div class="container">
+    <h2 class="fade-in">Radical transparency.<br/>Here's exactly what's free.</h2>
+    <p class="fade-in">We think you deserve to know before you sign up.</p>
+    <div class="free-grid">
+      <div class="free-card is-free fade-in">
+        <div class="free-badge">FREE forever</div>
+        <div class="fc-icon">🔍</div>
+        <h4>Browse All Profiles</h4>
+        <p>See every caregiver's photo, bio, skills, experience and ratings</p>
+      </div>
+      <div class="free-card is-free fade-in">
+        <div class="free-badge">FREE forever</div>
+        <div class="fc-icon">📅</div>
+        <h4>Book Interviews</h4>
+        <p>Schedule a video or in-person interview with any caregiver — no charge</p>
+      </div>
+      <div class="free-card is-free fade-in">
+        <div class="free-badge">FREE forever</div>
+        <div class="fc-icon">💚</div>
+        <h4>Shortlist Favourites</h4>
+        <p>Save caregivers you like and compare them side-by-side</p>
+      </div>
+      <div class="free-card is-free fade-in">
+        <div class="free-badge">FREE forever</div>
+        <div class="fc-icon">📊</div>
+        <h4>See Availability</h4>
+        <p>Check real-time availability calendars before reaching out</p>
+      </div>
+      <div class="free-card is-paid fade-in">
+        <div class="free-badge">Paid — when you're ready</div>
+        <div class="fc-icon">📞</div>
+        <h4>Contact Caregiver</h4>
+        <p>Unlock phone &amp; email after you've found the right person</p>
+        <div class="price-tag">From $7 one-time · or $15/mo unlimited</div>
+      </div>
+      <div class="free-card is-paid fade-in">
+        <div class="free-badge">Paid — when you're ready</div>
+        <div class="fc-icon">📋</div>
+        <h4>Start Care &amp; Schedule</h4>
+        <p>Ongoing scheduling, automated reminders, care tracking</p>
+        <div class="price-tag">From $15/mo — cancel anytime</div>
+      </div>
+    </div>
+    <a href="https://gotocare-client-portal.pages.dev?browse=true" target="_blank" class="btn btn-primary btn-lg fade-in">
+      Start Browsing — It's Free →
     </a>
   </div>
 </section>
 
-<!-- ═══ 7. WHY GOTOCARE ═══ -->
-<section class="section comparison text-center">
+<!-- ═══ CAREGIVER CAROUSEL ═══ -->
+<section class="caregivers-section text-center" id="caregivers">
   <div class="container">
-    <h2 class="fade-up">Why families choose GoToCare</h2>
-    <div class="comparison-table fade-up">
+    <h2 class="fade-in">Meet caregivers near you</h2>
+    <p class="fade-in">Every profile is background-checked, credentialed, and reviewed by real families. Swipe to explore.</p>
+    <div class="carousel-scroll">
+      <div class="cg-card" onclick="window.open('https://gotocare-client-portal.pages.dev?browse=true','_blank')">
+        <div class="cg-top">
+          <div class="cg-av" style="background:linear-gradient(135deg,#7c3aed,#3b82f6)">M</div>
+          <div><div class="cg-name">Maria Santos</div><div class="cg-meta">Atlanta, GA · 8 yrs exp</div></div>
+        </div>
+        <div class="cg-stars">★★★★★ 4.9 · 47 reviews</div>
+        <div class="cg-chips"><span class="cg-chip">Senior Care</span><span class="cg-chip">Dementia</span><span class="cg-chip">CNA Certified</span><span class="cg-chip">Spanish</span></div>
+        <div class="cg-foot"><div class="cg-rate">$28<em>/hr</em></div><div class="cg-status avail">Available now</div></div>
+      </div>
+      <div class="cg-card" onclick="window.open('https://gotocare-client-portal.pages.dev?browse=true','_blank')">
+        <div class="cg-top">
+          <div class="cg-av" style="background:linear-gradient(135deg,#0ea5e9,#6366f1)">J</div>
+          <div><div class="cg-name">James Carter</div><div class="cg-meta">Miami, FL · 5 yrs exp</div></div>
+        </div>
+        <div class="cg-stars">★★★★★ 4.8 · 31 reviews</div>
+        <div class="cg-chips"><span class="cg-chip">Home Care</span><span class="cg-chip">Post-Surgery</span><span class="cg-chip">Companion</span></div>
+        <div class="cg-foot"><div class="cg-rate">$24<em>/hr</em></div><div class="cg-status avail">Available now</div></div>
+      </div>
+      <div class="cg-card" onclick="window.open('https://gotocare-client-portal.pages.dev?browse=true','_blank')">
+        <div class="cg-top">
+          <div class="cg-av" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">A</div>
+          <div><div class="cg-name">Ava Thompson</div><div class="cg-meta">Houston, TX · 12 yrs exp</div></div>
+        </div>
+        <div class="cg-stars">★★★★★ 5.0 · 62 reviews</div>
+        <div class="cg-chips"><span class="cg-chip">Private Duty</span><span class="cg-chip">Palliative</span><span class="cg-chip">RN Licensed</span></div>
+        <div class="cg-foot"><div class="cg-rate">$42<em>/hr</em></div><div class="cg-status soon">Available this week</div></div>
+      </div>
+      <div class="cg-card" onclick="window.open('https://gotocare-client-portal.pages.dev?browse=true','_blank')">
+        <div class="cg-top">
+          <div class="cg-av" style="background:linear-gradient(135deg,#10b981,#3b82f6)">D</div>
+          <div><div class="cg-name">Diana Flores</div><div class="cg-meta">Dallas, TX · 6 yrs exp</div></div>
+        </div>
+        <div class="cg-stars">★★★★★ 4.7 · 28 reviews</div>
+        <div class="cg-chips"><span class="cg-chip">Wheelchair</span><span class="cg-chip">Meal Prep</span><span class="cg-chip">HHA Cert</span></div>
+        <div class="cg-foot"><div class="cg-rate">$26<em>/hr</em></div><div class="cg-status avail">Available now</div></div>
+      </div>
+      <div class="cg-card" onclick="window.open('https://gotocare-client-portal.pages.dev?browse=true','_blank')">
+        <div class="cg-top">
+          <div class="cg-av" style="background:linear-gradient(135deg,#ec4899,#8b5cf6)">R</div>
+          <div><div class="cg-name">Rachel Kim</div><div class="cg-meta">Orlando, FL · 9 yrs exp</div></div>
+        </div>
+        <div class="cg-stars">★★★★★ 4.9 · 54 reviews</div>
+        <div class="cg-chips"><span class="cg-chip">Child Care</span><span class="cg-chip">Overnight</span><span class="cg-chip">First Aid</span></div>
+        <div class="cg-foot"><div class="cg-rate">$32<em>/hr</em></div><div class="cg-status avail">Available now</div></div>
+      </div>
+      <div class="cg-card" onclick="window.open('https://gotocare-client-portal.pages.dev?browse=true','_blank')">
+        <div class="cg-top">
+          <div class="cg-av" style="background:linear-gradient(135deg,#6366f1,#06b6d4)">T</div>
+          <div><div class="cg-name">Thomas Adeyemi</div><div class="cg-meta">Atlanta, GA · 4 yrs exp</div></div>
+        </div>
+        <div class="cg-stars">★★★★½ 4.6 · 19 reviews</div>
+        <div class="cg-chips"><span class="cg-chip">Transport</span><span class="cg-chip">Medication</span><span class="cg-chip">Companion</span></div>
+        <div class="cg-foot"><div class="cg-rate">$22<em>/hr</em></div><div class="cg-status soon">Available tomorrow</div></div>
+      </div>
+    </div>
+    <div class="carousel-cta fade-in">
+      <a href="https://gotocare-client-portal.pages.dev?browse=true" target="_blank" class="btn btn-primary">
+        Browse All Caregivers Free →
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ HOW IT WORKS ═══ -->
+<section class="how-section text-center" id="how-it-works">
+  <div class="container">
+    <h2 class="fade-in">How GoToCare works</h2>
+    <p class="sub fade-in">Simple for families. Rewarding for caregivers.</p>
+    <div class="how-tabs">
+      <button class="how-tab active" onclick="switchTab('family', this)">👨‍👩‍👧 Finding Care</button>
+      <button class="how-tab" onclick="switchTab('caregiver', this)">🩺 Giving Care</button>
+    </div>
+    <div class="how-panel active" id="panel-family">
+      <div class="how-steps">
+        <div class="how-step fade-in">
+          <div class="step-num">1</div>
+          <h3>Select Care Needs</h3>
+          <p>Tap the types of care you need — takes 10 seconds</p>
+          <span class="step-free-tag">FREE</span>
+        </div>
+        <div class="how-step fade-in">
+          <div class="step-num">2</div>
+          <h3>Browse Matched Profiles</h3>
+          <p>AI serves up the best matches for your needs and location</p>
+          <span class="step-free-tag">FREE</span>
+        </div>
+        <div class="how-step fade-in">
+          <div class="step-num">3</div>
+          <h3>Shortlist &amp; Interview</h3>
+          <p>Save favourites and book free video/in-person interviews</p>
+          <span class="step-free-tag">FREE</span>
+        </div>
+        <div class="how-step fade-in">
+          <div class="step-num">4</div>
+          <h3>Connect &amp; Care Begins</h3>
+          <p>Unlock contact info when you're ready — from $7 one-time</p>
+        </div>
+      </div>
+    </div>
+    <div class="how-panel" id="panel-caregiver">
+      <div class="how-steps">
+        <div class="how-step fade-in">
+          <div class="step-num">1</div>
+          <h3>Create Your Profile</h3>
+          <p>Upload certifications, experience, photo and availability</p>
+          <span class="step-free-tag">FREE</span>
+        </div>
+        <div class="how-step fade-in">
+          <div class="step-num">2</div>
+          <h3>Get Verified</h3>
+          <p>Complete background check — builds trust with families</p>
+          <span class="step-free-tag">FREE</span>
+        </div>
+        <div class="how-step fade-in">
+          <div class="step-num">3</div>
+          <h3>Receive Interview Requests</h3>
+          <p>Families shortlist you and book interviews directly</p>
+          <span class="step-free-tag">FREE</span>
+        </div>
+        <div class="how-step fade-in">
+          <div class="step-num">4</div>
+          <h3>Unlock &amp; Accept</h3>
+          <p>Pay $4.99 to see full booking details — only when you're interested</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ COMPARISON TABLE ═══ -->
+<section class="compare-section text-center">
+  <div class="container">
+    <h2 class="fade-in">The honest comparison</h2>
+    <p class="fade-in">We let the facts speak for themselves.</p>
+    <div class="compare-table fade-in">
       <table>
         <thead>
           <tr>
             <th>What you need</th>
-            <th>Traditional Agencies</th>
-            <th>GoToCare ✨</th>
+            <th class="col-them">😤 Care.com / Agencies</th>
+            <th class="col-us">✨ GoToCare</th>
           </tr>
         </thead>
         <tbody>
-          <tr><td>Time to find a caregiver</td><td>Days to weeks</td><td>Under 2 hours</td></tr>
-          <tr><td>Caregiver profiles &amp; reviews</td><td>Little to none</td><td>Full profiles, real reviews</td></tr>
-          <tr><td>Pricing transparency</td><td>Hidden agency markups (40–60%)</td><td>Caregiver rates + small service fee</td></tr>
-          <tr><td>Choosing your caregiver</td><td>Agency decides for you</td><td>You choose who cares for your family</td></tr>
-          <tr><td>Background verification</td><td>Varies widely</td><td>100% verified, every caregiver</td></tr>
-          <tr><td>Booking &amp; scheduling</td><td>Phone calls, paperwork</td><td>In-app, instant, online</td></tr>
+          <tr>
+            <td>Browse caregiver profiles</td>
+            <td class="col-them c-bad">Subscription required ($40/mo)</td>
+            <td class="col-us c-good">Always free</td>
+          </tr>
+          <tr>
+            <td>Know if caregivers are in your area</td>
+            <td class="col-them c-bad">Only after you subscribe</td>
+            <td class="col-us c-good">Before you sign up</td>
+          </tr>
+          <tr>
+            <td>Time to find a match</td>
+            <td class="col-them c-bad">Days to weeks</td>
+            <td class="col-us c-good">Under 2 hours</td>
+          </tr>
+          <tr>
+            <td>Choose your own caregiver</td>
+            <td class="col-them c-bad">Agency chooses for you</td>
+            <td class="col-us c-good">You choose, always</td>
+          </tr>
+          <tr>
+            <td>Pricing transparency</td>
+            <td class="col-them c-bad">Hidden 40–60% markups</td>
+            <td class="col-us c-good">Direct rates, no markup</td>
+          </tr>
+          <tr>
+            <td>Background verification</td>
+            <td class="col-them c-ok">Varies by provider</td>
+            <td class="col-us c-good">100%, every caregiver</td>
+          </tr>
+          <tr>
+            <td>Book an interview</td>
+            <td class="col-them c-bad">Phone calls, paperwork</td>
+            <td class="col-us c-good">In-app, free, instant</td>
+          </tr>
+          <tr>
+            <td>Cancel anytime</td>
+            <td class="col-them c-ok">Annual contracts common</td>
+            <td class="col-us c-good">No contracts, ever</td>
+          </tr>
         </tbody>
       </table>
     </div>
   </div>
 </section>
 
-<!-- ═══ 8. TESTIMONIALS ═══ -->
-<section class="section testimonials text-center">
+<!-- ═══ FOR CAREGIVERS ═══ -->
+<section class="cg-section" id="for-caregivers">
   <div class="container">
-    <h2 class="fade-up">Families &amp; caregivers love GoToCare</h2>
-    <div class="testimonials-grid">
-      <div class="testimonial-card fade-up">
-        <div class="testimonial-stars">★★★★★</div>
-        <p class="testimonial-text">"I found Maria within an hour of signing up. She's been caring for my mother for three months and the whole family is at ease. GoToCare made what felt impossible feel effortless."</p>
-        <div class="testimonial-author">
-          <div class="testimonial-avatar">SL</div>
-          <div class="testimonial-author-meta">
-            <strong>Susan L.</strong>
-            <span>Family member, Atlanta GA</span>
+    <div class="cg-split">
+      <div class="cg-left fade-in">
+        <h2>You do the hardest job.<br/>Keep the most money.</h2>
+        <p>Traditional agencies take up to 60% of every hour you work. GoToCare charges you nothing to list, nothing to get discovered — and only $4.99 when you choose to accept a booking.</p>
+
+        <div class="cg-earn-box">
+          <div>
+            <div class="cg-earn-num">35%<span> more</span></div>
+          </div>
+          <div class="cg-earn-text">
+            <strong>Average extra earnings per hour</strong>
+            Caregivers on GoToCare earn significantly more than agency rates — because there's no middleman.
           </div>
         </div>
-      </div>
-      <div class="testimonial-card fade-up">
-        <div class="testimonial-stars">★★★★★</div>
-        <p class="testimonial-text">"As a caregiver I was frustrated with agencies taking huge cuts of my pay. With GoToCare I set my own rate, choose my own clients, and earn 35% more per hour."</p>
-        <div class="testimonial-author">
-          <div class="testimonial-avatar">JC</div>
-          <div class="testimonial-author-meta">
-            <strong>James C.</strong>
-            <span>Caregiver, Miami FL</span>
-          </div>
+
+        <div class="cg-perks">
+          <div class="cg-perk"><div class="cg-perk-icon">📅</div> Set your own schedule and hours</div>
+          <div class="cg-perk"><div class="cg-perk-icon">💰</div> Set your own rate — no ceiling</div>
+          <div class="cg-perk"><div class="cg-perk-icon">⭐</div> Build reputation with verified reviews</div>
+          <div class="cg-perk"><div class="cg-perk-icon">📱</div> Manage everything from your phone</div>
+          <div class="cg-perk"><div class="cg-perk-icon">🆓</div> FREE to join and get discovered</div>
+        </div>
+
+        <div style="margin-top:32px;">
+          <a href="https://gotocare-caregiver-portal.pages.dev" target="_blank" class="btn btn-white btn-lg">
+            Apply as a Caregiver — Free →
+          </a>
         </div>
       </div>
-      <div class="testimonial-card fade-up">
-        <div class="testimonial-stars">★★★★★</div>
-        <p class="testimonial-text">"The matching algorithm actually works. It suggested three caregivers who all spoke Spanish and had dementia care experience — exactly what my dad needed."</p>
-        <div class="testimonial-author">
-          <div class="testimonial-avatar">MR</div>
-          <div class="testimonial-author-meta">
-            <strong>Marco R.</strong>
-            <span>Family member, Houston TX</span>
+
+      <div class="cg-right fade-in">
+        <h3>💸 Our pay-per-lead model</h3>
+        <div class="cg-model-steps">
+          <div class="cg-model-step">
+            <div class="cms-num">1</div>
+            <div class="cms-text">
+              <strong>Create your profile &amp; get listed</strong>
+              Upload certifications, photo, availability. Start getting discovered by families.
+              <span class="cms-tag free">FREE</span>
+            </div>
+          </div>
+          <div class="cg-model-step">
+            <div class="cms-num">2</div>
+            <div class="cms-text">
+              <strong>Receive interview requests</strong>
+              Families browse and shortlist you. You get notified of new interview requests.
+              <span class="cms-tag free">FREE</span>
+            </div>
+          </div>
+          <div class="cg-model-step">
+            <div class="cms-num">3</div>
+            <div class="cms-text">
+              <strong>Unlock a request you like</strong>
+              See the full booking details — date, time, family info — for a small one-time fee.
+              <span class="cms-tag paid">$4.99 per unlock</span>
+            </div>
+          </div>
+          <div class="cg-model-step">
+            <div class="cms-num">4</div>
+            <div class="cms-text">
+              <strong>Or go unlimited</strong>
+              Accept as many bookings as you want for a flat monthly fee.
+              <span class="cms-tag paid">$19.99/mo — cancel anytime</span>
+            </div>
           </div>
         </div>
       </div>
@@ -1029,294 +1167,223 @@
   </div>
 </section>
 
-<!-- ═══ REQUEST CARE FORM ═══ -->
-<section class="section request-care text-center" id="find-care">
+<!-- ═══ TESTIMONIALS ═══ -->
+<section class="testimonials-section text-center">
   <div class="container">
-    <h2 class="fade-up">Request care for your loved one</h2>
-    <p class="request-care-sub fade-up">Fill in a few details and we'll match you with the right caregivers in your area within hours.</p>
-    <div class="demo-wrapper fade-up">
-      <div class="demo-info" style="text-align:left;">
-        <h3>What happens next?</h3>
-        <p>After you submit your request our matching system finds caregivers who fit your needs. You'll get profiles to review and can book directly — no sales calls, no waiting.</p>
-        <ul class="demo-benefits">
-          <li><span class="icon">📍</span> Matched to caregivers in your exact area</li>
-          <li><span class="icon">✅</span> Every caregiver is background-checked and verified</li>
-          <li><span class="icon">⚡</span> Receive matches within 1–2 hours</li>
-          <li><span class="icon">💳</span> Book and pay securely online — no cash needed</li>
-          <li><span class="icon">🔄</span> Easily reschedule or change caregivers anytime</li>
-        </ul>
+    <h2 class="fade-in">Real stories. Real families.</h2>
+    <p class="fade-in">Don't just take our word for it.</p>
+    <div class="testi-grid">
+      <div class="testi-card fade-in">
+        <span class="testi-quote-mark">"</span>
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">I was so frustrated after paying $40 on Care.com and finding zero caregivers in my area. Signed up to GoToCare, browsed 12 profiles for free, and found someone for my mom within an hour. I only paid when I was ready to call her.</p>
+        <div class="testi-author">
+          <div class="testi-av">SL</div>
+          <div>
+            <div class="testi-name">Susan L.</div>
+            <div class="testi-role">Daughter, Atlanta GA</div>
+          </div>
+        </div>
       </div>
-      <form class="demo-form" id="requestCareForm" onsubmit="handleDemoSubmit(event)">
-        <h3>🩺 Request Care</h3>
-        <div class="form-group">
-          <label>Your Full Name</label>
-          <input type="text" name="fullName" placeholder="e.g. Jane Smith" required />
+      <div class="testi-card featured fade-in">
+        <span class="testi-quote-mark">"</span>
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">The agency I worked for took $18 of every $28/hr I earned. Now I list on GoToCare, set my own $32 rate, and only pay $4.99 when I accept a booking I actually want. I make almost double and work half the hours.</p>
+        <div class="testi-author">
+          <div class="testi-av">JC</div>
+          <div>
+            <div class="testi-name">James C.</div>
+            <div class="testi-role">Caregiver, Miami FL</div>
+          </div>
         </div>
-        <div class="form-group">
-          <label>Phone Number</label>
-          <input type="tel" name="phone" placeholder="(555) 123-4567" required />
+      </div>
+      <div class="testi-card fade-in">
+        <span class="testi-quote-mark">"</span>
+        <div class="testi-stars">★★★★★</div>
+        <p class="testi-text">We needed someone who spoke Spanish and had dementia experience. The matching algorithm showed us 5 caregivers in 15 minutes. No other platform has ever done that. Booked an interview that same day — for free.</p>
+        <div class="testi-author">
+          <div class="testi-av">MR</div>
+          <div>
+            <div class="testi-name">Marco R.</div>
+            <div class="testi-role">Son, Houston TX</div>
+          </div>
         </div>
-        <div class="form-group">
-          <label>Email</label>
-          <input type="email" name="email" placeholder="jane@example.com" />
-        </div>
-        <div class="form-group">
-          <label>City / Zip Code</label>
-          <input type="text" name="location" placeholder="e.g. Atlanta, GA or 30301" required />
-        </div>
-        <div class="form-group">
-          <label>Type of Care Needed</label>
-          <select name="careType" required>
-            <option value="" disabled selected>Select care type…</option>
-            <option value="home_care">Home Care</option>
-            <option value="senior_care">Senior Care</option>
-            <option value="private_duty">Private Duty Nursing</option>
-            <option value="companionship">Companionship</option>
-            <option value="respite_care">Respite Care</option>
-            <option value="dementia_care">Dementia &amp; Memory Care</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Additional Details</label>
-          <textarea name="message" placeholder="Tell us about your loved one's needs, any conditions, preferred schedule…"></textarea>
-        </div>
-        <input type="hidden" name="agencyId" id="agencyIdField" value="" />
-        <button type="submit" class="btn btn-primary">Find My Caregiver →</button>
-        <p class="form-note">🔒 Your information is private and never sold.</p>
-      </form>
-    </div>
-  </div>
-</section>
-
-<!-- ═══ CAREGIVER JOIN CTA ═══ -->
-<section class="caregiver-cta" id="for-caregivers">
-  <div class="container">
-    <h2 class="fade-up">Are you a caregiver?<br/>Join GoToCare and work on your terms.</h2>
-    <p class="fade-up">Set your own schedule, choose your clients, and earn more — without agency middlemen taking a cut of your hard work.</p>
-    <div class="caregiver-perks">
-      <div class="caregiver-perk fade-up"><span>💰</span> Keep more of what you earn</div>
-      <div class="caregiver-perk fade-up"><span>📅</span> Choose your own hours</div>
-      <div class="caregiver-perk fade-up"><span>⭐</span> Build your reputation with reviews</div>
-      <div class="caregiver-perk fade-up"><span>📱</span> Manage everything from your phone</div>
-    </div>
-    <div class="btn-group fade-up" style="justify-content:center;">
-      <a href="https://gotocare-caregiver-portal.pages.dev" target="_blank" class="btn btn-white">Apply as a Caregiver →</a>
-      <a href="#how-it-works" class="btn btn-outline">See How It Works</a>
+      </div>
     </div>
   </div>
 </section>
 
 <!-- ═══ FINAL CTA ═══ -->
-<section class="final-cta">
-  <div class="container" style="position:relative;z-index:1;">
-    <h2 class="fade-up">Your family deserves the best care.<br/>Find it today.</h2>
-    <p class="fade-up">Join thousands of families who found trusted caregivers through GoToCare.</p>
-    <div class="btn-group fade-up">
-      <a href="#find-care" class="btn btn-white">Find a Caregiver →</a>
-      <a href="https://gotocare-client-portal.pages.dev?browse=true" target="_blank" class="btn btn-outline">Browse Profiles</a>
+<section class="final-section">
+  <div class="container">
+    <h2 class="fade-in">Your family deserves care.<br/>Not a subscription form.</h2>
+    <p class="fade-in">Browse verified caregivers near you — completely free, right now. No account, no credit card, no commitment.</p>
+    <div class="final-btns fade-in">
+      <a href="https://gotocare-client-portal.pages.dev?browse=true" target="_blank" class="btn btn-white btn-lg">
+        Browse Caregivers Free →
+      </a>
+      <a href="https://gotocare-caregiver-portal.pages.dev" target="_blank" class="btn btn-ghost btn-lg">
+        Join as a Caregiver
+      </a>
     </div>
+    <p class="final-note fade-in">No credit card · No subscription · Cancel anytime</p>
   </div>
 </section>
 
 <!-- ═══ FOOTER ═══ -->
 <footer class="footer">
   <div class="container">
-    <div class="footer-grid">
+    <div class="footer-top">
       <div class="footer-brand">
-        <div class="logo">
-          <div class="logo-icon">G</div>
+        <div class="footer-logo">
+          <div class="logo-mark">G</div>
           GoToCare
         </div>
-        <p>The marketplace connecting families with trusted, verified caregivers across the US.</p>
+        <p class="footer-tagline">The care marketplace that lets you browse first, pay only when ready. Connecting families with trusted caregivers across the US.</p>
         <div class="footer-social">
           <a href="#" title="Facebook">f</a>
-          <a href="#" title="Instagram">in</a>
-          <a href="#" title="Twitter">𝕏</a>
+          <a href="#" title="Instagram">ig</a>
+          <a href="#" title="X">𝕏</a>
         </div>
       </div>
-      <div class="footer-links">
+      <div class="footer-cols">
         <div class="footer-col">
-          <h4>Find Care</h4>
-          <a href="#caregivers">Browse Caregivers</a>
+          <h5>Find Care</h5>
+          <a href="https://gotocare-client-portal.pages.dev?browse=true" target="_blank">Browse Caregivers</a>
           <a href="#how-it-works">How It Works</a>
-          <a href="#find-care">Request Care</a>
-          <a href="https://gotocare-client-portal.pages.dev?browse=true" target="_blank">Client Portal</a>
+          <a href="#caregivers">Profiles Near You</a>
+          <a href="https://gotocare-client-portal.pages.dev" target="_blank">Client Portal</a>
         </div>
         <div class="footer-col">
-          <h4>Caregivers</h4>
-          <a href="#for-caregivers">Join Our Network</a>
+          <h5>Caregivers</h5>
+          <a href="https://gotocare-caregiver-portal.pages.dev" target="_blank">Join Our Network</a>
           <a href="https://gotocare-caregiver-portal.pages.dev" target="_blank">Caregiver App</a>
-          <a href="#">Caregiver Resources</a>
-          <a href="#">Background Check Info</a>
+          <a href="#for-caregivers">How Earnings Work</a>
+          <a href="#for-caregivers">Pay-Per-Lead Model</a>
         </div>
         <div class="footer-col">
-          <h4>Company</h4>
+          <h5>Company</h5>
           <a href="#">About GoToCare</a>
           <a href="#">Blog</a>
           <a href="#">Careers</a>
           <a href="#">Contact Us</a>
         </div>
         <div class="footer-col">
-          <h4>Legal</h4>
+          <h5>Legal</h5>
           <a href="#">Privacy Policy</a>
           <a href="#">Terms of Service</a>
-          <a href="#">Safety</a>
+          <a href="#">Safety Center</a>
+          <a href="#">Accessibility</a>
         </div>
       </div>
     </div>
     <div class="footer-bottom">
-      <span>&copy; 2026 GoToCare. All rights reserved.</span>
-      <div class="footer-bottom-links">
+      <span class="footer-copy">© 2026 GoToCare Inc. All rights reserved.</span>
+      <div class="footer-legal">
         <a href="#">Privacy</a>
         <a href="#">Terms</a>
-        <a href="#">Safety</a>
+        <a href="#">Cookies</a>
       </div>
     </div>
   </div>
 </footer>
 
 <script>
-  // Navbar scroll effect
+  // ── Navbar scroll ──
   window.addEventListener('scroll', () => {
     document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 50);
   });
 
-  // Fade-in on scroll
+  // ── Fade-in observer ──
   const observer = new IntersectionObserver((entries) => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
-  }, { threshold: 0.12 });
-  document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 
-  // How It Works tab switch
+  // ── Care chips (multi-select) ──
+  let selectedCare = [];
+  function toggleCare(el, type) {
+    el.classList.toggle('on');
+    const i = selectedCare.indexOf(type);
+    if (i > -1) selectedCare.splice(i, 1); else selectedCare.push(type);
+    const btn = document.getElementById('heroFindBtn');
+    const n = selectedCare.length;
+    btn.textContent = n === 0
+      ? 'Show Me Available Caregivers →'
+      : `Find Caregivers for ${n} Need${n > 1 ? 's' : ''} →`;
+  }
+
+  // ── GPS ──
+  function useGPS() {
+    const btn = document.getElementById('gpsBtn');
+    btn.textContent = '⏳…';
+    btn.disabled = true;
+    if (!navigator.geolocation) {
+      document.getElementById('heroLoc').value = 'Atlanta, GA';
+      btn.textContent = '📍 GPS'; btn.disabled = false; return;
+    }
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      try {
+        const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json`);
+        const d = await r.json();
+        const city = d.address?.city || d.address?.town || d.address?.village || '';
+        const st = d.address?.state || '';
+        document.getElementById('heroLoc').value = city ? `${city}, ${st}` : 'Your location';
+      } catch(e) { document.getElementById('heroLoc').value = 'Atlanta, GA'; }
+      btn.textContent = '✅';
+      setTimeout(() => { btn.textContent = '📍 GPS'; btn.disabled = false; }, 2000);
+    }, () => {
+      document.getElementById('heroLoc').value = 'Atlanta, GA';
+      btn.textContent = '📍 GPS'; btn.disabled = false;
+    });
+  }
+
+  // ── Find care ──
+  function findCare() {
+    const loc = document.getElementById('heroLoc').value.trim();
+    const params = new URLSearchParams();
+    if (selectedCare.length) params.set('care', selectedCare.join(','));
+    if (loc) params.set('location', loc);
+    window.open(`https://gotocare-client-portal.pages.dev?${params}`, '_blank');
+  }
+
+  // ── How it works tabs ──
   function switchTab(tab, btn) {
     document.querySelectorAll('.how-tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.how-steps-panel').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.how-panel').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
     document.getElementById('panel-' + tab).classList.add('active');
   }
 
-  // Hero tile selection (multi-select)
-  let heroCareTypes = [];
-  let heroUrgencyVal = 'now';
-
-  function heroSelectCare(el, type) {
-    el.classList.toggle('selected');
-    const idx = heroCareTypes.indexOf(type);
-    if (idx > -1) heroCareTypes.splice(idx, 1);
-    else heroCareTypes.push(type);
-    const btn = document.getElementById('heroFindBtn');
-    if (btn) {
-      const n = heroCareTypes.length;
-      btn.textContent = n === 0
-        ? 'Find Available Caregivers →'
-        : `Find Caregivers for ${n} Need${n > 1 ? 's' : ''} →`;
-    }
+  // ── Live feed rotation ──
+  const feedItems = [
+    { dot: 'green', text: 'Maria accepted a booking in Atlanta', time: '2m ago' },
+    { dot: 'purple', text: 'New caregiver joined in Dallas', time: '4m ago' },
+    { dot: 'blue', text: 'Family found a match in Miami', time: '7m ago' },
+    { dot: 'green', text: 'James confirmed an interview in Houston', time: '11m ago' },
+    { dot: 'purple', text: 'Rachel joined from Orlando', time: '14m ago' },
+    { dot: 'blue', text: '5 new profiles verified today', time: '18m ago' },
+    { dot: 'green', text: 'Ava accepted a senior care booking', time: '22m ago' },
+  ];
+  let feedIdx = 0;
+  function rotateFeed() {
+    const feed = document.getElementById('liveFeed');
+    if (!feed) return;
+    feedIdx = (feedIdx + 1) % feedItems.length;
+    const items = feedItems.slice(feedIdx, feedIdx + 3).concat(feedItems.slice(0, Math.max(0, feedIdx + 3 - feedItems.length)));
+    feed.innerHTML = items.map(i =>
+      `<div class="lf-item"><span class="lf-dot ${i.dot}"></span> ${i.text}<span class="lf-time">${i.time}</span></div>`
+    ).join('');
   }
+  setInterval(rotateFeed, 4000);
 
-  function heroSelectUrgency(el, urgency) {
-    document.querySelectorAll('.hero-urgency-pill').forEach(p => p.classList.remove('selected'));
-    el.classList.add('selected');
-    heroUrgencyVal = urgency;
-  }
-
-  function heroUseGPS() {
-    const btn = document.getElementById('heroGpsBtn');
-    btn.textContent = '⏳ Locating…';
-    btn.disabled = true;
-    if (!navigator.geolocation) {
-      document.getElementById('heroLocation').value = 'Atlanta, GA';
-      btn.textContent = '📍 Use GPS'; btn.disabled = false; return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        try {
-          const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json`);
-          const d = await r.json();
-          const city = d.address?.city || d.address?.town || d.address?.village || '';
-          const st = d.address?.state || '';
-          document.getElementById('heroLocation').value = city ? `${city}, ${st}` : 'Your location';
-        } catch(e) { document.getElementById('heroLocation').value = 'Atlanta, GA'; }
-        btn.textContent = '✅ Found!';
-        setTimeout(() => { btn.textContent = '📍 Use GPS'; btn.disabled = false; }, 2000);
-      },
-      () => { document.getElementById('heroLocation').value = 'Atlanta, GA'; btn.textContent = '📍 Use GPS'; btn.disabled = false; }
-    );
-  }
-
-  function heroFindCare() {
-    const loc = document.getElementById('heroLocation').value.trim();
-    const params = new URLSearchParams();
-    if (heroCareTypes.length) params.set('care', heroCareTypes.join(','));
-    if (loc) params.set('location', loc);
-    params.set('urgency', heroUrgencyVal);
-    window.open(`https://gotocare-client-portal.pages.dev?${params}`, '_blank');
-  }
-
-  // API
-  const API_BASE = 'https://gotocare-original.jjioji.workers.dev';
-
-  async function handleDemoSubmit(e) {
-    e.preventDefault();
-    const form = e.target;
-    const btn = form.querySelector('button[type="submit"]');
-    const fd = new FormData(form);
-    const fullName = (fd.get('fullName') || '').toString().trim();
-    const nameParts = fullName.split(' ');
-    const firstName = nameParts[0] || '';
-    const lastName = nameParts.slice(1).join(' ') || '';
-
-    btn.textContent = 'Finding matches…';
-    btn.disabled = true;
-
-    try {
-      const res = await fetch(`${API_BASE}/api/submit-lead`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          firstName,
-          lastName,
-          email: fd.get('email') || '',
-          phone: fd.get('phone') || '',
-          careType: fd.get('careType') || 'home_care',
-          message: fd.get('message') || '',
-          location: fd.get('location') || '',
-          source: 'landing_page',
-          agencyId: fd.get('agencyId') || null,
-        }),
-      });
-      const data = await res.json();
-      if (data.success || res.ok) {
-        showSuccess(btn, form);
-      } else {
-        throw new Error('Submission failed');
-      }
-    } catch (err) {
-      // Show success anyway for demo purposes
-      showSuccess(btn, form);
-    }
-  }
-
-  function showSuccess(btn, form) {
-    btn.textContent = '✓ Request Received! We\'ll match you shortly.';
-    btn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
-    btn.style.boxShadow = '0 8px 30px rgba(16,185,129,.25)';
-    setTimeout(() => {
-      form.reset();
-      btn.textContent = 'Find My Caregiver →';
-      btn.style.background = '';
-      btn.style.boxShadow = '';
-      btn.disabled = false;
-    }, 4000);
-  }
-
-  // Smooth scroll for anchor links
+  // ── Smooth scroll ──
   document.querySelectorAll('a[href^="#"]').forEach(a => {
-    a.addEventListener('click', (e) => {
-      const target = document.querySelector(a.getAttribute('href'));
-      if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    a.addEventListener('click', e => {
+      const t = document.querySelector(a.getAttribute('href'));
+      if (t) { e.preventDefault(); t.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
     });
   });
 </script>
-
 </body>
 </html>
