@@ -3,8 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Carehia — Browse Caregivers Free. No Subscription.</title>
-  <meta name="description" content="Browse verified caregivers near you — completely free, no credit card, no subscription. Only pay when you're ready to connect. Carehia is the care marketplace that puts families first." />
+  <title>Carehia — Find Trusted Caregivers Near You. Free to Browse.</title>
+  <meta name="description" content="Find trusted, verified caregivers near you in minutes — completely free to browse. No credit card, no subscription. Only pay when you're ready to connect. Carehia puts families first." />
+  <link rel="canonical" href="https://carehia.com" />
+  <meta property="og:title" content="Carehia — Find Trusted Caregivers Near You" />
+  <meta property="og:description" content="Browse verified caregivers free. No credit card. No subscription. Only pay when you're ready to connect." />
+  <meta property="og:url" content="https://carehia.com" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://carehia.com/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Carehia — Find Trusted Caregivers Near You" />
+  <meta name="twitter:description" content="Browse verified caregivers free. No credit card. No subscription." />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%237c3aed'/><text y='24' x='6' font-size='22' fill='white' font-family='Arial' font-weight='bold'>C</text></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
@@ -90,11 +100,12 @@
     }
     .navbar.scrolled { background: rgba(26,26,46,.95); padding: 12px 0; }
     .navbar .container { display: flex; align-items: center; justify-content: space-between; }
-    .logo { display: flex; align-items: center; gap: 10px; font-size: 1.4rem; font-weight: 800; color: #fff; }
+    .logo { display: flex; align-items: center; gap: 10px; font-size: 1.5rem; font-weight: 900; color: #fff; letter-spacing: -0.02em; }
     .logo-mark {
-      width: 36px; height: 36px; border-radius: 10px;
+      width: 38px; height: 38px; border-radius: 10px;
       background: var(--grad); display: flex; align-items: center; justify-content: center;
-      font-size: 1.1rem; box-shadow: var(--shadow-purple);
+      font-size: 1.15rem; font-weight: 900; box-shadow: var(--shadow-purple);
+      letter-spacing: -0.02em;
     }
     .nav-links { display: flex; gap: 28px; align-items: center; }
     .nav-links a { color: rgba(255,255,255,.7); font-weight: 500; font-size: 0.9rem; transition: color .2s; }
@@ -150,7 +161,7 @@
       pointer-events: none;
     }
     .hero-inner {
-      width: 100%; padding: 160px 0 80px;
+      width: 100%; padding: 200px 0 80px;
       position: relative; z-index: 1;
     }
     .hero-split {
@@ -793,11 +804,16 @@
 </head>
 <body>
 
+<!-- ═══ ANNOUNCEMENT BAR ═══ -->
+<div style="background:linear-gradient(90deg,#7c3aed,#3b82f6);padding:10px 24px;text-align:center;font-size:0.82rem;font-weight:600;color:#fff;letter-spacing:0.01em;position:relative;z-index:1001;">
+  🎉 New: Caregivers join free and keep 100% of their earnings — <a href="https://work.carehia.com" target="_blank" style="color:#fff;text-decoration:underline;text-underline-offset:2px;">Learn more →</a>
+</div>
+
 <!-- NAVBAR -->
 <nav class="navbar" id="navbar">
   <div class="container">
     <a href="#" class="logo">
-      <div class="logo-mark">G</div>
+      <div class="logo-mark">C</div>
       Carehia
     </a>
     <div class="nav-links">
@@ -806,8 +822,8 @@
       <a href="#for-caregivers">Earn with Carehia</a>
     </div>
     <div class="nav-actions">
-      <a href="https://gotocare-caregiver-portal.pages.dev" target="_blank" class="btn btn-ghost btn-sm">Caregiver Login</a>
-      <a href="https://gotocare-client-portal.pages.dev?browse=true" target="_blank" class="btn btn-primary btn-sm">Browse Free →</a>
+      <a href="https://work.carehia.com" target="_blank" class="btn btn-ghost btn-sm">Caregiver Login</a>
+      <a href="https://app.carehia.com?browse=true" target="_blank" class="btn btn-primary btn-sm">Browse Free →</a>
     </div>
     <button class="hamburger" onclick="document.getElementById('mobileNav').classList.add('open')">
       <span></span><span></span><span></span>
@@ -820,7 +836,7 @@
   <a href="#how-it-works" onclick="this.parentElement.classList.remove('open')">How It Works</a>
   <a href="#caregivers" onclick="this.parentElement.classList.remove('open')">Browse Caregivers</a>
   <a href="#for-caregivers" onclick="this.parentElement.classList.remove('open')">Earn with Carehia</a>
-  <a href="https://gotocare-client-portal.pages.dev?browse=true" target="_blank" class="btn btn-primary">Browse Caregivers Free →</a>
+  <a href="https://app.carehia.com?browse=true" target="_blank" class="btn btn-primary">Browse Caregivers Free →</a>
 </div>
 
 <!-- ═══ HERO ═══ -->
@@ -885,7 +901,7 @@
 
         <!-- RIGHT: Floating cards -->
         <div class="hero-cards fade-in">
-          <div class="floating-card fc-1" onclick="window.open('https://gotocare-client-portal.pages.dev?browse=true','_blank')">
+          <div class="floating-card fc-1" onclick="window.open('https://app.carehia.com?browse=true','_blank')">
             <div class="fc-head">
               <div class="fc-avatar" style="background:linear-gradient(135deg,#7c3aed,#3b82f6)">M</div>
               <div>
@@ -907,7 +923,7 @@
             <button class="fc-unlock">View Profile Free →</button>
           </div>
 
-          <div class="floating-card fc-2" onclick="window.open('https://gotocare-client-portal.pages.dev?browse=true','_blank')">
+          <div class="floating-card fc-2" onclick="window.open('https://app.carehia.com?browse=true','_blank')">
             <div class="fc-head">
               <div class="fc-avatar" style="background:linear-gradient(135deg,#0ea5e9,#6366f1)">J</div>
               <div>
@@ -928,7 +944,7 @@
             <button class="fc-unlock">View Profile Free →</button>
           </div>
 
-          <div class="floating-card fc-3" onclick="window.open('https://gotocare-client-portal.pages.dev?browse=true','_blank')">
+          <div class="floating-card fc-3" onclick="window.open('https://app.carehia.com?browse=true','_blank')">
             <div class="fc-head">
               <div class="fc-avatar" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">A</div>
               <div>
@@ -1072,7 +1088,7 @@
         <div class="price-tag">From $15/mo — cancel anytime</div>
       </div>
     </div>
-    <a href="https://gotocare-client-portal.pages.dev?browse=true" target="_blank" class="btn btn-primary btn-lg fade-in">
+    <a href="https://app.carehia.com?browse=true" target="_blank" class="btn btn-primary btn-lg fade-in">
       Start Browsing — It's Free →
     </a>
   </div>
@@ -1084,7 +1100,7 @@
     <h2 class="fade-in">Meet caregivers near you</h2>
     <p class="fade-in">Every profile is background-checked, credentialed, and reviewed by real families. Swipe to explore.</p>
     <div class="carousel-scroll">
-      <div class="cg-card" onclick="window.open('https://gotocare-client-portal.pages.dev?browse=true','_blank')">
+      <div class="cg-card" onclick="window.open('https://app.carehia.com?browse=true','_blank')">
         <div class="cg-top">
           <div class="cg-av" style="background:linear-gradient(135deg,#7c3aed,#3b82f6)">M</div>
           <div><div class="cg-name">Maria Santos</div><div class="cg-meta">Atlanta, GA · 8 yrs exp</div></div>
@@ -1093,7 +1109,7 @@
         <div class="cg-chips"><span class="cg-chip">Senior Care</span><span class="cg-chip">Dementia</span><span class="cg-chip">CNA Certified</span><span class="cg-chip">Spanish</span></div>
         <div class="cg-foot"><div class="cg-rate">$28<em>/hr</em></div><div class="cg-status avail">Available now</div></div>
       </div>
-      <div class="cg-card" onclick="window.open('https://gotocare-client-portal.pages.dev?browse=true','_blank')">
+      <div class="cg-card" onclick="window.open('https://app.carehia.com?browse=true','_blank')">
         <div class="cg-top">
           <div class="cg-av" style="background:linear-gradient(135deg,#0ea5e9,#6366f1)">J</div>
           <div><div class="cg-name">James Carter</div><div class="cg-meta">Miami, FL · 5 yrs exp</div></div>
@@ -1102,7 +1118,7 @@
         <div class="cg-chips"><span class="cg-chip">Home Care</span><span class="cg-chip">Post-Surgery</span><span class="cg-chip">Companion</span></div>
         <div class="cg-foot"><div class="cg-rate">$24<em>/hr</em></div><div class="cg-status avail">Available now</div></div>
       </div>
-      <div class="cg-card" onclick="window.open('https://gotocare-client-portal.pages.dev?browse=true','_blank')">
+      <div class="cg-card" onclick="window.open('https://app.carehia.com?browse=true','_blank')">
         <div class="cg-top">
           <div class="cg-av" style="background:linear-gradient(135deg,#f59e0b,#ef4444)">A</div>
           <div><div class="cg-name">Ava Thompson</div><div class="cg-meta">Houston, TX · 12 yrs exp</div></div>
@@ -1111,7 +1127,7 @@
         <div class="cg-chips"><span class="cg-chip">Private Duty</span><span class="cg-chip">Palliative</span><span class="cg-chip">RN Licensed</span></div>
         <div class="cg-foot"><div class="cg-rate">$42<em>/hr</em></div><div class="cg-status soon">Available this week</div></div>
       </div>
-      <div class="cg-card" onclick="window.open('https://gotocare-client-portal.pages.dev?browse=true','_blank')">
+      <div class="cg-card" onclick="window.open('https://app.carehia.com?browse=true','_blank')">
         <div class="cg-top">
           <div class="cg-av" style="background:linear-gradient(135deg,#10b981,#3b82f6)">D</div>
           <div><div class="cg-name">Diana Flores</div><div class="cg-meta">Dallas, TX · 6 yrs exp</div></div>
@@ -1120,7 +1136,7 @@
         <div class="cg-chips"><span class="cg-chip">Wheelchair</span><span class="cg-chip">Meal Prep</span><span class="cg-chip">HHA Cert</span></div>
         <div class="cg-foot"><div class="cg-rate">$26<em>/hr</em></div><div class="cg-status avail">Available now</div></div>
       </div>
-      <div class="cg-card" onclick="window.open('https://gotocare-client-portal.pages.dev?browse=true','_blank')">
+      <div class="cg-card" onclick="window.open('https://app.carehia.com?browse=true','_blank')">
         <div class="cg-top">
           <div class="cg-av" style="background:linear-gradient(135deg,#ec4899,#8b5cf6)">R</div>
           <div><div class="cg-name">Rachel Kim</div><div class="cg-meta">Orlando, FL · 9 yrs exp</div></div>
@@ -1129,7 +1145,7 @@
         <div class="cg-chips"><span class="cg-chip">Child Care</span><span class="cg-chip">Overnight</span><span class="cg-chip">First Aid</span></div>
         <div class="cg-foot"><div class="cg-rate">$32<em>/hr</em></div><div class="cg-status avail">Available now</div></div>
       </div>
-      <div class="cg-card" onclick="window.open('https://gotocare-client-portal.pages.dev?browse=true','_blank')">
+      <div class="cg-card" onclick="window.open('https://app.carehia.com?browse=true','_blank')">
         <div class="cg-top">
           <div class="cg-av" style="background:linear-gradient(135deg,#6366f1,#06b6d4)">T</div>
           <div><div class="cg-name">Thomas Adeyemi</div><div class="cg-meta">Atlanta, GA · 4 yrs exp</div></div>
@@ -1140,7 +1156,7 @@
       </div>
     </div>
     <div class="carousel-cta fade-in">
-      <a href="https://gotocare-client-portal.pages.dev?browse=true" target="_blank" class="btn btn-primary">
+      <a href="https://app.carehia.com?browse=true" target="_blank" class="btn btn-primary">
         Browse All Caregivers Free →
       </a>
     </div>
@@ -1301,7 +1317,7 @@
         </div>
 
         <div style="margin-top:32px;">
-          <a href="https://gotocare-caregiver-portal.pages.dev" target="_blank" class="btn btn-white btn-lg">
+          <a href="https://work.carehia.com" target="_blank" class="btn btn-white btn-lg">
             Apply as a Caregiver — Free →
           </a>
         </div>
@@ -1419,7 +1435,7 @@
             </div>
           </div>
         </div>
-        <a href="https://gotocare-caregiver-portal.pages.dev" target="_blank" class="btn btn-primary btn-lg">
+        <a href="https://work.carehia.com" target="_blank" class="btn btn-primary btn-lg">
           Open Your Online Office — Free →
         </a>
       </div>
@@ -1479,10 +1495,10 @@
     <h2 class="fade-in">Your family deserves care.<br/>Not a subscription form.</h2>
     <p class="fade-in">Browse verified caregivers near you — completely free, right now. No account, no credit card, no commitment.</p>
     <div class="final-btns fade-in">
-      <a href="https://gotocare-client-portal.pages.dev?browse=true" target="_blank" class="btn btn-white btn-lg">
+      <a href="https://app.carehia.com?browse=true" target="_blank" class="btn btn-white btn-lg">
         Browse Caregivers Free →
       </a>
-      <a href="https://gotocare-caregiver-portal.pages.dev" target="_blank" class="btn btn-ghost btn-lg">
+      <a href="https://work.carehia.com" target="_blank" class="btn btn-ghost btn-lg">
         Join as a Caregiver
       </a>
     </div>
@@ -1496,28 +1512,32 @@
     <div class="footer-top">
       <div class="footer-brand">
         <div class="footer-logo">
-          <div class="logo-mark">G</div>
+          <div class="logo-mark">C</div>
           Carehia
         </div>
         <p class="footer-tagline">The care marketplace that lets you browse first, pay only when ready. Connecting families with trusted caregivers across the US.</p>
         <div class="footer-social">
-          <a href="#" title="Facebook">f</a>
-          <a href="#" title="Instagram">ig</a>
-          <a href="#" title="X">𝕏</a>
+          <a href="https://facebook.com/carehia" title="Facebook" target="_blank" rel="noopener">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          </a>
+          <a href="https://instagram.com/carehia" title="Instagram" target="_blank" rel="noopener">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+          </a>
+          <a href="#" title="X / Twitter" target="_blank" rel="noopener" style="font-size:0.85rem;font-weight:800;">𝕏</a>
         </div>
       </div>
       <div class="footer-cols">
         <div class="footer-col">
           <h5>Find Care</h5>
-          <a href="https://gotocare-client-portal.pages.dev?browse=true" target="_blank">Browse Caregivers</a>
+          <a href="https://app.carehia.com?browse=true" target="_blank">Browse Caregivers</a>
           <a href="#how-it-works">How It Works</a>
           <a href="#caregivers">Profiles Near You</a>
-          <a href="https://gotocare-client-portal.pages.dev" target="_blank">Client Portal</a>
+          <a href="https://app.carehia.com" target="_blank">Client Portal</a>
         </div>
         <div class="footer-col">
           <h5>Caregivers</h5>
-          <a href="https://gotocare-caregiver-portal.pages.dev" target="_blank">Join Our Network</a>
-          <a href="https://gotocare-caregiver-portal.pages.dev" target="_blank">Caregiver App</a>
+          <a href="https://work.carehia.com" target="_blank">Join Our Network</a>
+          <a href="https://work.carehia.com" target="_blank">Caregiver App</a>
           <a href="#for-caregivers">How Earnings Work</a>
           <a href="#for-caregivers">Pay-Per-Lead Model</a>
         </div>
@@ -1538,7 +1558,7 @@
       </div>
     </div>
     <div class="footer-bottom">
-      <span class="footer-copy">© 2026 Carehia Inc. All rights reserved.</span>
+      <span class="footer-copy">© 2025 Carehia Inc. All rights reserved.</span>
       <div class="footer-legal">
         <a href="#">Privacy</a>
         <a href="#">Terms</a>
@@ -1604,7 +1624,7 @@
     const params = new URLSearchParams();
     if (selectedCare.length) params.set('care', selectedCare.join(','));
     if (loc) params.set('location', loc);
-    window.open(`https://gotocare-client-portal.pages.dev?${params}`, '_blank');
+    window.open(`https://app.carehia.com?${params}`, '_blank');
   }
 
   // ── How it works tabs ──
@@ -1670,8 +1690,8 @@ document.getElementById('mobile-nav').addEventListener('click', function(e) {
   <a href="#how-it-works" onclick="closeMobileNav()">How It Works</a>
   <a href="#caregivers" onclick="closeMobileNav()">Browse Caregivers</a>
   <a href="#for-caregivers" onclick="closeMobileNav()">Earn with Carehia</a>
-  <a href="https://gotocare-caregiver-portal.pages.dev" target="_blank" onclick="closeMobileNav()">Caregiver Login</a>
-  <a href="https://gotocare-client-portal.pages.dev?browse=true" target="_blank" onclick="closeMobileNav()" style="background:linear-gradient(135deg,#7c3aed,#3b82f6);padding:12px 32px;border-radius:50px;font-size:1.1rem;">Browse Free →</a>
+  <a href="https://work.carehia.com" target="_blank" onclick="closeMobileNav()">Caregiver Login</a>
+  <a href="https://app.carehia.com?browse=true" target="_blank" onclick="closeMobileNav()" style="background:linear-gradient(135deg,#7c3aed,#3b82f6);padding:12px 32px;border-radius:50px;font-size:1.1rem;">Browse Free →</a>
 </div>
 
 </body>
