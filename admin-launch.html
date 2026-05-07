@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carehia Launch Dashboard</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif; background: #0a0a1a; color: #f0ecff; min-height: 100vh; }
+    .header { background: linear-gradient(135deg, #1e1e38, #2d1b6e); padding: 24px 32px; border-bottom: 1px solid rgba(139,92,246,0.3); }
+    .header h1 { font-size: 24px; font-weight: 800; background: linear-gradient(90deg, #a78bfa, #60a5fa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .header p { color: rgba(240,236,255,0.5); font-size: 13px; margin-top: 4px; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+    .auth-gate { text-align: center; padding: 80px 24px; }
+    .auth-gate input { background: rgba(255,255,255,0.08); border: 1px solid rgba(139,92,246,0.4); color: #f0ecff; padding: 12px 16px; border-radius: 12px; font-size: 15px; width: 300px; margin-bottom: 12px; display: block; margin: 0 auto 12px; }
+    .auth-gate button { background: linear-gradient(135deg, #7c3aed, #3b82f6); color: white; border: none; padding: 12px 32px; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; }
+    .section-title { font-size: 18px; font-weight: 700; color: #a78bfa; margin-bottom: 16px; display: flex; align-items: center; gap-bottom: 8px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 32px; }
+    .card { background: rgba(30,30,56,0.8); border: 1px solid rgba(139,92,246,0.2); border-radius: 20px; padding: 20px; }
+    .stat-card { text-align: center; }
+    .stat-card .value { font-size: 36px; font-weight: 900; background: linear-gradient(135deg, #a78bfa, #60a5fa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .stat-card .label { font-size: 12px; color: rgba(240,236,255,0.5); margin-top: 4px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+    .zip-card { background: rgba(30,30,56,0.9); border: 1px solid rgba(139,92,246,0.2); border-radius: 20px; padding: 24px; margin-bottom: 16px; }
+    .zip-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+    .zip-card .zip-code { font-size: 13px; color: rgba(240,236,255,0.4); margin-bottom: 16px; }
+    .zip-status { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 50px; font-size: 12px; font-weight: 700; margin-bottom: 16px; }
+    .status-ready { background: rgba(52,211,153,0.15); color: #34d399; }
+    .status-building { background: rgba(251,191,36,0.15); color: #fbbf24; }
+    .status-weak { background: rgba(248,113,113,0.15); color: #f87171; }
+    .metrics-row { display: flex; flex-wrap: wrap; gap: 12px; }
+    .metric-item { flex: 1; min-width: 100px; }
+    .metric-item .metric-val { font-size: 22px; font-weight: 800; color: #a78bfa; }
+    .metric-item .metric-desc { font-size: 11px; color: rgba(240,236,255,0.4); }
+    .progress-bar { height: 4px; background: rgba(139,92,246,0.2); border-radius: 4px; margin-top: 4px; overflow: hidden; }
+    .progress-bar .fill { height: 100%; background: linear-gradient(90deg, #7c3aed, #3b82f6); border-radius: 4px; transition: width 0.8s ease; }
+    .milestone-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(139,92,246,0.1); }
+    .milestone-item:last-child { border-bottom: none; }
+    .milestone-dot { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; }
+    .milestone-reached { background: rgba(52,211,153,0.2); color: #34d399; }
+    .milestone-pending { background: rgba(139,92,246,0.15); color: rgba(167,139,250,0.5); }
+    .booking-row { display: flex; align-items: center; gap-bottom: 10px; padding: 10px 0; border-bottom: 1px solid rgba(139,92,246,0.08); font-size: 13px; }
+    .badge-small { padding: 3px 8px; border-radius: 50px; font-size: 10px; font-weight: 700; }
+    .badge-accepted { background: rgba(52,211,153,0.2); color: #34d399; }
+    .badge-pending { background: rgba(251,191,36,0.15); color: #fbbf24; }
+    .badge-completed { background: rgba(96,165,250,0.2); color: #60a5fa; }
+    .refresh-btn { background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.3); color: #a78bfa; padding: 8px 16px; border-radius: 10px; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .loading { text-align: center; padding: 60px; color: rgba(240,236,255,0.4); }
+    .error { background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); border-radius: 12px; padding: 16px; color: #f87171; font-size: 13px; }
+    .goal-banner { background: linear-gradient(135deg, rgba(124,58,237,0.2), rgba(59,130,246,0.2)); border: 1px solid rgba(139,92,246,0.3); border-radius: 16px; padding: 16px 20px; margin-bottom: 32px; text-align: center; }
+    .goal-banner p { font-size: 14px; color: rgba(240,236,255,0.7); }
+    .goal-banner .goal-text { font-size: 18px; font-weight: 800; background: linear-gradient(90deg, #a78bfa, #60a5fa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    table th { text-align: left; padding: 8px 12px; color: rgba(240,236,255,0.4); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid rgba(139,92,246,0.2); }
+    table td { padding: 10px 12px; border-bottom: 1px solid rgba(139,92,246,0.08); }
+    @media (max-width: 700px) { .grid-3, .grid-2 { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>⚡ Carehia Launch Dashboard</h1>
+    <p>First 20 Bookings · Sacramento Metro · Admin Only</p>
+  </div>
+
+  <div id="auth-gate" class="auth-gate" style="display:none">
+    <p style="margin-bottom:24px;color:rgba(240,236,255,0.6);font-size:15px;">Enter admin key to view dashboard</p>
+    <input id="key-input" type="password" placeholder="Admin key" />
+    <br/>
+    <button onclick="doAuth()">Access Dashboard</button>
+  </div>
+
+  <div id="main" class="container" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+      <div>
+        <p style="color:rgba(240,236,255,0.5);font-size:13px;" id="last-updated">Loading…</p>
+      </div>
+      <button class="refresh-btn" onclick="loadAll()">↻ Refresh</button>
+    </div>
+
+    <!-- Goal Banner -->
+    <div class="goal-banner">
+      <p class="goal-text">🏁 Goal: First 20 Bookings</p>
+      <p>Complete the first 20 bookings in Sacramento's launch ZIPs: 95823 · 95828 · 95864</p>
+    </div>
+
+    <!-- Overall Stats -->
+    <p class="section-title" style="margin-bottom:16px;font-size:14px;color:rgba(167,139,250,0.8);text-transform:uppercase;letter-spacing:0.5px;">📊 Overall Platform</p>
+    <div class="grid-3" id="overall-stats">
+      <div class="card stat-card"><div class="value" id="total-cgs">—</div><div class="label">Total Caregivers</div></div>
+      <div class="card stat-card"><div class="value" id="online-cgs">—</div><div class="label">Online Now</div></div>
+      <div class="card stat-card"><div class="value" id="total-requests">—</div><div class="label">Requests Created</div></div>
+      <div class="card stat-card"><div class="value" id="accepted-requests">—</div><div class="label">Accepted</div></div>
+      <div class="card stat-card"><div class="value" id="acceptance-rate">—</div><div class="label">Acceptance Rate</div></div>
+      <div class="card stat-card"><div class="value" id="avg-response">—</div><div class="label">Avg Response (sec)</div></div>
+    </div>
+
+    <!-- Booking Milestones -->
+    <p class="section-title" style="margin-bottom:16px;font-size:14px;color:rgba(167,139,250,0.8);text-transform:uppercase;letter-spacing:0.5px;">🏆 Milestones</p>
+    <div class="card" style="margin-bottom:32px;">
+      <div id="milestones-list">Loading…</div>
+    </div>
+
+    <!-- ZIP Launch Readiness -->
+    <p class="section-title" style="margin-bottom:16px;font-size:14px;color:rgba(167,139,250,0.8);text-transform:uppercase;letter-spacing:0.5px;">📍 Launch ZIP Metrics</p>
+    <div id="zip-cards">Loading…</div>
+
+    <!-- First 20 Bookings Table -->
+    <p class="section-title" style="margin-bottom:16px;font-size:14px;color:rgba(167,139,250,0.8);text-transform:uppercase;letter-spacing:0.5px;">📋 First 20 Bookings Tracker</p>
+    <div class="card" style="overflow-x:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>ZIP</th><th>Care Type</th><th>Caregivers<br/>Notified</th><th>Time to<br/>Accept</th><th>Status</th><th>Review</th><th>Rebooked</th>
+          </tr>
+        </thead>
+        <tbody id="bookings-table">
+          <tr><td colspan="8" style="text-align:center;padding:32px;color:rgba(240,236,255,0.3);">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const API = 'https://gotocare-original.jjioji.workers.dev/api'
+    let adminKey = ''
+
+    function doAuth() {
+      adminKey = document.getElementById('key-input').value.trim()
+      if (!adminKey) return
+      localStorage.setItem('carehia_admin_key', adminKey)
+      document.getElementById('auth-gate').style.display = 'none'
+      document.getElementById('main').style.display = 'block'
+      loadAll()
+    }
+
+    async function loadAll() {
+      await Promise.all([loadLaunchMetrics(), loadFirst20()])
+    }
+
+    async function loadLaunchMetrics() {
+      try {
+        const r = await fetch(`${API}/admin-launch-metrics?key=${encodeURIComponent(adminKey)}`)
+        if (r.status === 401) { alert('Invalid admin key'); return }
+        const data = await r.json()
+        document.getElementById('last-updated').textContent = 'Last updated: ' + new Date(data.generated_at).toLocaleTimeString()
+
+        // Overall stats
+        const o = data.overall
+        document.getElementById('total-cgs').textContent = o.total_caregivers
+        document.getElementById('online-cgs').textContent = o.online_caregivers
+        document.getElementById('total-requests').textContent = o.total_requests
+        document.getElementById('accepted-requests').textContent = o.accepted_requests
+        document.getElementById('acceptance-rate').textContent = o.total_requests > 0 ? Math.round((o.accepted_requests / o.total_requests) * 100) + '%' : '—'
+        document.getElementById('avg-response').textContent = o.avg_response_seconds || '—'
+
+        // ZIP cards
+        const zc = document.getElementById('zip-cards')
+        zc.innerHTML = data.target_zips.map(z => {
+          const thresholds = data.thresholds
+          const metrics = [
+            { label: 'Total Caregivers', val: z.total_caregivers, goal: thresholds.total },
+            { label: 'Profile Complete', val: z.profile_complete, goal: thresholds.profile_complete },
+            { label: 'Online', val: z.online_caregivers, goal: thresholds.online },
+            { label: 'Push Enabled', val: z.push_enabled, goal: thresholds.push_enabled },
+            { label: 'Trust Verified', val: z.trust_verified, goal: 10 },
+          ]
+          const statusClass = z.launch_status.includes('Ready') ? 'status-ready' : z.launch_status.includes('Building') ? 'status-building' : 'status-weak'
+          return `<div class="zip-card">
+            <h3>${z.city}</h3>
+            <div class="zip-code">${z.zip}</div>
+            <div class="zip-status ${statusClass}">${z.launch_status}</div>
+            <div class="metrics-row">
+              ${metrics.map(m => `<div class="metric-item">
+                <div class="metric-val">${m.val}<span style="font-size:12px;color:rgba(240,236,255,0.4)">/${m.goal}</span></div>
+                <div class="metric-desc">${m.label}</div>
+                <div class="progress-bar"><div class="fill" style="width:${Math.min(100,Math.round((m.val/m.goal)*100))}%"></div></div>
+              </div>`).join('')}
+            </div>
+          </div>`
+        }).join('')
+      } catch(e) {
+        document.getElementById('zip-cards').innerHTML = `<div class="error">Error: ${e.message}</div>`
+      }
+    }
+
+    async function loadFirst20() {
+      try {
+        const r = await fetch(`${API}/admin-first-20?key=${encodeURIComponent(adminKey)}`)
+        const data = await r.json()
+
+        // Milestones
+        const ml = document.getElementById('milestones-list')
+        ml.innerHTML = data.milestones.map(m => `
+          <div class="milestone-item">
+            <div class="milestone-dot ${m.reached ? 'milestone-reached' : 'milestone-pending'}">${m.reached ? '✓' : m.goal}</div>
+            <div>
+              <div style="font-weight:700;font-size:14px;">${m.label}</div>
+              <div style="font-size:12px;color:rgba(240,236,255,0.4);">Booking #${m.goal}</div>
+            </div>
+            ${m.reached ? '<span style="margin-left:auto;color:#34d399;font-size:12px;font-weight:700;">REACHED</span>' : '<span style="margin-left:auto;color:rgba(240,236,255,0.3);font-size:12px;">' + (data.summary.total_created) + ' / ' + m.goal + '</span>'}
+          </div>
+        `).join('')
+
+        // Summary row for acceptance rate
+        const s = data.summary
+        document.getElementById('acceptance-rate').textContent = s.acceptance_rate + '%'
+
+        // Bookings table
+        const tbody = document.getElementById('bookings-table')
+        if (!data.bookings || data.bookings.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:32px;color:rgba(240,236,255,0.3);">No bookings yet. The first one is coming! 🎯</td></tr>'
+          return
+        }
+        tbody.innerHTML = data.bookings.map(b => {
+          const status = b.accepted_at ? (b.booking_completed ? 'completed' : 'accepted') : 'pending'
+          const timeToAccept = b.time_to_accept_seconds ? Math.round(b.time_to_accept_seconds / 60) + ' min' : '—'
+          return `<tr>
+            <td><strong>#${b.booking_number}</strong></td>
+            <td>${b.zip_code || '—'}</td>
+            <td>${b.care_type || '—'}</td>
+            <td>${b.caregivers_notified || 0}</td>
+            <td>${timeToAccept}</td>
+            <td><span class="badge-small badge-${status}">${status.toUpperCase()}</span></td>
+            <td>${b.review_left ? '⭐' : '—'}</td>
+            <td>${b.client_rebooked ? '✅' : '—'}</td>
+          </tr>`
+        }).join('')
+      } catch(e) {
+        document.getElementById('bookings-table').innerHTML = `<tr><td colspan="8"><div class="error">${e.message}</div></td></tr>`
+      }
+    }
+
+    // Init
+    const saved = localStorage.getItem('carehia_admin_key')
+    const urlKey = new URLSearchParams(location.search).get('key')
+    if (urlKey) {
+      adminKey = urlKey
+      document.getElementById('main').style.display = 'block'
+      loadAll()
+    } else if (saved) {
+      adminKey = saved
+      document.getElementById('main').style.display = 'block'
+      loadAll()
+    } else {
+      document.getElementById('auth-gate').style.display = 'block'
+    }
+  </script>
+</body>
+</html>
