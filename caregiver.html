@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Caregiver Profile | Carehia</title>
+  <meta name="description" id="meta-desc" content="Professional caregiver profile on Carehia — Find trusted home care near you.">
+  <meta property="og:site_name" content="Carehia">
+  <meta property="og:type" content="profile">
+  <meta property="og:title" id="og-title" content="Caregiver Profile | Carehia">
+  <meta property="og:description" id="og-desc" content="Trusted, background-checked caregiver on Carehia.">
+  <meta property="og:image" id="og-image" content="https://carehia.com/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="https://carehia.com/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary: #7C5CFF;
+      --primary-dark: #6344e0;
+      --secondary: #4A90E2;
+      --success: #22C55E;
+      --warning: #F59E0B;
+      --error: #EF4444;
+      --bg: #F0F2F8;
+      --card: #FFFFFF;
+      --text: #0F172A;
+      --text-2: #475569;
+      --text-3: #94A3B8;
+      --border: #E2E8F0;
+      --radius: 16px;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── NAV ─── */
+    .nav {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .nav-inner {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0 20px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+    .nav-logo-mark {
+      width: 32px; height: 32px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 800; font-size: 15px;
+    }
+    .nav-logo-text {
+      font-weight: 700; font-size: 16px; color: var(--text);
+    }
+    .nav-cta {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #fff; border: none; border-radius: 50px;
+      padding: 8px 18px; font-size: 13px; font-weight: 600;
+      cursor: pointer; text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .nav-cta:hover { opacity: 0.9; }
+
+    /* ─── HERO CARD ─── */
+    .hero {
+      background: linear-gradient(145deg, #1a0a3e 0%, #0d1f3c 50%, #1a0a3e 100%);
+      padding: 48px 20px 80px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 30% 50%, rgba(124,92,255,0.25) 0%, transparent 60%),
+                  radial-gradient(ellipse at 70% 50%, rgba(74,144,226,0.2) 0%, transparent 60%);
+    }
+    .hero-inner { position: relative; max-width: 760px; margin: 0 auto; }
+    
+    .hero-photo-wrap {
+      display: flex; justify-content: center; margin-bottom: 20px;
+    }
+    .hero-photo {
+      width: 120px; height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 4px solid rgba(255,255,255,0.15);
+      box-shadow: 0 0 0 6px rgba(124,92,255,0.2), 0 20px 40px rgba(0,0,0,0.4);
+    }
+    .hero-initials {
+      width: 120px; height: 120px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border: 4px solid rgba(255,255,255,0.15);
+      box-shadow: 0 0 0 6px rgba(124,92,255,0.2), 0 20px 40px rgba(0,0,0,0.4);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 40px; font-weight: 800; color: #fff;
+    }
+
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(34,197,94,0.15); border: 1px solid rgba(34,197,94,0.35);
+      color: #4ade80; font-size: 11px; font-weight: 600;
+      padding: 4px 10px; border-radius: 50px;
+      margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .hero-name {
+      font-size: clamp(26px, 5vw, 36px);
+      font-weight: 800; color: #fff;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+    .hero-title {
+      font-size: 15px; color: rgba(255,255,255,0.65);
+      margin-bottom: 18px;
+    }
+
+    .hero-chips {
+      display: flex; flex-wrap: wrap; justify-content: center;
+      gap: 8px; margin-bottom: 24px;
+    }
+    .hero-chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.85);
+      font-size: 13px; font-weight: 500;
+      padding: 6px 14px; border-radius: 50px;
+    }
+    .hero-chip svg { flex-shrink: 0; opacity: 0.7; }
+
+    .hero-actions {
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 12px;
+    }
+    .btn-book {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #fff; border: none; border-radius: 50px;
+      padding: 14px 32px; font-size: 15px; font-weight: 700;
+      cursor: pointer; box-shadow: 0 4px 20px rgba(124,92,255,0.45);
+      transition: transform 0.15s, box-shadow 0.15s;
+      text-decoration: none; display: inline-block;
+    }
+    .btn-book:hover { transform: translateY(-1px); box-shadow: 0 6px 28px rgba(124,92,255,0.55); }
+    .btn-share {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.25);
+      color: #fff; border-radius: 50px;
+      padding: 14px 24px; font-size: 15px; font-weight: 600;
+      cursor: pointer; transition: background 0.15s;
+      display: inline-flex; align-items: center; gap: 7px;
+    }
+    .btn-share:hover { background: rgba(255,255,255,0.18); }
+
+    /* ─── CONTENT ─── */
+    .content {
+      max-width: 760px;
+      margin: -32px auto 100px;
+      padding: 0 16px;
+      position: relative;
+    }
+
+    /* ─── CARDS ─── */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      padding: 24px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    }
+    .card-title {
+      font-size: 13px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.7px;
+      color: var(--text-3); margin-bottom: 16px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .card-title span { color: var(--text-3); }
+
+    /* ─── STATS ROW ─── */
+    .stats-row {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 12px; margin-bottom: 16px;
+    }
+    .stat-box {
+      background: linear-gradient(135deg, rgba(124,92,255,0.06), rgba(74,144,226,0.04));
+      border: 1px solid rgba(124,92,255,0.12);
+      border-radius: 12px; padding: 14px 12px;
+      text-align: center;
+    }
+    .stat-val {
+      font-size: 22px; font-weight: 800; color: var(--primary);
+      line-height: 1;
+    }
+    .stat-lbl {
+      font-size: 11px; color: var(--text-2);
+      margin-top: 4px; font-weight: 500;
+    }
+
+    /* ─── BIO ─── */
+    .bio-text {
+      font-size: 15px; color: var(--text-2);
+      line-height: 1.75; white-space: pre-wrap;
+    }
+
+    /* ─── SKILLS ─── */
+    .skills-grid {
+      display: flex; flex-wrap: wrap; gap: 8px;
+    }
+    .skill-pill {
+      padding: 7px 14px;
+      background: rgba(124,92,255,0.07);
+      border: 1px solid rgba(124,92,255,0.18);
+      color: var(--primary);
+      font-size: 13px; font-weight: 600;
+      border-radius: 50px;
+      transition: background 0.15s;
+    }
+    .skill-pill:hover {
+      background: rgba(124,92,255,0.14);
+    }
+
+    /* ─── CERTS ─── */
+    .cert-list { display: flex; flex-direction: column; gap: 10px; }
+    .cert-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 12px 16px;
+      background: rgba(34,197,94,0.04);
+      border: 1px solid rgba(34,197,94,0.18);
+      border-radius: 12px;
+    }
+    .cert-icon {
+      width: 36px; height: 36px; flex-shrink: 0;
+      background: rgba(34,197,94,0.12);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .cert-name { font-size: 14px; font-weight: 600; color: var(--text); }
+    .cert-sub { font-size: 12px; color: var(--success); margin-top: 1px; }
+
+    /* ─── LANGUAGES ─── */
+    .lang-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .lang-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 7px 14px;
+      background: rgba(74,144,226,0.08);
+      border: 1px solid rgba(74,144,226,0.2);
+      border-radius: 50px;
+      font-size: 13px; font-weight: 600; color: var(--secondary);
+    }
+
+    /* ─── TRUST SIGNALS ─── */
+    .trust-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+    .trust-item {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 14px;
+      background: var(--bg);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+    .trust-icon {
+      font-size: 22px; flex-shrink: 0; line-height: 1;
+    }
+    .trust-lbl { font-size: 12px; font-weight: 700; color: var(--text); }
+    .trust-sub { font-size: 11px; color: var(--text-2); margin-top: 2px; }
+
+    /* ─── RATING ─── */
+    .rating-row {
+      display: flex; align-items: center; gap: 6px;
+      margin-bottom: 12px;
+    }
+    .stars { display: flex; gap: 2px; }
+    .star { color: var(--warning); font-size: 18px; }
+    .star.empty { color: var(--border); }
+    .rating-num { font-size: 24px; font-weight: 800; color: var(--text); }
+    .rating-cnt { font-size: 13px; color: var(--text-2); }
+
+    .review-card {
+      padding: 16px;
+      background: var(--bg);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      margin-top: 12px;
+    }
+    .review-text { font-size: 14px; color: var(--text-2); font-style: italic; line-height: 1.6; }
+    .review-author { font-size: 12px; font-weight: 700; color: var(--text); margin-top: 8px; }
+
+    /* ─── JOIN BANNER ─── */
+    .join-banner {
+      background: linear-gradient(135deg, #1a0a3e, #0d1f3c);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+    .join-banner h3 { font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 8px; }
+    .join-banner p { font-size: 14px; color: rgba(255,255,255,0.65); margin-bottom: 20px; }
+    .join-banner a {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #fff; text-decoration: none;
+      padding: 12px 28px; border-radius: 50px;
+      font-size: 14px; font-weight: 700;
+      display: inline-block;
+    }
+
+    /* ─── STICKY FOOTER ─── */
+    .sticky-footer {
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--border);
+      padding: 14px 20px;
+      z-index: 99;
+    }
+    .sticky-footer-inner {
+      max-width: 760px; margin: 0 auto;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .sticky-name { font-size: 14px; font-weight: 600; color: var(--text); flex: 1; }
+    .sticky-rate { font-size: 13px; color: var(--text-2); }
+    .sticky-btn {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #fff; border: none; border-radius: 50px;
+      padding: 12px 24px; font-size: 14px; font-weight: 700;
+      cursor: pointer; white-space: nowrap;
+      box-shadow: 0 3px 12px rgba(124,92,255,0.35);
+    }
+
+    /* ─── LOADING ─── */
+    #loading {
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 16px;
+    }
+    .spinner {
+      width: 44px; height: 44px;
+      border: 3px solid rgba(124,92,255,0.15);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ─── ERROR ─── */
+    #error-view {
+      min-height: 100vh;
+      display: none; align-items: center; justify-content: center;
+      flex-direction: column; gap: 12px; text-align: center; padding: 32px;
+    }
+    #error-view h2 { font-size: 22px; font-weight: 800; }
+    #error-view p { font-size: 15px; color: var(--text-2); }
+    #error-view a {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: #fff; text-decoration: none; border-radius: 50px;
+      padding: 12px 28px; font-size: 14px; font-weight: 700; margin-top: 8px;
+    }
+
+    /* ─── PRINT ─── */
+    @media print {
+      .nav, .sticky-footer, .hero-actions, .join-banner { display: none !important; }
+      .hero { padding: 32px 20px; print-color-adjust: exact; }
+      .content { margin-top: 20px; }
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 600px) {
+      .trust-grid { grid-template-columns: 1fr 1fr; }
+      .stats-row { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+      .stat-val { font-size: 18px; }
+      .hero { padding: 36px 16px 72px; }
+    }
+    @media (max-width: 400px) {
+      .trust-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="https://carehia.com" class="nav-logo">
+      <div class="nav-logo-mark">C</div>
+      <span class="nav-logo-text">Carehia</span>
+    </a>
+    <a href="https://app.carehia.com" class="nav-cta" id="nav-cta">Find a Caregiver</a>
+  </div>
+</nav>
+
+<!-- LOADING -->
+<div id="loading">
+  <div class="spinner"></div>
+  <p style="font-size:14px;color:#94A3B8;">Loading profile…</p>
+</div>
+
+<!-- ERROR -->
+<div id="error-view">
+  <div style="font-size:48px;">😔</div>
+  <h2>Profile Not Found</h2>
+  <p id="error-msg">This caregiver profile is no longer available.</p>
+  <a href="https://app.carehia.com">Browse Caregivers</a>
+</div>
+
+<!-- PROFILE (hidden until loaded) -->
+<div id="profile-view" style="display:none;">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="hero-badge" id="platform-badge">
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><circle cx="5" cy="5" r="5"/></svg>
+        Available on Carehia
+      </div>
+      <div class="hero-photo-wrap">
+        <img id="hero-photo" class="hero-photo" src="" alt="" style="display:none;">
+        <div id="hero-initials" class="hero-initials"></div>
+      </div>
+      <h1 class="hero-name" id="hero-name">Caregiver Name</h1>
+      <p class="hero-title" id="hero-title">Professional Caregiver</p>
+      <div class="hero-chips" id="hero-chips"></div>
+      <div class="hero-actions">
+        <a id="btn-book" href="#" class="btn-book">📅 Request Care</a>
+        <button class="btn-share" id="btn-share">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          <span id="share-label">Share Profile</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content" id="profile-content">
+
+    <!-- STATS ROW -->
+    <div class="card" id="stats-card" style="display:none;">
+      <div class="stats-row" id="stats-row"></div>
+    </div>
+
+    <!-- ABOUT -->
+    <div class="card" id="about-card" style="display:none;">
+      <p class="card-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        About
+      </p>
+      <p class="bio-text" id="bio-text"></p>
+    </div>
+
+    <!-- CARE SPECIALTIES -->
+    <div class="card" id="skills-card" style="display:none;">
+      <p class="card-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        Care Specialties
+      </p>
+      <div class="skills-grid" id="skills-list"></div>
+    </div>
+
+    <!-- CERTIFICATIONS -->
+    <div class="card" id="certs-card" style="display:none;">
+      <p class="card-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        Certifications &amp; Credentials
+      </p>
+      <div class="cert-list" id="certs-list"></div>
+    </div>
+
+    <!-- LANGUAGES -->
+    <div class="card" id="langs-card" style="display:none;">
+      <p class="card-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        Languages
+      </p>
+      <div class="lang-chips" id="langs-list"></div>
+    </div>
+
+    <!-- TRUST SIGNALS -->
+    <div class="card">
+      <p class="card-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Why Book Through Carehia
+      </p>
+      <div class="trust-grid">
+        <div class="trust-item">
+          <div class="trust-icon">🔍</div>
+          <div>
+            <div class="trust-lbl">Profile Verified</div>
+            <div class="trust-sub">ID &amp; background eligible</div>
+          </div>
+        </div>
+        <div class="trust-item">
+          <div class="trust-icon">💬</div>
+          <div>
+            <div class="trust-lbl">Direct Messaging</div>
+            <div class="trust-sub">Chat before you commit</div>
+          </div>
+        </div>
+        <div class="trust-item">
+          <div class="trust-icon">🔒</div>
+          <div>
+            <div class="trust-lbl">Secure Contact</div>
+            <div class="trust-sub">Info shared after booking</div>
+          </div>
+        </div>
+        <div class="trust-item">
+          <div class="trust-icon">⭐</div>
+          <div>
+            <div class="trust-lbl">Rated &amp; Reviewed</div>
+            <div class="trust-sub">Real families, real reviews</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HOW IT WORKS -->
+    <div class="card">
+      <p class="card-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        How It Works
+      </p>
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div style="display:flex;gap:12px;align-items:flex-start;">
+          <div style="width:28px;height:28px;background:linear-gradient(135deg,#7C5CFF,#4A90E2);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:800;flex-shrink:0;">1</div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:#0F172A;">Request Care</div>
+            <div style="font-size:13px;color:#475569;">Tap "Request Care" and describe what you need — takes under 2 minutes.</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start;">
+          <div style="width:28px;height:28px;background:linear-gradient(135deg,#7C5CFF,#4A90E2);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:800;flex-shrink:0;">2</div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:#0F172A;">Connect Securely</div>
+            <div style="font-size:13px;color:#475569;">Contact info is shared once you're matched — your privacy is protected.</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:12px;align-items:flex-start;">
+          <div style="width:28px;height:28px;background:linear-gradient(135deg,#7C5CFF,#4A90E2);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:800;flex-shrink:0;">3</div>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:#0F172A;">Get Great Care</div>
+            <div style="font-size:13px;color:#475569;">Start your care journey. Rate and review when you're ready.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- JOIN BANNER (for potential caregivers) -->
+    <div class="join-banner">
+      <h3>Are you a caregiver? 👋</h3>
+      <p>Join 2,000+ caregivers on Carehia — free tools, free profile, real income.</p>
+      <a href="https://work.carehia.com">Join Free →</a>
+    </div>
+
+  </div><!-- /content -->
+
+  <!-- STICKY CTA -->
+  <div class="sticky-footer">
+    <div class="sticky-footer-inner">
+      <div>
+        <div class="sticky-name" id="sticky-name">Request Care</div>
+        <div class="sticky-rate" id="sticky-rate"></div>
+      </div>
+      <button class="sticky-btn" id="sticky-btn">📅 Book Now</button>
+    </div>
+  </div>
+
+</div><!-- /profile-view -->
+
+<script>
+  const API = 'https://gotocare-original.jjioji.workers.dev'
+
+  // Extract slug from URL path  e.g. /caregiver/john-jioji-3
+  function getSlugFromPath() {
+    const parts = window.location.pathname.split('/').filter(Boolean)
+    // parts[0] = 'caregiver', parts[1] = slug
+    return parts[1] || null
+  }
+
+  // Extract numeric ID from slug like "john-jioji-3" → 3
+  function extractIdFromSlug(slug) {
+    if (!slug) return null
+    if (/^\d+$/.test(slug)) return slug // already numeric
+    const parts = slug.split('-')
+    // Find last numeric part
+    for (let i = parts.length - 1; i >= 0; i--) {
+      if (/^\d+$/.test(parts[i])) return parts[i]
+    }
+    return null
+  }
+
+  function safeJson(str) {
+    if (Array.isArray(str)) return str
+    try { return JSON.parse(str || '[]') } catch { return [] }
+  }
+
+  function initials(name) {
+    if (!name) return '?'
+    return name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
+  }
+
+  async function loadProfile() {
+    const slug = getSlugFromPath()
+    const id = extractIdFromSlug(slug)
+
+    if (!id) {
+      showError('No caregiver ID found in this URL.')
+      return
+    }
+
+    try {
+      const res = await fetch(`${API}/api/public-profile?id=${encodeURIComponent(id)}`)
+      const data = await res.json()
+      if (!data.success || !data.profile) {
+        showError(data.error || 'Profile not found.')
+        return
+      }
+      renderProfile(data.profile, slug)
+    } catch (e) {
+      showError('Could not connect to Carehia. Please try again.')
+    }
+  }
+
+  function renderProfile(p, slug) {
+    const firstName = p.name?.split(' ')[0] || 'Caregiver'
+    const fullName = p.name || 'Caregiver'
+    const location = [p.city, p.state].filter(Boolean).join(', ') || p.zip_code || ''
+    const rate = p.hourly_rate > 0 ? `$${p.hourly_rate}/hr` : ''
+    const skills = safeJson(p.skills)
+    const certs = safeJson(p.certifications)
+    const langs = safeJson(p.languages)
+    const profileUrl = `https://carehia.com/caregiver/${slug}`
+    const bookUrl = `https://app.carehia.com?book=${p.id}`
+
+    // OG Meta
+    document.title = `${fullName} — Caregiver Profile | Carehia`
+    document.getElementById('og-title').content = `${fullName} — Caregiver on Carehia`
+    document.getElementById('og-desc').content = p.bio
+      ? p.bio.slice(0, 150) + (p.bio.length > 150 ? '…' : '')
+      : `${fullName} is a professional caregiver on Carehia. Request care today.`
+    if (p.photo_url) document.getElementById('og-image').content = p.photo_url
+
+    // Hero photo
+    if (p.photo_url) {
+      const img = document.getElementById('hero-photo')
+      img.src = p.photo_url
+      img.alt = fullName
+      img.style.display = 'block'
+      document.getElementById('hero-initials').style.display = 'none'
+    } else {
+      document.getElementById('hero-initials').textContent = initials(fullName)
+    }
+
+    // Hero text
+    document.getElementById('hero-name').textContent = fullName
+    document.getElementById('hero-title').textContent =
+      skills.length > 0 ? skills.slice(0, 2).join(' · ') : 'Professional Caregiver'
+
+    // Hero chips
+    const chipsEl = document.getElementById('hero-chips')
+    const chips = []
+    if (location) chips.push(`📍 ${location}`)
+    if (rate) chips.push(`💰 ${rate}`)
+    if (p.rating && p.total_reviews) chips.push(`⭐ ${p.rating} (${p.total_reviews} reviews)`)
+    else chips.push('🆕 New Caregiver')
+    chips.forEach(c => {
+      const el = document.createElement('div')
+      el.className = 'hero-chip'
+      el.textContent = c
+      chipsEl.appendChild(el)
+    })
+
+    // Buttons
+    document.getElementById('btn-book').href = bookUrl
+    document.getElementById('btn-book').textContent = `📅 Request Care from ${firstName}`
+
+    // Share button
+    document.getElementById('btn-share').addEventListener('click', async () => {
+      const lbl = document.getElementById('share-label')
+      try {
+        await navigator.share({ title: `${fullName} — Carehia`, url: profileUrl })
+      } catch {
+        await navigator.clipboard.writeText(profileUrl)
+        lbl.textContent = '✅ Copied!'
+        setTimeout(() => { lbl.textContent = 'Share Profile' }, 2000)
+      }
+    })
+
+    // Stats
+    const statsData = []
+    if (p.hourly_rate > 0) statsData.push({ val: `$${p.hourly_rate}`, lbl: 'Per Hour' })
+    if (skills.length > 0) statsData.push({ val: skills.length, lbl: 'Specialties' })
+    if (certs.length > 0) statsData.push({ val: certs.length, lbl: 'Credentials' })
+    else if (langs.length > 0) statsData.push({ val: langs.length, lbl: 'Languages' })
+    if (p.total_reviews > 0) statsData.push({ val: p.rating, lbl: 'Avg Rating' })
+    if (statsData.length >= 2) {
+      const row = document.getElementById('stats-row')
+      const shown = statsData.slice(0, 3)
+      shown.forEach(s => {
+        row.innerHTML += `<div class="stat-box"><div class="stat-val">${s.val}</div><div class="stat-lbl">${s.lbl}</div></div>`
+      })
+      document.getElementById('stats-card').style.display = 'block'
+    }
+
+    // About
+    if (p.bio) {
+      document.getElementById('bio-text').textContent = p.bio
+      document.getElementById('about-card').style.display = 'block'
+    }
+
+    // Skills
+    if (skills.length > 0) {
+      const list = document.getElementById('skills-list')
+      skills.forEach(s => {
+        const el = document.createElement('span')
+        el.className = 'skill-pill'
+        el.textContent = s
+        list.appendChild(el)
+      })
+      document.getElementById('skills-card').style.display = 'block'
+    }
+
+    // Certs
+    if (certs.length > 0) {
+      const list = document.getElementById('certs-list')
+      certs.forEach(c => {
+        list.innerHTML += `
+          <div class="cert-item">
+            <div class="cert-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
+            <div>
+              <div class="cert-name">${c}</div>
+              <div class="cert-sub">Verified credential</div>
+            </div>
+          </div>`
+      })
+      document.getElementById('certs-card').style.display = 'block'
+    }
+
+    // Languages
+    if (langs.length > 0) {
+      const list = document.getElementById('langs-list')
+      langs.forEach(l => {
+        list.innerHTML += `<div class="lang-chip">🌐 ${l}</div>`
+      })
+      document.getElementById('langs-card').style.display = 'block'
+    }
+
+    // Sticky footer
+    document.getElementById('sticky-name').textContent = `Book ${firstName}`
+    document.getElementById('sticky-rate').textContent = rate ? `Starting at ${rate}` : 'Contact for rates'
+    document.getElementById('sticky-btn').textContent = `📅 Request Care`
+    document.getElementById('sticky-btn').onclick = () => { window.location.href = bookUrl }
+
+    // Nav CTA
+    document.getElementById('nav-cta').textContent = `Book ${firstName}`
+    document.getElementById('nav-cta').href = bookUrl
+
+    // Show profile
+    document.getElementById('loading').style.display = 'none'
+    document.getElementById('profile-view').style.display = 'block'
+  }
+
+  function showError(msg) {
+    document.getElementById('loading').style.display = 'none'
+    document.getElementById('error-msg').textContent = msg
+    document.getElementById('error-view').style.display = 'flex'
+  }
+
+  loadProfile()
+</script>
+</body>
+</html>
