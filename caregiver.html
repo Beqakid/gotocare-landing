@@ -593,8 +593,12 @@
 
   // Extract slug from URL path  e.g. /caregiver/john-jioji-3
   function getSlugFromPath() {
+    // Check query param first: /caregiver?id=3
+    const params = new URLSearchParams(window.location.search)
+    const qid = params.get('id')
+    if (qid) return qid
+    // Fallback: path-based slug /caregiver/john-jioji-3
     const parts = window.location.pathname.split('/').filter(Boolean)
-    // parts[0] = 'caregiver', parts[1] = slug
     return parts[1] || null
   }
 
