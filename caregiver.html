@@ -535,6 +535,51 @@
       </div>
     </div>
 
+    <!-- TRUST SCORE PANEL -->
+    <div class="card" id="trust-score-card" style="display:none;">
+      <p class="card-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Trust &amp; Verification
+      </p>
+      <div id="trust-score-content">
+        <!-- Loaded by JS -->
+        <div style="text-align:center; padding: 12px 0;">
+          <div id="trust-ring-container" style="display:inline-block; position:relative; width:90px; height:90px; margin-bottom:8px;">
+            <svg width="90" height="90" viewBox="0 0 90 90" style="transform:rotate(-90deg)">
+              <circle cx="45" cy="45" r="36" fill="none" stroke="rgba(0,0,0,0.08)" stroke-width="6"/>
+              <circle id="trust-ring-fill" cx="45" cy="45" r="36" fill="none" stroke="#4A90E2" stroke-width="6" stroke-linecap="round" stroke-dasharray="226" stroke-dashoffset="226" style="transition:stroke-dashoffset 1.2s ease"/>
+            </svg>
+            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+              <span id="trust-score-num" style="font-size:22px;font-weight:800;color:#0F172A;">0</span>
+              <span style="font-size:9px;color:#94a3b8;text-transform:uppercase;letter-spacing:0.5px;">Trust</span>
+            </div>
+          </div>
+          <p id="trust-level-label" style="font-size:13px;font-weight:700;color:#4A90E2;">Loading...</p>
+        </div>
+        <!-- Trust chips -->
+        <div id="trust-chips" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:10px 0 4px;"></div>
+      </div>
+    </div>
+
+    <!-- REVIEWS SECTION -->
+    <div class="card" id="reviews-card" style="display:none;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <p class="card-title" style="margin-bottom:0;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="#F59E0B" stroke="#F59E0B" stroke-width="0"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          Family Reviews
+        </p>
+        <div id="avg-rating-display" style="display:none;align-items:center;gap:4px;">
+          <span id="avg-rating-num" style="font-size:18px;font-weight:800;color:#0F172A;"></span>
+          <div id="star-row" style="display:flex;gap:2px;"></div>
+          <span id="review-count-label" style="font-size:12px;color:#94a3b8;"></span>
+        </div>
+      </div>
+      <div id="reviews-list">
+        <div style="text-align:center;padding:16px 0;color:#94a3b8;font-size:13px;">Loading reviews...</div>
+      </div>
+    </div>
+
+
     <!-- HOW IT WORKS -->
     <div class="card">
       <p class="card-title">
@@ -785,6 +830,9 @@
     // Show profile
     document.getElementById('loading').style.display = 'none'
     document.getElementById('profile-view').style.display = 'block'
+    // Load trust + reviews
+    loadTrustData(cg.id)
+
   }
 
   function showError(msg) {
@@ -794,6 +842,104 @@
   }
 
   loadProfile()
+
+  // ====== LOAD TRUST SCORE + REVIEWS ======
+  async function loadTrustData(cgId) {
+    try {
+      const API = 'https://gotocare-original.jjioji.workers.dev/api'
+      const [trustRes, reviewRes] = await Promise.all([
+        fetch(`${API}/trust-score?id=${cgId}`),
+        fetch(`${API}/caregiver-reviews?id=${cgId}`)
+      ])
+      const trustData = await trustRes.json()
+      const reviewData = await reviewRes.json()
+
+      // Render trust score
+      if (trustData.success) {
+        const score = trustData.score || 0
+        const ring = document.getElementById('trust-ring-fill')
+        const scoreNum = document.getElementById('trust-score-num')
+        const levelLabel = document.getElementById('trust-level-label')
+        const chips = document.getElementById('trust-chips')
+        const card = document.getElementById('trust-score-card')
+
+        if (card) card.style.display = 'block'
+        if (scoreNum) scoreNum.textContent = score
+        if (levelLabel) {
+          const colors = { 'Elite Caregiver': '#22c55e', 'Verified Pro': '#4A90E2', 'Trusted': '#7C5CFF', 'Basic': '#94a3b8' }
+          levelLabel.textContent = trustData.level
+          levelLabel.style.color = colors[trustData.level] || '#94a3b8'
+        }
+        if (ring) {
+          const c = 2 * Math.PI * 36
+          ring.style.strokeDashoffset = c - (score / 100) * c
+          const colors = ['#94a3b8','#7C5CFF','#4A90E2','#22c55e']
+          ring.style.stroke = score >= 90 ? colors[3] : score >= 70 ? colors[2] : score >= 40 ? colors[1] : colors[0]
+        }
+        if (chips) {
+          const badgeDefs = [
+            { key: 'idVerified', label: '✓ ID Verified', bg: '#EFF6FF', color: '#2563EB' },
+            { key: 'backgroundChecked', label: '✓ Background Checked', bg: '#F0FDF4', color: '#16A34A' },
+            { key: 'hasCPR', label: '✓ CPR Certified', bg: '#F0FDF4', color: '#16A34A' },
+            { key: 'fastResponder', label: '⚡ Fast Responder', bg: '#FFFBEB', color: '#D97706' },
+          ]
+          chips.innerHTML = badgeDefs.filter(b => trustData[b.key]).map(b =>
+            `<span style="font-size:11px;font-weight:600;padding:4px 10px;border-radius:50px;background:${b.bg};color:${b.color}">${b.label}</span>`
+          ).join('') || '<span style="font-size:12px;color:#94a3b8;font-style:italic;">Verification in progress</span>'
+        }
+      }
+
+      // Render reviews
+      const revCard = document.getElementById('reviews-card')
+      if (revCard) revCard.style.display = 'block'
+
+      if (reviewData.success && reviewData.reviewCount > 0) {
+        const avgEl = document.getElementById('avg-rating-display')
+        const avgNum = document.getElementById('avg-rating-num')
+        const starRow = document.getElementById('star-row')
+        const countLabel = document.getElementById('review-count-label')
+        if (avgEl) avgEl.style.display = 'flex'
+        if (avgNum) avgNum.textContent = reviewData.avgRating.toFixed(1)
+        if (countLabel) countLabel.textContent = `(${reviewData.reviewCount})`
+        if (starRow) {
+          const filled = Math.round(reviewData.avgRating)
+          starRow.innerHTML = [1,2,3,4,5].map(s =>
+            `<svg width="12" height="12" viewBox="0 0 24 24" fill="${s<=filled?'#F59E0B':'#e2e8f0'}" stroke="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`
+          ).join('')
+        }
+
+        const listEl = document.getElementById('reviews-list')
+        if (listEl) {
+          listEl.innerHTML = reviewData.reviews.slice(0, 5).map(r => `
+            <div style="background:#F8FAFC;border-radius:12px;padding:12px;margin-bottom:8px;border:1px solid #E2E8F0;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+                <div style="display:flex;gap:2px;">
+                  ${[1,2,3,4,5].map(s => `<svg width="11" height="11" viewBox="0 0 24 24" fill="${s<=r.rating?'#F59E0B':'#e2e8f0'}" stroke="none"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>`).join('')}
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;">
+                  ${r.is_repeat_client ? '<span style="font-size:10px;font-weight:700;padding:2px 6px;border-radius:50px;background:#F0FDF4;color:#16A34A;">Hired Again ✓</span>' : ''}
+                  <span style="font-size:11px;color:#94a3b8;">${(r.created_at||'').split('T')[0]}</span>
+                </div>
+              </div>
+              ${r.review_text ? `<p style="font-size:13px;color:#475569;font-style:italic;margin:0 0 6px;">"${r.review_text}"</p>` : ''}
+              <div style="display:flex;flex-wrap:wrap;gap:4px;">
+                ${r.is_punctual ? '<span style="font-size:10px;padding:2px 6px;border-radius:50px;background:#EFF6FF;color:#2563EB;">Punctual</span>' : ''}
+                ${r.is_caring ? '<span style="font-size:10px;padding:2px 6px;border-radius:50px;background:#FFF0F6;color:#9D174D;">Caring</span>' : ''}
+                ${r.is_professional ? '<span style="font-size:10px;padding:2px 6px;border-radius:50px;background:#F5F3FF;color:#6D28D9;">Professional</span>' : ''}
+                ${r.would_hire_again ? '<span style="font-size:10px;padding:2px 6px;border-radius:50px;background:#F0FDF4;color:#16A34A;">Would Hire Again</span>' : ''}
+              </div>
+            </div>
+          `).join('')
+        }
+      } else {
+        const listEl = document.getElementById('reviews-list')
+        if (listEl) listEl.innerHTML = '<div style="text-align:center;padding:16px 0;color:#94a3b8;font-size:13px;"><p style="font-weight:500;">No reviews yet</p><p style="font-size:11px;margin-top:4px;">Complete bookings to build your reputation</p></div>'
+      }
+    } catch(e) {
+      console.log('Trust data load error:', e)
+    }
+  }
+
 </script>
 </body>
 </html>
