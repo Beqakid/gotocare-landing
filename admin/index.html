@@ -411,7 +411,7 @@
 </div><!-- /appShell -->
 
 <script>
-const API = 'https://gotocare-original.jjioji.workers.dev/api';
+const API = 'https://carehia-admin.jjioji.workers.dev';
 let adminToken = localStorage.getItem('carehia_admin_token') || '';
 let adminName = localStorage.getItem('carehia_admin_name') || '';
 let adminEmail = localStorage.getItem('carehia_admin_email') || '';
@@ -426,7 +426,7 @@ async function doLogin() {
   if (!email || !pass) { showErr('Please enter email and password.'); return; }
   btn.disabled = true; btn.textContent = 'Signing in…';
   try {
-    const r = await fetch(`${API}/client-auth/login`, {
+    const r = await fetch(`${API}/admin-login`, {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({email, password: pass})
