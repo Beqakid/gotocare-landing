@@ -1663,7 +1663,14 @@
     }
 
     // FAQ accordion
-    function toggleFaq(el) {
+    function toggleMobileNav(btn) {
+      var links = document.querySelector('.nav-links');
+      var ctas = document.querySelector('.nav-ctas');
+      links.classList.toggle('mobile-open');
+      ctas.classList.toggle('mobile-open');
+      btn.classList.toggle('open');
+    }
+        function toggleFaq(el) {
       const item = el.parentElement;
       const isOpen = item.classList.contains('open');
       document.querySelectorAll('.faq-item').forEach(f => f.classList.remove('open'));
