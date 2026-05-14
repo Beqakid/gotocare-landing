@@ -426,18 +426,18 @@ async function doLogin() {
   if (!email || !pass) { showErr('Please enter email and password.'); return; }
   btn.disabled = true; btn.textContent = 'Signing in…';
   try {
-    const r = await fetch(`${API}/client-login`, {
+    const r = await fetch(`${API}/client-auth/login`, {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({email, password: pass})
     });
     const d = await r.json();
-    if (!d.token) { showErr(d.error || 'Invalid credentials.'); btn.disabled=false; btn.textContent='Sign In'; return; }
+    if (!d.sessionToken) { showErr(d.error || 'Invalid credentials.'); btn.disabled=false; btn.textContent='Sign In'; return; }
     // Verify admin
-    const ac = await fetch(`${API}/admin-check?token=${d.token}`);
+    const ac = await fetch(`${API}/admin-check?token=${d.sessionToken}`);
     const ad = await ac.json();
     if (!ad.admin) { showErr('This account does not have admin access.'); btn.disabled=false; btn.textContent='Sign In'; return; }
-    adminToken = d.token;
+    adminToken = d.sessionToken;
     adminName = ad.name || email.split('@')[0];
     adminEmail = ad.email || email;
     localStorage.setItem('carehia_admin_token', adminToken);
