@@ -644,7 +644,38 @@
       .hiw-tabs { width: 100%; }
       .hiw-tab { flex: 1; text-align: center; }
     }
+
+    /* ── Mobile Nav Open State ── */
+    @media (max-width: 768px) {
+      nav { position: sticky; }
+      .mobile-nav-drawer {
+        display: none;
+        flex-direction: column;
+        gap: 4px;
+        position: absolute;
+        top: 100%;
+        left: 0; right: 0;
+        background: white;
+        padding: 16px 20px 20px;
+        border-bottom: 1px solid var(--border);
+        box-shadow: var(--shadow-md);
+        z-index: 99;
+      }
+      .mobile-nav-drawer.open { display: flex; }
+      .mobile-nav-drawer a {
+        padding: 12px 16px; border-radius: 12px;
+        font-size: 15px; font-weight: 500; color: var(--text-secondary);
+        display: block;
+      }
+      .mobile-nav-drawer a:hover { background: rgba(124,92,255,.08); color: var(--primary); }
+      .mobile-nav-drawer .mobile-nav-ctas {
+        display: flex; gap: 10px; margin-top: 12px; padding-top: 12px;
+        border-top: 1px solid var(--border);
+      }
+      .mobile-nav-drawer .mobile-nav-ctas a { flex: 1; text-align: center; padding: 11px 16px; }
+    }
   </style>
+  <script defer data-domain="carehia.com" src="https://plausible.io/js/script.js"></script>
 </head>
 <body>
 
@@ -670,9 +701,21 @@
         <a href="https://work.carehia.com" class="btn btn-outline btn-sm">Caregiver login</a>
         <a href="https://app.carehia.com" class="btn btn-primary btn-sm">Find Care</a>
       </div>
-      <button class="nav-mobile-toggle" aria-label="Menu">
+      <button class="nav-mobile-toggle" onclick="toggleMobileNav(this)" aria-label="Menu">
         <span></span><span></span><span></span>
       </button>
+    </div>
+
+    <!-- Mobile nav drawer (hidden by default, toggled by hamburger) -->
+    <div class="mobile-nav-drawer" id="mobile-nav-drawer">
+      <a href="#how-it-works">How it works</a>
+      <a href="#caregivers">For caregivers</a>
+      <a href="#families">For families</a>
+      <a href="#faq">FAQ</a>
+      <div class="mobile-nav-ctas">
+        <a href="https://work.carehia.com" class="btn btn-outline btn-sm">Caregiver login</a>
+        <a href="https://app.carehia.com" class="btn btn-primary btn-sm">Find Care</a>
+      </div>
     </div>
   </nav>
 
@@ -1150,12 +1193,12 @@
     <div class="container">
       <div class="stats-bar-grid">
         <div class="stat-item">
-          <div class="stat-number">5,000+</div>
-          <div class="stat-label">Active Caregivers</div>
+          <div class="stat-number">Free</div>
+          <div class="stat-label">To Browse & Join</div>
         </div>
         <div class="stat-item">
-          <div class="stat-number">120K+</div>
-          <div class="stat-label">Care Hours Delivered</div>
+          <div class="stat-number">23+</div>
+          <div class="stat-label">Care Specialties</div>
         </div>
         <div class="stat-item">
           <div class="stat-number">4.9★</div>
@@ -1442,7 +1485,7 @@
           <div style="background:var(--gradient-soft);border-radius:var(--radius);padding:32px;text-align:center">
             <div style="font-size:64px;margin-bottom:16px">🏠</div>
             <h3 style="margin-bottom:12px">Your family deserves the best care</h3>
-            <p style="font-size:14px;margin-bottom:20px">5,000+ verified caregivers ready to help. Browse today — no account required.</p>
+            <p style="font-size:14px;margin-bottom:20px">Verified caregivers ready to help. Browse today — no account required.</p>
             <div style="display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;margin-bottom:20px">
               <span style="background:rgba(124,92,255,.1);color:var(--primary);padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600">Elder Care</span>
               <span style="background:rgba(74,144,226,.1);color:var(--secondary);padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600">Dementia Care</span>
@@ -1588,7 +1631,7 @@
           Join as Caregiver →
         </a>
       </div>
-      <p style="color:rgba(255,255,255,.4);font-size:13px;margin-top:20px">Free to browse · No credit card required · 5,000+ verified caregivers</p>
+      <p style="color:rgba(255,255,255,.4);font-size:13px;margin-top:20px">Free to browse · No credit card required · Background checked caregivers</p>
     </div>
   </section>
 
@@ -1664,11 +1707,20 @@
 
     // FAQ accordion
     function toggleMobileNav(btn) {
-      var links = document.querySelector('.nav-links');
-      var ctas = document.querySelector('.nav-ctas');
-      links.classList.toggle('mobile-open');
-      ctas.classList.toggle('mobile-open');
+      var drawer = document.getElementById('mobile-nav-drawer');
+      if (drawer) drawer.classList.toggle('open');
       btn.classList.toggle('open');
+      // Animate hamburger spans
+      var spans = btn.querySelectorAll('span');
+      if (btn.classList.contains('open')) {
+        spans[0].style.transform = 'translateY(6px) rotate(45deg)';
+        spans[1].style.opacity = '0';
+        spans[2].style.transform = 'translateY(-6px) rotate(-45deg)';
+      } else {
+        spans[0].style.transform = '';
+        spans[1].style.opacity = '';
+        spans[2].style.transform = '';
+      }
     }
         function toggleFaq(el) {
       const item = el.parentElement;
