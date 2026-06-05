@@ -1122,9 +1122,9 @@ async function openTrustDetail(caregiverId) {
     trustDetailSubtab = 'modules';
     document.querySelectorAll('.detail-subtab').forEach(b => b.classList.remove('active'));
     document.getElementById('dst-modules').classList.add('active');
-    renderTrustDetailHeader(d);
-    renderTrustDetailSummary(d);
-    renderTrustDetailModules(d);
+    renderTrustDetailHeader(trustDetailData);
+    renderTrustDetailSummary(trustDetailData);
+    renderTrustDetailModules(trustDetailData);
   } catch(e) {
     document.getElementById('trustDetailContent').innerHTML = `<p style="color:var(--error)">Error: ${e.message}</p>`;
   }
