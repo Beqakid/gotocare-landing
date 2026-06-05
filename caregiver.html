@@ -567,6 +567,17 @@
       </p>
       <p style="font-size:12px;color:#64748B;margin:-4px 0 14px;line-height:1.5;">Verified trust signals to help families choose with confidence.</p>
       <div id="trust-badges-list" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+      <p style="font-size:11px;color:#94A3B8;margin:12px 0 0;line-height:1.5;">Private documents and background details are never shown publicly.</p>
+    </div>
+
+    <!-- WHY FAMILIES CHOOSE (Phase 13) -->
+    <div class="card" id="match-reasons-card" style="display:none;">
+      <p class="card-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        Why families choose this caregiver
+      </p>
+      <p style="font-size:12px;color:#64748B;margin:-4px 0 12px;line-height:1.5;">Carehia verifies trust signals so families can choose with more confidence.</p>
+      <div id="match-reasons-list" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
     </div>
 
     <!-- REVIEWS SECTION -->
@@ -899,13 +910,44 @@
         }
       }
 
-      // Render Trust Passport badges (Phase 10)
+      // Render Trust Passport badges (Phase 10 + Phase 13: always show with fallback)
       const passportCard = document.getElementById('trust-passport-card')
       const badgesList = document.getElementById('trust-badges-list')
-      if (badgesData && badgesData.success && badgesData.badges && badgesData.badges.length > 0 && passportCard && badgesList) {
+      if (passportCard && badgesList) {
         passportCard.style.display = 'block'
-        badgesList.innerHTML = badgesData.badges.map(b =>
-          `<span style="display:inline-flex;align-items:center;gap:5px;background:${b.bg};color:${b.color};border:1px solid ${b.color}30;padding:5px 12px;border-radius:50px;font-size:12px;font-weight:700;">${b.icon} ${b.label}</span>`
+        if (badgesData && badgesData.success && badgesData.badges && badgesData.badges.length > 0) {
+          badgesList.innerHTML = badgesData.badges.map(b =>
+            `<span style="display:inline-flex;align-items:center;gap:5px;background:${b.bg};color:${b.color};border:1px solid ${b.color}30;padding:5px 12px;border-radius:50px;font-size:12px;font-weight:700;">${b.icon} ${b.label}</span>`
+          ).join('')
+        } else {
+          // Phase 13: neutral language when no badges earned yet
+          badgesList.innerHTML = `
+            <span style="display:inline-flex;align-items:center;gap:5px;background:#F8FAFC;color:#475569;border:1px solid #E2E8F0;padding:5px 12px;border-radius:50px;font-size:12px;font-weight:700;">Profile in progress</span>
+            <span style="display:inline-flex;align-items:center;gap:5px;background:#EFF6FF;color:#2563EB;border:1px solid #BFDBFE;padding:5px 12px;border-radius:50px;font-size:12px;font-weight:700;">Basic profile completed</span>
+          `
+        }
+      }
+
+      // Phase 13: Build public-safe match reasons
+      const matchReasons = []
+      if (badgesData && badgesData.success && badgesData.badges) {
+        const bl = badgesData.badges.map(b => b.label)
+        if (bl.includes('Trusted Pro'))                    matchReasons.push({ label: '&#11088; Trusted Pro caregiver', bg: '#FFFBEB', color: '#B45309' })
+        else if (bl.includes('Carehia Verified'))          matchReasons.push({ label: '&#10003; Carehia Verified', bg: '#F5F3FF', color: '#6D28D9' })
+        if (bl.includes('CPR Verified'))                   matchReasons.push({ label: '&#10003; CPR Verified', bg: '#F0FDF4', color: '#16A34A' })
+        if (bl.includes('Background Check Completed'))     matchReasons.push({ label: '&#10003; Background check completed', bg: '#F0FDF4', color: '#16A34A' })
+        if (bl.includes('References Verified'))            matchReasons.push({ label: '&#10003; References verified', bg: '#EFF6FF', color: '#2563EB' })
+        if (bl.includes('Identity Ready'))                 matchReasons.push({ label: '&#10003; Identity verified', bg: '#EFF6FF', color: '#2563EB' })
+        if (bl.includes('First Aid Verified'))             matchReasons.push({ label: '&#10003; First Aid certified', bg: '#F0FDF4', color: '#16A34A' })
+      }
+      if (reviewData.success && reviewData.avgRating >= 4.7) matchReasons.push({ label: '&#11088; Highly rated by families', bg: '#FFFBEB', color: '#B45309' })
+      if (reviewData.success && reviewData.reviewCount >= 3)  matchReasons.push({ label: `&#128172; ${reviewData.reviewCount} family reviews`, bg: '#FDF2F8', color: '#9D174D' })
+      const matchCard = document.getElementById('match-reasons-card')
+      const matchList = document.getElementById('match-reasons-list')
+      if (matchCard && matchList && matchReasons.length > 0) {
+        matchCard.style.display = 'block'
+        matchList.innerHTML = matchReasons.map(r =>
+          `<span style="display:inline-flex;align-items:center;gap:5px;background:${r.bg};color:${r.color};border:1px solid ${r.color}30;padding:5px 12px;border-radius:50px;font-size:12px;font-weight:700;">${r.label}</span>`
         ).join('')
       }
 
