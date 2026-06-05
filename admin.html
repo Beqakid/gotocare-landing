@@ -335,6 +335,7 @@
     <button onclick="switchTab('trust',this)" id="trust-tab-btn">🛡️ Trust Review</button>
     <button onclick="switchTab('marketplace',this)" id="mkt-tab-btn">🏪 Marketplace</button>
     <button onclick="switchTab('pilot',this)" id="pilot-tab-btn">&#x1F680; Pilot</button>
+        <button id="acq-tab-btn" onclick="switchTab('acq')" style="padding:8px 16px;border:none;background:transparent;cursor:pointer;border-bottom:3px solid transparent;color:#64748b;font-weight:500;white-space:nowrap;font-size:13px;">📣 Acquisition</button>
   </div>
 
   <div class="content">
@@ -882,7 +883,7 @@ let currentTab = 'overview';
 function switchTab(name, btn) {
   document.querySelectorAll('.tabnav button').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  ['overview','clients','caregivers','bookings','verifications','trust','marketplace','pilot'].forEach(t => {
+  ['overview','clients','caregivers','bookings','verifications','trust','marketplace','pilot','acq'].forEach(t => {
     const el = document.getElementById('tab-'+t);
     if (el) el.style.display = t===name ? 'block' : 'none';
   });
@@ -1989,6 +1990,281 @@ async function loadPilot() {
 }
 // ===================== /PILOT LAUNCH =====================
 
+
+  // ====== ACQUISITION TAB JS (Phase 20) ======
+  async function loadAcquisitionData() {
+    if (!authToken) return;
+    try {
+      const r = await fetch(ADMIN_API + '/admin-acquisition?token=' + authToken);
+      const d = await r.json();
+      if (!d.summary) return;
+      const s = d.summary;
+
+      // Summary cards
+      document.getElementById('acq-total').textContent = s.totalCaregivers;
+      document.getElementById('acq-profile').textContent = s.quickProfileCompleted;
+      document.getElementById('acq-verified').textContent = s.emailVerified;
+      document.getElementById('acq-trust').textContent = s.trustPassportStarted;
+      document.getElementById('acq-care-ready').textContent = s.careReady;
+      document.getElementById('acq-ch-verified').textContent = s.carehiaVerified;
+      document.getElementById('acq-online').textContent = s.onlineNow;
+      document.getElementById('acq-abandoned').textContent = s.abandonedOnboarding;
+
+      // Funnel
+      const funnelEl = document.getElementById('acq-funnel-rows');
+      funnelEl.innerHTML = (d.funnel || []).map(f => `
+        <div style="margin-bottom:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <span style="font-size:13px;color:#0F172A;font-weight:500;">${f.label}</span>
+            <span style="font-size:13px;color:#475569;">${f.count} (${f.pct}%)</span>
+          </div>
+          <div style="background:#F1F5F9;border-radius:6px;height:8px;overflow:hidden;">
+            <div style="background:linear-gradient(90deg,#7C5CFF,#4A90E2);height:100%;width:${f.pct}%;border-radius:6px;transition:width .4s;"></div>
+          </div>
+        </div>
+      `).join('');
+
+      // Source attribution
+      const srcEl = document.getElementById('acq-source-rows');
+      const sources = d.sourceCounts || [];
+      if (sources.length === 0) {
+        srcEl.innerHTML = '<div style="color:#94a3b8;font-size:13px;text-align:center;padding:20px 0;">No attribution data yet — data grows as caregivers sign up via invite links.</div>';
+      } else {
+        srcEl.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <thead><tr style="background:#F8FAFC;">
+            <th style="padding:8px 12px;text-align:left;color:#64748b;font-weight:600;">Source</th>
+            <th style="padding:8px 12px;text-align:left;color:#64748b;font-weight:600;">Campaign</th>
+            <th style="padding:8px 12px;text-align:right;color:#64748b;font-weight:600;">Count</th>
+          </tr></thead>
+          <tbody>${sources.map(r => `<tr style="border-top:1px solid #F1F5F9;">
+            <td style="padding:8px 12px;color:#0F172A;">${r.source || '—'}</td>
+            <td style="padding:8px 12px;color:#475569;">${r.campaign || '—'}</td>
+            <td style="padding:8px 12px;text-align:right;font-weight:600;color:#7C5CFF;">${r.cnt}</td>
+          </tr>`).join('')}</tbody>
+        </table>`;
+      }
+
+      // Active invite links
+      const invEl = document.getElementById('invite-list-rows');
+      const invites = d.invites || [];
+      if (invites.length === 0) {
+        invEl.innerHTML = '<div style="color:#94a3b8;font-size:13px;text-align:center;padding:20px 0;">No invite links yet. Create one above.</div>';
+      } else {
+        invEl.innerHTML = invites.filter(i => i.is_active).slice(0,10).map(i => `
+          <div style="border:1px solid #E2E8F0;border-radius:10px;padding:12px 14px;margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+              <div>
+                <div style="font-weight:700;color:#7C5CFF;font-size:13px;font-family:monospace;">${i.code}</div>
+                <div style="font-size:11px;color:#64748b;margin-top:2px;">${i.campaign} · ${i.target_region || 'Any region'}</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:12px;color:#22C55E;font-weight:600;">${i.signups} signups</div>
+                <div style="font-size:11px;color:#94a3b8;">${i.clicks} clicks</div>
+              </div>
+            </div>
+            ${i.note ? `<div style="font-size:11px;color:#64748b;margin-top:6px;font-style:italic;">${i.note}</div>` : ''}
+          </div>
+        `).join('');
+      }
+
+      // Abandoned onboarding
+      const abandoned = d.abandonedOnboarding || [];
+      document.getElementById('abandoned-count-badge').textContent = abandoned.length + ' caregivers';
+      const abEl = document.getElementById('abandoned-rows');
+      if (abandoned.length === 0) {
+        abEl.innerHTML = '<div style="color:#22C55E;font-size:13px;text-align:center;padding:12px 0;">✅ No abandoned onboarding right now.</div>';
+      } else {
+        abEl.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <thead><tr style="background:#FEF3C7;">
+            <th style="padding:8px 12px;text-align:left;color:#92400E;font-weight:600;">Caregiver</th>
+            <th style="padding:8px 12px;text-align:left;color:#92400E;font-weight:600;">Email</th>
+            <th style="padding:8px 12px;text-align:left;color:#92400E;font-weight:600;">Signed Up</th>
+            <th style="padding:8px 12px;text-align:right;color:#92400E;font-weight:600;">Days Ago</th>
+          </tr></thead>
+          <tbody>${abandoned.map(r => `<tr style="border-top:1px solid #FEF3C7;">
+            <td style="padding:8px 12px;color:#0F172A;font-weight:500;">${r.name || '—'}</td>
+            <td style="padding:8px 12px;color:#475569;">${r.email}</td>
+            <td style="padding:8px 12px;color:#64748b;">${(r.signedUp||'').slice(0,10)}</td>
+            <td style="padding:8px 12px;text-align:right;font-weight:600;color:#F59E0B;">${r.daysAgo}d</td>
+          </tr>`).join('')}</tbody>
+        </table>`;
+      }
+
+      // Recent signups
+      const signups = d.recentSignups || [];
+      const sigEl = document.getElementById('recent-signups-rows');
+      if (signups.length === 0) {
+        sigEl.innerHTML = '<div style="color:#94a3b8;font-size:13px;text-align:center;padding:20px 0;">No caregivers yet.</div>';
+      } else {
+        sigEl.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <thead><tr style="background:#F8FAFC;">
+            <th style="padding:8px 12px;text-align:left;color:#64748b;font-weight:600;">Name</th>
+            <th style="padding:8px 12px;text-align:left;color:#64748b;font-weight:600;">Email</th>
+            <th style="padding:8px 12px;text-align:left;color:#64748b;font-weight:600;">Joined</th>
+            <th style="padding:8px 12px;text-align:left;color:#64748b;font-weight:600;">Source</th>
+            <th style="padding:8px 12px;text-align:left;color:#64748b;font-weight:600;">Invite/Ref</th>
+          </tr></thead>
+          <tbody>${signups.map(r => `<tr style="border-top:1px solid #F1F5F9;">
+            <td style="padding:8px 12px;color:#0F172A;font-weight:500;">${r.name || '—'}</td>
+            <td style="padding:8px 12px;color:#475569;">${r.email}</td>
+            <td style="padding:8px 12px;color:#64748b;">${(r.signedUp||'').slice(0,10)}</td>
+            <td style="padding:8px 12px;"><span style="background:#EDE9FE;color:#5B21B6;padding:2px 8px;border-radius:8px;font-size:11px;font-weight:600;">${r.source || 'direct'}</span></td>
+            <td style="padding:8px 12px;font-family:monospace;color:#7C5CFF;font-size:12px;">${r.inviteCode || r.refCode || '—'}</td>
+          </tr>`).join('')}</tbody>
+        </table>`;
+      }
+
+    } catch(e) { console.error('Acquisition load error:', e); }
+  }
+
+  async function createInviteLink() {
+    const code = document.getElementById('invite-code-input').value.trim();
+    const campaign = document.getElementById('invite-campaign').value;
+    const region = document.getElementById('invite-region').value.trim();
+    const note = document.getElementById('invite-note').value.trim();
+    if (!code) { alert('Please enter an invite code'); return; }
+    try {
+      const r = await fetch(ADMIN_API + '/admin-create-invite?token=' + authToken, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, campaign, target_region: region || null, note: note || null })
+      });
+      const d = await r.json();
+      const resultEl = document.getElementById('invite-result');
+      resultEl.style.display = 'block';
+      if (d.success) {
+        resultEl.style.background = '#F0FFF4';
+        resultEl.style.borderColor = '#22C55E';
+        resultEl.style.color = '#166534';
+        resultEl.innerHTML = `✅ Created! Share this link:<br><strong>${d.link}</strong><br><br><button onclick="navigator.clipboard.writeText('${d.link}').then(()=>alert('Copied!'))" style="margin-top:8px;padding:6px 14px;background:#7C5CFF;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:12px;">📋 Copy Link</button>`;
+        document.getElementById('invite-code-input').value = '';
+        loadAcquisitionData();
+      } else {
+        resultEl.style.background = '#FFF1F2';
+        resultEl.style.borderColor = '#EF4444';
+        resultEl.style.color = '#991B1B';
+        resultEl.textContent = '❌ ' + (d.error || 'Failed');
+      }
+    } catch(e) { alert('Error: ' + e.message); }
+  }
+
 </script>
+
+  <!-- ===================== ACQUISITION TAB (Phase 20) ===================== -->
+  <div id="tab-acq" class="tab-content" style="display:none;">
+    <div style="padding:32px 24px;max-width:1200px;margin:0 auto;">
+      <div style="margin-bottom:28px;">
+        <h2 style="font-size:24px;font-weight:700;color:#0F172A;margin:0 0 6px;">📣 Caregiver Acquisition</h2>
+        <p style="color:#64748b;margin:0;font-size:14px;">Track how caregivers are finding Carehia and where they are in the onboarding funnel.</p>
+      </div>
+
+      <!-- Summary Cards -->
+      <div id="acq-summary-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;margin-bottom:32px;">
+        <div style="background:#fff;border-radius:12px;padding:20px 16px;border:1px solid #E2E8F0;">
+          <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Total Caregivers</div>
+          <div id="acq-total" style="font-size:28px;font-weight:700;color:#0F172A;">—</div>
+        </div>
+        <div style="background:#fff;border-radius:12px;padding:20px 16px;border:1px solid #E2E8F0;">
+          <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Quick Profile</div>
+          <div id="acq-profile" style="font-size:28px;font-weight:700;color:#7C5CFF;">—</div>
+        </div>
+        <div style="background:#fff;border-radius:12px;padding:20px 16px;border:1px solid #E2E8F0;">
+          <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Email Verified</div>
+          <div id="acq-verified" style="font-size:28px;font-weight:700;color:#4A90E2;">—</div>
+        </div>
+        <div style="background:#fff;border-radius:12px;padding:20px 16px;border:1px solid #E2E8F0;">
+          <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Trust Passport</div>
+          <div id="acq-trust" style="font-size:28px;font-weight:700;color:#7C5CFF;">—</div>
+        </div>
+        <div style="background:#fff;border-radius:12px;padding:20px 16px;border:1px solid #E2E8F0;">
+          <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Care Ready</div>
+          <div id="acq-care-ready" style="font-size:28px;font-weight:700;color:#22C55E;">—</div>
+        </div>
+        <div style="background:#fff;border-radius:12px;padding:20px 16px;border:1px solid #E2E8F0;">
+          <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Carehia Verified</div>
+          <div id="acq-ch-verified" style="font-size:28px;font-weight:700;color:#22C55E;">—</div>
+        </div>
+        <div style="background:#fff;border-radius:12px;padding:20px 16px;border:1px solid #E2E8F0;">
+          <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Online Now</div>
+          <div id="acq-online" style="font-size:28px;font-weight:700;color:#22C55E;">—</div>
+        </div>
+        <div style="background:#fff;border-radius:12px;padding:20px 16px;border:1px solid #E2E8F0;">
+          <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Abandoned</div>
+          <div id="acq-abandoned" style="font-size:28px;font-weight:700;color:#F59E0B;">—</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px;">
+        <!-- Caregiver Funnel -->
+        <div style="background:#fff;border-radius:16px;padding:24px;border:1px solid #E2E8F0;">
+          <h3 style="font-size:16px;font-weight:700;color:#0F172A;margin:0 0 20px;">👥 Caregiver Onboarding Funnel</h3>
+          <div id="acq-funnel-rows">
+            <div style="color:#94a3b8;font-size:13px;text-align:center;padding:20px 0;">Loading…</div>
+          </div>
+        </div>
+
+        <!-- Source Attribution -->
+        <div style="background:#fff;border-radius:16px;padding:24px;border:1px solid #E2E8F0;">
+          <h3 style="font-size:16px;font-weight:700;color:#0F172A;margin:0 0 20px;">🎯 Acquisition Sources</h3>
+          <div id="acq-source-rows">
+            <div style="color:#94a3b8;font-size:13px;text-align:center;padding:20px 0;">Loading…</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px;">
+        <!-- Invite Link Generator -->
+        <div style="background:#fff;border-radius:16px;padding:24px;border:1px solid #E2E8F0;">
+          <h3 style="font-size:16px;font-weight:700;color:#0F172A;margin:0 0 16px;">🔗 Create Invite Link</h3>
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <input id="invite-code-input" type="text" placeholder="Invite code e.g. CAREHIA-SAC-001" style="padding:10px 14px;border:1px solid #E2E8F0;border-radius:10px;font-size:14px;width:100%;box-sizing:border-box;">
+            <select id="invite-campaign" style="padding:10px 14px;border:1px solid #E2E8F0;border-radius:10px;font-size:14px;">
+              <option value="admin_invite">Admin Invite</option>
+              <option value="caregiver_referral">Caregiver Referral</option>
+              <option value="community_event">Community Event</option>
+              <option value="church_group">Church Group</option>
+              <option value="training_school">Training School</option>
+              <option value="social_media">Social Media</option>
+              <option value="partner_agency">Partner Agency</option>
+            </select>
+            <input id="invite-region" type="text" placeholder="Target region (e.g. Sacramento, CA)" style="padding:10px 14px;border:1px solid #E2E8F0;border-radius:10px;font-size:14px;width:100%;box-sizing:border-box;">
+            <input id="invite-note" type="text" placeholder="Optional note" style="padding:10px 14px;border:1px solid #E2E8F0;border-radius:10px;font-size:14px;width:100%;box-sizing:border-box;">
+            <button onclick="createInviteLink()" style="background:linear-gradient(135deg,#7C5CFF,#4A90E2);color:#fff;border:none;padding:12px;border-radius:10px;font-weight:600;cursor:pointer;font-size:14px;">
+              ✨ Generate Invite Link
+            </button>
+            <div id="invite-result" style="display:none;background:#F0FFF4;border:1px solid #22C55E;border-radius:10px;padding:14px;font-size:13px;word-break:break-all;color:#166534;"></div>
+          </div>
+        </div>
+
+        <!-- Active Invite Links -->
+        <div style="background:#fff;border-radius:16px;padding:24px;border:1px solid #E2E8F0;">
+          <h3 style="font-size:16px;font-weight:700;color:#0F172A;margin:0 0 16px;">📋 Active Invite Links</h3>
+          <div id="invite-list-rows">
+            <div style="color:#94a3b8;font-size:13px;text-align:center;padding:20px 0;">Loading…</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Abandoned Onboarding -->
+      <div style="background:#fff;border-radius:16px;padding:24px;border:1px solid #E2E8F0;margin-bottom:32px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <h3 style="font-size:16px;font-weight:700;color:#0F172A;margin:0;">⚠️ Abandoned Onboarding <span style="font-size:12px;font-weight:400;color:#64748b;">(signed up 7+ days ago, profile incomplete)</span></h3>
+          <span id="abandoned-count-badge" style="background:#FEF3C7;color:#92400E;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;">—</span>
+        </div>
+        <div id="abandoned-rows">
+          <div style="color:#94a3b8;font-size:13px;text-align:center;padding:20px 0;">Loading…</div>
+        </div>
+      </div>
+
+      <!-- Recent Signups -->
+      <div style="background:#fff;border-radius:16px;padding:24px;border:1px solid #E2E8F0;">
+        <h3 style="font-size:16px;font-weight:700;color:#0F172A;margin:0 0 16px;">🌱 Recent Signups (Last 20)</h3>
+        <div id="recent-signups-rows">
+          <div style="color:#94a3b8;font-size:13px;text-align:center;padding:20px 0;">Loading…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>
