@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Carehia Admin</title>
+<style>
+  :root {
+    --primary: #7C5CFF;
+    --primary-dark: #6344e0;
+    --secondary: #4A90E2;
+    --success: #22C55E;
+    --warning: #F59E0B;
+    --error: #EF4444;
+    --bg: #0F0F1A;
+    --card: #1A1A2E;
+    --card2: #16213E;
+    --border: rgba(124,92,255,0.18);
+    --text: #F1F1F9;
+    --muted: #8884A8;
+    --accent: rgba(124,92,255,0.08);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* ===== LOGIN ===== */
+  #loginScreen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(ellipse at 30% 20%, rgba(124,92,255,0.18) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 80%, rgba(74,144,226,0.12) 0%, transparent 60%),
+                var(--bg);
+  }
+  .login-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 48px 40px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(124,92,255,0.1);
+  }
+  .login-logo {
+    width: 52px; height: 52px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; margin-bottom: 24px;
+  }
+  .login-card h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+  .login-card p { color: var(--muted); font-size: 14px; margin-bottom: 32px; }
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .field input {
+    width: 100%; padding: 12px 16px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px; color: var(--text);
+    font-size: 15px; outline: none;
+    transition: border-color 0.2s;
+  }
+  .field input:focus { border-color: var(--primary); }
+  .btn-login {
+    width: 100%; padding: 14px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border: none; border-radius: 10px;
+    color: #fff; font-size: 15px; font-weight: 600;
+    cursor: pointer; margin-top: 8px;
+    transition: opacity 0.2s, transform 0.1s;
+  }
+  .btn-login:hover { opacity: 0.92; }
+  .btn-login:active { transform: scale(0.98); }
+  .btn-login:disabled { opacity: 0.5; cursor: not-allowed; }
+  .login-error {
+    background: rgba(239,68,68,0.12);
+    border: 1px solid rgba(239,68,68,0.3);
+    color: #fca5a5; border-radius: 8px;
+    padding: 10px 14px; font-size: 13px;
+    margin-top: 12px; display: none;
+  }
+
+  /* ===== APP SHELL ===== */
+  #appShell { display: none; flex-direction: column; min-height: 100vh; }
+
+  /* Header */
+  .topbar {
+    height: 60px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center;
+    padding: 0 24px; gap: 16px;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .topbar-logo {
+    width: 34px; height: 34px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; flex-shrink: 0;
+  }
+  .topbar-title { font-weight: 700; font-size: 15px; flex: 1; }
+  .topbar-user {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 13px; color: var(--muted);
+  }
+  .topbar-avatar {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: 50%; display: flex; align-items: center;
+    justify-content: center; font-size: 13px; font-weight: 700;
+  }
+  .btn-logout {
+    background: rgba(239,68,68,0.12);
+    border: 1px solid rgba(239,68,68,0.25);
+    color: #fca5a5; border-radius: 8px;
+    padding: 6px 14px; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: background 0.2s;
+  }
+  .btn-logout:hover { background: rgba(239,68,68,0.22); }
+
+  /* Tabs */
+  .tabnav {
+    background: var(--card2);
+    border-bottom: 1px solid var(--border);
+    display: flex; padding: 0 24px; gap: 4px;
+  }
+  .tabnav button {
+    padding: 14px 20px;
+    background: none; border: none;
+    color: var(--muted); font-size: 14px; font-weight: 500;
+    cursor: pointer; border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .tabnav button.active { color: var(--primary); border-color: var(--primary); }
+  .tabnav button:hover:not(.active) { color: var(--text); }
+
+  /* Content */
+  .content { flex: 1; padding: 28px 28px; max-width: 1400px; margin: 0 auto; width: 100%; }
+
+  /* Stat cards */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px; margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px; padding: 20px 22px;
+    position: relative; overflow: hidden;
+  }
+  .stat-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+  }
+  .stat-icon { font-size: 20px; margin-bottom: 12px; }
+  .stat-val { font-size: 28px; font-weight: 700; line-height: 1; }
+  .stat-label { font-size: 12px; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
+  .stat-card.green::before { background: linear-gradient(90deg, var(--success), #16a34a); }
+  .stat-card.orange::before { background: linear-gradient(90deg, var(--warning), #d97706); }
+  .stat-card.red::before { background: linear-gradient(90deg, var(--error), #dc2626); }
+  .stat-card.blue::before { background: linear-gradient(90deg, var(--secondary), #2563eb); }
+
+  /* Revenue banner */
+  .revenue-banner {
+    background: linear-gradient(135deg, rgba(124,92,255,0.15), rgba(74,144,226,0.1));
+    border: 1px solid var(--border);
+    border-radius: 14px; padding: 20px 24px;
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 28px;
+  }
+  .revenue-banner .lbl { font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+  .revenue-banner .amt { font-size: 32px; font-weight: 700; color: var(--success); }
+
+  /* Table */
+  .table-wrap {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px; overflow: hidden;
+  }
+  .table-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .table-title { font-size: 15px; font-weight: 600; }
+  .table-count {
+    background: var(--accent);
+    color: var(--primary); border-radius: 20px;
+    padding: 3px 10px; font-size: 12px; font-weight: 600;
+  }
+  table { width: 100%; border-collapse: collapse; }
+  th {
+    text-align: left; padding: 12px 20px;
+    font-size: 11px; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.06em;
+    background: rgba(255,255,255,0.02);
+    border-bottom: 1px solid var(--border);
+  }
+  td { padding: 12px 20px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 10px; border-radius: 20px;
+    font-size: 11px; font-weight: 600;
+  }
+  .badge-green { background: rgba(34,197,94,0.12); color: #4ade80; }
+  .badge-yellow { background: rgba(245,158,11,0.12); color: #fbbf24; }
+  .badge-red { background: rgba(239,68,68,0.12); color: #f87171; }
+  .badge-blue { background: rgba(74,144,226,0.12); color: #60a5fa; }
+  .badge-purple { background: rgba(124,92,255,0.12); color: #a78bfa; }
+  .loading-row td { text-align: center; padding: 40px; color: var(--muted); }
+  .search-box {
+    padding: 7px 14px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px; color: var(--text);
+    font-size: 13px; outline: none; width: 200px;
+    transition: border-color 0.2s;
+  }
+  .search-box:focus { border-color: var(--primary); }
+
+  /* Refresh btn */
+  .btn-refresh {
+    background: rgba(124,92,255,0.1);
+    border: 1px solid rgba(124,92,255,0.25);
+    color: var(--primary); border-radius: 8px;
+    padding: 6px 14px; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: background 0.2s;
+  }
+  .btn-refresh:hover { background: rgba(124,92,255,0.2); }
+
+  /* Spinner */
+  .spin { display: inline-block; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Trust Review chips */
+  .trust-chip {
+    padding: 5px 14px; border-radius: 20px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.04);
+    color: var(--muted); font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s; white-space: nowrap;
+  }
+  .trust-chip.active { background: rgba(124,92,255,0.18); border-color: var(--primary); color: var(--primary); }
+  .trust-chip:hover:not(.active) { background: rgba(255,255,255,0.08); color: var(--text); }
+  /* Detail subtabs */
+  .detail-subtab {
+    padding: 12px 18px; background: none; border: none;
+    color: var(--muted); font-size: 13px; font-weight: 500;
+    cursor: pointer; border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .detail-subtab.active { color: var(--primary); border-color: var(--primary); }
+  .detail-subtab:hover:not(.active) { color: var(--text); }
+  /* Module card */
+  .module-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px 18px;
+    margin-bottom: 12px;
+    display: flex; align-items: flex-start; gap: 14px; flex-wrap: wrap;
+  }
+  .module-card-info { flex: 1; min-width: 200px; }
+  .module-card-actions { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  /* Status badges */
+  .ms-verified { background: rgba(34,197,94,0.15); color: #4ade80; padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+  .ms-submitted { background: rgba(74,144,226,0.15); color: #60a5fa; padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+  .ms-qf { background: rgba(245,158,11,0.15); color: #fbbf24; padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+  .ms-expired { background: rgba(239,68,68,0.15); color: #f87171; padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+  .ms-na { background: rgba(255,255,255,0.07); color: var(--muted); padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+  .ms-none { background: rgba(255,255,255,0.04); color: var(--muted); padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+  /* Action buttons */
+  .act-verify { padding:4px 11px;border-radius:6px;border:none;background:#22C55E;color:#fff;cursor:pointer;font-size:11px;font-weight:700; }
+  .act-qf { padding:4px 11px;border-radius:6px;border:none;background:#F59E0B;color:#fff;cursor:pointer;font-size:11px;font-weight:700; }
+  .act-expire { padding:4px 11px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;font-size:11px; }
+  .act-note { padding:4px 11px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;font-size:11px; }
+  .act-badge-rm { padding:4px 11px;border-radius:6px;border:1px solid rgba(239,68,68,0.3);background:rgba(239,68,68,0.1);color:#f87171;cursor:pointer;font-size:11px; }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .content { padding: 16px; }
+    .tabnav button { padding: 12px 12px; font-size: 13px; }
+    th, td { padding: 10px 12px; }
+    .login-card { padding: 32px 24px; margin: 16px; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .hide-mobile { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN SCREEN -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">🛡️</div>
+    <h1>Carehia Admin</h1>
+    <p>Super Admin Panel — restricted access</p>
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="loginEmail" placeholder="admin@carehia.com" autocomplete="email"/>
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password"/>
+    </div>
+    <button class="btn-login" id="loginBtn" onclick="doLogin()">Sign In</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- APP SHELL -->
+<div id="appShell" style="display:none; flex-direction:column; min-height:100vh;">
+  <div class="topbar">
+    <div class="topbar-logo">🛡️</div>
+    <div class="topbar-title">Carehia Super Admin</div>
+    <div class="topbar-user">
+      <div class="topbar-avatar" id="adminInitial">A</div>
+      <span id="adminEmail" class="hide-mobile"></span>
+    </div>
+    <button class="btn-logout" onclick="doLogout()">Sign Out</button>
+  </div>
+
+  <div class="tabnav">
+    <button class="active" onclick="switchTab('overview',this)">📊 Overview</button>
+    <button onclick="switchTab('clients',this)">👤 Clients</button>
+    <button onclick="switchTab('caregivers',this)">💜 Caregivers</button>
+    <button onclick="switchTab('bookings',this)">📅 Bookings</button>
+    <button onclick="switchTab('verifications',this)" id="verif-tab-btn">🔍 Verifications</button>
+    <button onclick="switchTab('trust',this)" id="trust-tab-btn">🛡️ Trust Review</button>
+  </div>
+
+  <div class="content">
+
+    <!-- OVERVIEW TAB -->
+    <div id="tab-overview">
+      <div class="stats-grid" id="statsGrid">
+        <div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-val">—</div><div class="stat-label">Loading…</div></div>
+      </div>
+      <div class="revenue-banner" id="revenueBanner" style="display:none">
+        <div>
+          <div class="lbl">Estimated Revenue (unlock fees)</div>
+          <div class="amt" id="revenueAmt">$0.00</div>
+        </div>
+        <div style="font-size:36px;">💰</div>
+      </div>
+      <div id="overviewDetails" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;"></div>
+    </div>
+
+    <!-- CLIENTS TAB -->
+    <div id="tab-clients" style="display:none">
+      <div class="table-wrap">
+        <div class="table-header">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <span class="table-title">Clients</span>
+            <span class="table-count" id="clientCount">—</span>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <input class="search-box" id="clientSearch" placeholder="Search name or email…" oninput="filterTable('clientsBody','clientSearch')"/>
+            <button class="btn-refresh" onclick="loadClients()">↻ Refresh</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th class="hide-mobile">Auth</th>
+                <th class="hide-mobile">Admin</th>
+                <th>Joined</th>
+              </tr>
+            </thead>
+            <tbody id="clientsBody">
+              <tr class="loading-row"><td colspan="6">⏳ Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- CAREGIVERS TAB -->
+    <div id="tab-caregivers" style="display:none">
+      <div class="table-wrap">
+        <div class="table-header">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <span class="table-title">Caregivers</span>
+            <span class="table-count" id="caregiverCount">—</span>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <input class="search-box" id="caregiverSearch" placeholder="Search name or email…" oninput="filterTable('caregiversBody','caregiverSearch')"/>
+            <button class="btn-refresh" onclick="loadCaregivers()">↻ Refresh</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th class="hide-mobile">Location</th>
+                <th class="hide-mobile">Rate/hr</th>
+                <th>Joined</th>
+              </tr>
+            </thead>
+            <tbody id="caregiversBody">
+              <tr class="loading-row"><td colspan="6">⏳ Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- BOOKINGS TAB -->
+    <div id="tab-bookings" style="display:none">
+      <div class="table-wrap">
+        <div class="table-header">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <span class="table-title">Bookings</span>
+            <span class="table-count" id="bookingCount">—</span>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <input class="search-box" id="bookingSearch" placeholder="Search email or caregiver…" oninput="filterTable('bookingsBody','bookingSearch')"/>
+            <button class="btn-refresh" onclick="loadBookings()">↻ Refresh</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Client</th>
+                <th>Caregiver</th>
+                <th class="hide-mobile">Date</th>
+                <th>Status</th>
+                <th>Unlocked</th>
+                <th class="hide-mobile">Created</th>
+              </tr>
+            </thead>
+            <tbody id="bookingsBody">
+              <tr class="loading-row"><td colspan="7">⏳ Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- VERIFICATIONS TAB -->
+    <div id="tab-verifications" style="display:none">
+      <div class="table-wrap">
+        <div class="table-header" style="flex-wrap:wrap;gap:10px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <span class="table-title">Verification Queue</span>
+            <span class="table-count" id="verifCount">—</span>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <select id="verifStatusFilter" onchange="loadVerifications()" style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px">
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+              <option value="all">All</option>
+            </select>
+            <input class="search-box" id="verifSearch" placeholder="Search name or email…" oninput="filterVerifTable()"/>
+          </div>
+        </div>
+        <div id="verifStatusBadges" style="display:flex;gap:8px;padding:0 16px 12px;flex-wrap:wrap"></div>
+        <table>
+          <thead><tr>
+            <th>Caregiver</th>
+            <th>Email</th>
+            <th>Location</th>
+            <th>Doc Type</th>
+            <th>File</th>
+            <th>Status</th>
+            <th>Submitted</th>
+            <th>Actions</th>
+          </tr></thead>
+          <tbody id="verifBody">
+            <tr class="loading-row"><td colspan="8">⏳ Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Detail Panel -->
+      <div id="verifDetailPanel" style="display:none;margin-top:20px">
+        <div class="table-wrap" style="padding:20px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <h3 style="margin:0;font-size:16px;font-weight:700">Caregiver Detail</h3>
+            <button onclick="document.getElementById('verifDetailPanel').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text-muted)">✕</button>
+          </div>
+          <div id="verifDetailContent"></div>
+        </div>
+      </div>
+
+      <!-- Action Modal -->
+      <div id="verifActionModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;display:none;align-items:center;justify-content:center">
+        <div style="background:var(--card);border-radius:16px;padding:28px;width:440px;max-width:90vw;box-shadow:0 8px 40px rgba(0,0,0,0.4)">
+          <h3 id="verifActionTitle" style="margin:0 0 16px;font-size:16px;font-weight:700"></h3>
+          <textarea id="verifActionNotes" placeholder="Notes (optional — shown to caregiver on rejection)" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;min-height:80px;resize:vertical;margin-bottom:16px;box-sizing:border-box"></textarea>
+          <div style="display:flex;gap:10px">
+            <button onclick="document.getElementById('verifActionModal').style.display='none'" style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--border);background:none;color:var(--text);cursor:pointer;font-size:14px">Cancel</button>
+            <button id="verifActionConfirmBtn" onclick="submitVerifAction()" style="flex:2;padding:10px;border-radius:8px;border:none;color:#fff;cursor:pointer;font-size:14px;font-weight:700"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRUST REVIEW TAB -->
+    <div id="tab-trust" style="display:none">
+      <div class="table-wrap" style="margin-bottom:20px">
+        <div class="table-header" style="flex-wrap:wrap;gap:10px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <span class="table-title">Trust Review Queue</span>
+            <span class="table-count" id="trustCount">—</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <input class="search-box" id="trustSearch" placeholder="Search name or email…" oninput="filterTrustTable()"/>
+            <button class="btn-refresh" onclick="loadTrustQueue()">↻ Refresh</button>
+          </div>
+        </div>
+        <!-- Filter chips -->
+        <div style="padding:0 20px 8px;display:flex;flex-wrap:wrap;gap:8px" id="trustFilterChips">
+          <button class="trust-chip active" data-filter="all" onclick="setTrustFilter('all',this)">All <span id="tc-all">—</span></button>
+          <button class="trust-chip" data-filter="needs_review" onclick="setTrustFilter('needs_review',this)">🔍 Needs Review <span id="tc-needs_review">—</span></button>
+          <button class="trust-chip" data-filter="needs_quick_fix" onclick="setTrustFilter('needs_quick_fix',this)">⚠️ Needs Quick Fix <span id="tc-needs_quick_fix">—</span></button>
+          <button class="trust-chip" data-filter="verified" onclick="setTrustFilter('verified',this)">✅ Verified <span id="tc-verified">—</span></button>
+          <button class="trust-chip" data-filter="expiring_soon" onclick="setTrustFilter('expiring_soon',this)">⌛ Expiring Soon <span id="tc-expiring_soon">—</span></button>
+          <button class="trust-chip" data-filter="background_pending" onclick="setTrustFilter('background_pending',this)">🔍 Background Pending <span id="tc-background_pending">—</span></button>
+          <button class="trust-chip" data-filter="carehia_verified" onclick="setTrustFilter('carehia_verified',this)">💜 Carehia Verified <span id="tc-carehia_verified">—</span></button>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr>
+              <th>Caregiver</th>
+              <th class="hide-mobile">Location</th>
+              <th>Trust Level</th>
+              <th>Modules</th>
+              <th>Status</th>
+              <th class="hide-mobile">Background</th>
+              <th class="hide-mobile">Last Updated</th>
+              <th>Actions</th>
+            </tr></thead>
+            <tbody id="trustBody">
+              <tr class="loading-row"><td colspan="8">⏳ Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /appShell -->
+
+<!-- ===== TRUST DETAIL MODAL ===== -->
+<div id="trustDetailModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;overflow-y:auto;padding:20px 16px">
+  <div style="max-width:860px;margin:0 auto;background:var(--card);border-radius:16px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.5)">
+    <!-- Header -->
+    <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--card2)">
+      <div id="trustDetailHeader"><span style="color:var(--muted)">Loading…</span></div>
+      <button onclick="closeTrustDetail()" style="background:rgba(255,255,255,0.07);border:none;border-radius:8px;color:var(--text);cursor:pointer;padding:6px 14px;font-size:13px;font-weight:600">✕ Close</button>
+    </div>
+    <!-- Summary bar -->
+    <div id="trustDetailSummary" style="padding:16px 24px;border-bottom:1px solid var(--border);display:flex;gap:16px;flex-wrap:wrap;background:rgba(124,92,255,0.05)"></div>
+    <!-- Tabs inside detail -->
+    <div style="display:flex;border-bottom:1px solid var(--border);padding:0 24px;background:var(--card2)">
+      <button class="detail-subtab active" id="dst-modules" onclick="showDetailSubtab('modules')">Modules</button>
+      <button class="detail-subtab" id="dst-documents" onclick="showDetailSubtab('documents')">Documents</button>
+      <button class="detail-subtab" id="dst-badges" onclick="showDetailSubtab('badges')">Public Badges</button>
+      <button class="detail-subtab" id="dst-audit" onclick="showDetailSubtab('audit')">Audit Log</button>
+    </div>
+    <!-- Detail content panes -->
+    <div id="trustDetailContent" style="padding:24px;min-height:300px"></div>
+  </div>
+</div>
+
+<!-- ===== TRUST ACTION MODAL ===== -->
+<div id="trustActionModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1100;align-items:center;justify-content:center">
+  <div style="background:var(--card);border-radius:16px;padding:28px;width:480px;max-width:92vw;box-shadow:0 8px 40px rgba(0,0,0,0.5)">
+    <h3 id="trustActionTitle" style="margin:0 0 6px;font-size:16px;font-weight:700"></h3>
+    <p id="trustActionSubtitle" style="margin:0 0 20px;font-size:13px;color:var(--muted)"></p>
+
+    <!-- Quick fix reason (shown only for quick_fix action) -->
+    <div id="trustQfReasonWrap" style="display:none;margin-bottom:14px">
+      <label style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:6px">Quick Fix Reason</label>
+      <select id="trustQfReason" style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px">
+        <option value="Photo is unclear">Photo is unclear</option>
+        <option value="Missing information">Missing information</option>
+        <option value="Expired document">Expired document</option>
+        <option value="Name does not match">Name does not match</option>
+        <option value="Certification details incomplete">Certification details incomplete</option>
+        <option value="Reference could not be verified">Reference could not be verified</option>
+        <option value="Background permission incomplete">Background permission incomplete</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+
+    <!-- Internal admin note -->
+    <div style="margin-bottom:14px">
+      <label style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:6px">Internal Note <span style="font-weight:400;text-transform:none">(admin only — not visible to caregiver)</span></label>
+      <textarea id="trustAdminNote" placeholder="Internal note…" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;min-height:64px;resize:vertical;box-sizing:border-box"></textarea>
+    </div>
+
+    <!-- Caregiver-facing note -->
+    <div style="margin-bottom:20px">
+      <label style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:6px">Message to Caregiver <span style="font-weight:400;text-transform:none">(shown on their Trust Passport)</span></label>
+      <textarea id="trustCaregiverNote" placeholder="What should the caregiver do next?…" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;min-height:64px;resize:vertical;box-sizing:border-box"></textarea>
+    </div>
+
+    <div style="display:flex;gap:10px">
+      <button onclick="closeTrustActionModal()" style="flex:1;padding:11px;border-radius:8px;border:1px solid var(--border);background:none;color:var(--text);cursor:pointer;font-size:14px;font-weight:600">Cancel</button>
+      <button id="trustActionConfirmBtn" onclick="submitTrustAction()" style="flex:2;padding:11px;border-radius:8px;border:none;color:#fff;cursor:pointer;font-size:14px;font-weight:700"></button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'https://carehia-admin.jjioji.workers.dev';
+let adminToken = localStorage.getItem('carehia_admin_token') || '';
+let adminName = localStorage.getItem('carehia_admin_name') || '';
+let adminEmail = localStorage.getItem('carehia_admin_email') || '';
+
+// ===== AUTH =====
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPassword').value;
+  const btn = document.getElementById('loginBtn');
+  const err = document.getElementById('loginError');
+  err.style.display = 'none';
+  if (!email || !pass) { showErr('Please enter email and password.'); return; }
+  btn.disabled = true; btn.textContent = 'Signing in…';
+  try {
+    const r = await fetch(`${API}/admin-login`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({email, password: pass})
+    });
+    const d = await r.json();
+    if (!d.sessionToken) { showErr(d.error || 'Invalid credentials.'); btn.disabled=false; btn.textContent='Sign In'; return; }
+    // Verify admin
+    const ac = await fetch(`${API}/admin-check?token=${d.sessionToken}`);
+    const ad = await ac.json();
+    if (!ad.admin) { showErr('This account does not have admin access.'); btn.disabled=false; btn.textContent='Sign In'; return; }
+    adminToken = d.sessionToken;
+    adminName = ad.name || email.split('@')[0];
+    adminEmail = ad.email || email;
+    localStorage.setItem('carehia_admin_token', adminToken);
+    localStorage.setItem('carehia_admin_name', adminName);
+    localStorage.setItem('carehia_admin_email', adminEmail);
+    showApp();
+  } catch(e) {
+    showErr('Network error. Please try again.');
+    btn.disabled=false; btn.textContent='Sign In';
+  }
+}
+function showErr(msg) {
+  const el = document.getElementById('loginError');
+  el.textContent = msg; el.style.display = 'block';
+}
+document.getElementById('loginPassword').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+
+function doLogout() {
+  localStorage.removeItem('carehia_admin_token');
+  localStorage.removeItem('carehia_admin_name');
+  localStorage.removeItem('carehia_admin_email');
+  adminToken = '';
+  document.getElementById('appShell').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+}
+
+function showApp() {
+  document.getElementById('loginScreen').style.display = 'none';
+  const app = document.getElementById('appShell');
+  app.style.display = 'flex';
+  document.getElementById('adminInitial').textContent = (adminName||'A')[0].toUpperCase();
+  document.getElementById('adminEmail').textContent = adminEmail;
+  loadOverview();
+}
+
+// Auto-login if token saved
+if (adminToken) {
+  fetch(`${API}/admin-check?token=${adminToken}`)
+    .then(r => r.json())
+    .then(d => { if(d.admin){ adminName=d.name; adminEmail=d.email; showApp(); } else { localStorage.removeItem('carehia_admin_token'); } })
+    .catch(()=>{});
+}
+
+// ===== TABS =====
+let currentTab = 'overview';
+function switchTab(name, btn) {
+  document.querySelectorAll('.tabnav button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  ['overview','clients','caregivers','bookings','verifications','trust'].forEach(t => {
+    const el = document.getElementById('tab-'+t);
+    if (el) el.style.display = t===name ? 'block' : 'none';
+  });
+  currentTab = name;
+  if(name==='clients') loadClients();
+  else if(name==='caregivers') loadCaregivers();
+  else if(name==='bookings') loadBookings();
+  else if(name==='verifications') loadVerifications();
+  else if(name==='trust') loadTrustQueue();
+  else loadOverview();
+}
+
+// ===== OVERVIEW =====
+async function loadOverview() {
+  try {
+    const r = await fetch(`${API}/admin-stats?token=${adminToken}`);
+    const d = await r.json();
+    if(d.error) { doLogout(); return; }
+    const grid = document.getElementById('statsGrid');
+    grid.innerHTML = `
+      <div class="stat-card">
+        <div class="stat-icon">👤</div>
+        <div class="stat-val">${d.totalClients}</div>
+        <div class="stat-label">Total Clients</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-icon">💜</div>
+        <div class="stat-val">${d.totalCaregivers}</div>
+        <div class="stat-label">Caregivers</div>
+      </div>
+      <div class="stat-card green">
+        <div class="stat-icon">📅</div>
+        <div class="stat-val">${d.totalBookings}</div>
+        <div class="stat-label">Total Bookings</div>
+      </div>
+      <div class="stat-card orange">
+        <div class="stat-icon">🔓</div>
+        <div class="stat-val">${d.unlockedBookings}</div>
+        <div class="stat-label">Unlocked</div>
+      </div>
+      <div class="stat-card red">
+        <div class="stat-icon">⏳</div>
+        <div class="stat-val">${d.pendingBookings}</div>
+        <div class="stat-label">Pending</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🤝</div>
+        <div class="stat-val">${d.totalTeamHires}</div>
+        <div class="stat-label">Team Hires</div>
+      </div>
+    `;
+    document.getElementById('revenueAmt').textContent = '$' + parseFloat(d.estimatedRevenue).toLocaleString('en-US', {minimumFractionDigits:2,maximumFractionDigits:2});
+    document.getElementById('revenueBanner').style.display = 'flex';
+
+    // Conversion rate
+    const convRate = d.totalBookings > 0 ? ((d.unlockedBookings / d.totalBookings)*100).toFixed(1) : '0.0';
+    document.getElementById('overviewDetails').innerHTML = `
+      <div class="stat-card" style="padding:20px 24px;">
+        <div style="font-size:13px;color:var(--muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.06em;font-weight:600;">Conversion Rate</div>
+        <div style="font-size:36px;font-weight:700;color:var(--success)">${convRate}%</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:6px;">Bookings unlocked / total bookings</div>
+      </div>
+      <div class="stat-card" style="padding:20px 24px;">
+        <div style="font-size:13px;color:var(--muted);margin-bottom:12px;text-transform:uppercase;letter-spacing:0.06em;font-weight:600;">Avg Revenue / Client</div>
+        <div style="font-size:36px;font-weight:700;color:var(--primary)">$${d.totalClients > 0 ? (parseFloat(d.estimatedRevenue)/d.totalClients).toFixed(2) : '0.00'}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:6px;">Estimated unlock revenue per client</div>
+      </div>
+    `;
+  } catch(e) { console.error(e); }
+}
+
+// ===== CLIENTS =====
+async function loadClients() {
+  document.getElementById('clientsBody').innerHTML = '<tr class="loading-row"><td colspan="6">⏳ Loading…</td></tr>';
+  try {
+    const r = await fetch(`${API}/admin-clients?token=${adminToken}`);
+    const d = await r.json();
+    if(d.error) { doLogout(); return; }
+    const rows = d.clients || [];
+    document.getElementById('clientCount').textContent = rows.length;
+    document.getElementById('clientsBody').innerHTML = rows.map(c => `
+      <tr data-search="${(c.name||'').toLowerCase()} ${(c.email||'').toLowerCase()}">
+        <td style="color:var(--muted);font-size:12px">#${c.id}</td>
+        <td style="font-weight:500">${esc(c.name||'—')}</td>
+        <td style="color:var(--muted)">${esc(c.email||'—')}</td>
+        <td class="hide-mobile">${c.google_id ? '<span class="badge badge-blue">Google</span>' : '<span class="badge badge-purple">Email</span>'}</td>
+        <td class="hide-mobile">${c.is_admin ? '<span class="badge badge-yellow">⭐ Admin</span>' : '<span class="badge badge-green">Client</span>'}</td>
+        <td style="color:var(--muted);font-size:12px">${fmtDate(c.created_at)}</td>
+      </tr>
+    `).join('') || '<tr class="loading-row"><td colspan="6">No clients yet.</td></tr>';
+  } catch(e) { document.getElementById('clientsBody').innerHTML = '<tr class="loading-row"><td colspan="6">⚠️ Error loading data.</td></tr>'; }
+}
+
+// ===== CAREGIVERS =====
+async function loadCaregivers() {
+  document.getElementById('caregiversBody').innerHTML = '<tr class="loading-row"><td colspan="6">⏳ Loading…</td></tr>';
+  try {
+    const r = await fetch(`${API}/admin-caregivers?token=${adminToken}`);
+    const d = await r.json();
+    if(d.error) { doLogout(); return; }
+    const rows = d.caregivers || [];
+    document.getElementById('caregiverCount').textContent = rows.length;
+    document.getElementById('caregiversBody').innerHTML = rows.map(c => `
+      <tr data-search="${(c.name||'').toLowerCase()} ${(c.email||'').toLowerCase()}">
+        <td style="color:var(--muted);font-size:12px">#${c.id}</td>
+        <td style="font-weight:500">${esc(c.name||'—')}</td>
+        <td style="color:var(--muted)">${esc(c.email||'—')}</td>
+        <td class="hide-mobile" style="color:var(--muted)">${esc(c.city && c.state ? c.city+', '+c.state : c.city||c.state||'—')}</td>
+        <td class="hide-mobile">${c.hourly_rate ? '<span style="color:var(--success);font-weight:600">$'+parseFloat(c.hourly_rate).toFixed(2)+'/hr</span>' : '<span style="color:var(--muted)">—</span>'}</td>
+        <td style="color:var(--muted);font-size:12px">${fmtDate(c.created_at)}</td>
+      </tr>
+    `).join('') || '<tr class="loading-row"><td colspan="6">No caregivers yet.</td></tr>';
+  } catch(e) { document.getElementById('caregiversBody').innerHTML = '<tr class="loading-row"><td colspan="6">⚠️ Error loading data.</td></tr>'; }
+}
+
+// ===== BOOKINGS =====
+async function loadBookings() {
+  document.getElementById('bookingsBody').innerHTML = '<tr class="loading-row"><td colspan="7">⏳ Loading…</td></tr>';
+  try {
+    const r = await fetch(`${API}/admin-bookings?token=${adminToken}`);
+    const d = await r.json();
+    if(d.error) { doLogout(); return; }
+    const rows = d.bookings || [];
+    document.getElementById('bookingCount').textContent = rows.length;
+    document.getElementById('bookingsBody').innerHTML = rows.map(b => {
+      const statusBadge = {
+        'pending': '<span class="badge badge-yellow">Pending</span>',
+        'confirmed': '<span class="badge badge-blue">Confirmed</span>',
+        'completed': '<span class="badge badge-green">Completed</span>',
+        'cancelled': '<span class="badge badge-red">Cancelled</span>',
+        'declined': '<span class="badge badge-red">Declined</span>',
+      }[b.status] || `<span class="badge badge-purple">${esc(b.status||'—')}</span>`;
+      return `
+        <tr data-search="${(b.client_email||'').toLowerCase()} ${(b.caregiver_name||'').toLowerCase()}">
+          <td style="color:var(--muted);font-size:12px">#${b.id}</td>
+          <td style="font-size:12px;color:var(--muted)">${esc(b.client_email||'—')}</td>
+          <td style="font-weight:500">${esc(b.caregiver_name||'#'+b.caregiver_id)}</td>
+          <td class="hide-mobile" style="color:var(--muted);font-size:12px">${b.preferred_date||'—'} ${b.preferred_time||''}</td>
+          <td>${statusBadge}</td>
+          <td>${b.is_unlocked ? '<span class="badge badge-green">✓ Unlocked</span>' : '<span class="badge badge-red">Locked</span>'}</td>
+          <td class="hide-mobile" style="color:var(--muted);font-size:12px">${fmtDate(b.created_at)}</td>
+        </tr>
+      `;
+    }).join('') || '<tr class="loading-row"><td colspan="7">No bookings yet.</td></tr>';
+  } catch(e) { document.getElementById('bookingsBody').innerHTML = '<tr class="loading-row"><td colspan="7">⚠️ Error loading data.</td></tr>'; }
+}
+
+// ===== UTILS =====
+function esc(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function fmtDate(s) {
+  if(!s) return '—';
+  try { return new Date(s).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}); } catch(e) { return s; }
+}
+// ===== VERIFICATIONS =====
+let verifAllRows = [];
+let pendingVerifAction = null; // { verificationId, action }
+
+async function loadVerifications() {
+  if (!adminToken) return;
+  const status = document.getElementById('verifStatusFilter').value;
+  document.getElementById('verifBody').innerHTML = '<tr class="loading-row"><td colspan="8">⏳ Loading…</td></tr>';
+  try {
+    const r = await fetch(`${API}/admin-verification-queue?token=${adminToken}&status=${status}`);
+    const d = await r.json();
+    verifAllRows = d.verifications || [];
+    // Status badges
+    const counts = d.counts || {};
+    const badgeEl = document.getElementById('verifStatusBadges');
+    badgeEl.innerHTML = Object.entries(counts).map(([s, c]) =>
+      `<span style="padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;background:${s==='approved'?'rgba(34,197,94,0.15)':s==='rejected'?'rgba(239,68,68,0.15)':'rgba(124,92,255,0.15)'};color:${s==='approved'?'#22C55E':s==='rejected'?'#EF4444':'#7C5CFF'}">${s}: ${c}</span>`
+    ).join('');
+    document.getElementById('verifCount').textContent = verifAllRows.length;
+    renderVerifTable(verifAllRows);
+  } catch(e) {
+    document.getElementById('verifBody').innerHTML = `<tr class="loading-row"><td colspan="8">Error: ${e.message}</td></tr>`;
+  }
+}
+
+function renderVerifTable(rows) {
+  const DOC_LABELS = { government_id:'🪪 Gov. ID', background_consent:'🔍 Background Consent', cna_license:'🏥 CNA License', cpr_certificate:'🫀 CPR Certificate', other:'📄 Other' };
+  const STATUS_STYLE = { pending:'background:rgba(245,158,11,0.15);color:#F59E0B', approved:'background:rgba(34,197,94,0.15);color:#22C55E', rejected:'background:rgba(239,68,68,0.15);color:#EF4444' };
+  const tbody = document.getElementById('verifBody');
+  if (!rows.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="8">No records found</td></tr>'; return; }
+  tbody.innerHTML = rows.map(v => `
+    <tr>
+      <td><strong>${v.caregiver_name || '—'}</strong></td>
+      <td style="font-size:12px">${v.caregiver_email || '—'}</td>
+      <td style="font-size:12px">${v.city||''} ${v.state||''}</td>
+      <td>${DOC_LABELS[v.doc_type] || v.doc_type}</td>
+      <td>${v.r2_key ? `<a href="${API.replace('carehia-admin','gotocare-original')}/api/admin-doc-view?adminToken=${adminToken}&r2Key=${encodeURIComponent(v.r2_key)}" target="_blank" style="color:var(--primary);font-size:12px">📎 View</a>` : v.consent_given ? '✅ Consent' : '—'}</td>
+      <td><span style="padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;${STATUS_STYLE[v.status]||''}">${v.status}</span></td>
+      <td style="font-size:12px">${v.submitted_at ? new Date(v.submitted_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—'}</td>
+      <td style="white-space:nowrap">
+        <button onclick="viewVerifDetail(${v.caregiver_id})" style="padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--text);cursor:pointer;font-size:11px;margin-right:4px">Detail</button>
+        ${v.status==='pending' ? `
+          <button onclick="openVerifAction(${v.id},'approve')" style="padding:4px 10px;border-radius:6px;border:none;background:#22C55E;color:#fff;cursor:pointer;font-size:11px;margin-right:4px">✓ Approve</button>
+          <button onclick="openVerifAction(${v.id},'reject')" style="padding:4px 10px;border-radius:6px;border:none;background:#EF4444;color:#fff;cursor:pointer;font-size:11px">✗ Reject</button>
+        ` : '—'}
+      </td>
+    </tr>
+  `).join('');
+}
+
+function filterVerifTable() {
+  const q = document.getElementById('verifSearch').value.toLowerCase();
+  const filtered = q ? verifAllRows.filter(v => (v.caregiver_name||'').toLowerCase().includes(q)||(v.caregiver_email||'').toLowerCase().includes(q)) : verifAllRows;
+  renderVerifTable(filtered);
+}
+
+async function viewVerifDetail(caregiverId) {
+  document.getElementById('verifDetailPanel').style.display = 'block';
+  document.getElementById('verifDetailContent').innerHTML = '⏳ Loading…';
+  try {
+    const r = await fetch(`${API}/admin-verification-detail?token=${adminToken}&caregiverId=${caregiverId}`);
+    const d = await r.json();
+    const cg = d.caregiver || {};
+    const trust = d.trust || {};
+    const verifs = d.verifications || [];
+    const DOC_LABELS = { government_id:'🪪 Gov. ID', background_consent:'🔍 Background Consent', cna_license:'🏥 CNA License', cpr_certificate:'🫀 CPR Certificate', other:'📄 Other' };
+    document.getElementById('verifDetailContent').innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+        <div>
+          <p style="margin:0 0 4px;font-size:13px;color:var(--text-muted)">Name</p>
+          <p style="margin:0;font-weight:600">${cg.name||'—'}</p>
+        </div>
+        <div>
+          <p style="margin:0 0 4px;font-size:13px;color:var(--text-muted)">Email</p>
+          <p style="margin:0;font-size:13px">${cg.email||'—'}</p>
+        </div>
+        <div>
+          <p style="margin:0 0 4px;font-size:13px;color:var(--text-muted)">Location</p>
+          <p style="margin:0;font-size:13px">${cg.city||''} ${cg.state||''}</p>
+        </div>
+        <div>
+          <p style="margin:0 0 4px;font-size:13px;color:var(--text-muted)">Trust Score</p>
+          <p style="margin:0;font-weight:700;color:var(--primary)">${trust.score||0} — ${trust.level||'Basic'}</p>
+        </div>
+      </div>
+      <p style="font-size:13px;font-weight:700;margin-bottom:8px">Verification Submissions</p>
+      ${verifs.length===0 ? '<p style="color:var(--text-muted);font-size:13px">No submissions</p>' :
+        verifs.map(v => `
+          <div style="background:var(--bg);border-radius:10px;padding:12px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+            <div>
+              <span style="font-weight:600;font-size:13px">${DOC_LABELS[v.doc_type]||v.doc_type}</span>
+              <span style="margin-left:8px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;background:${v.status==='approved'?'rgba(34,197,94,0.15)':v.status==='rejected'?'rgba(239,68,68,0.15)':'rgba(245,158,11,0.15)'};color:${v.status==='approved'?'#22C55E':v.status==='rejected'?'#EF4444':'#F59E0B'}">${v.status}</span>
+              ${v.r2_key ? `<a href="${API.replace('carehia-admin','gotocare-original')}/api/admin-doc-view?adminToken=${adminToken}&r2Key=${encodeURIComponent(v.r2_key)}" target="_blank" style="margin-left:8px;color:var(--primary);font-size:12px">📎 View Doc</a>` : v.consent_given ? '<span style="margin-left:8px;color:#22C55E;font-size:12px">✅ Consent given</span>' : ''}
+              ${v.rejection_reason ? `<p style="margin:4px 0 0;font-size:12px;color:#EF4444">Rejected: ${v.rejection_reason}</p>` : ''}
+            </div>
+            ${v.status==='pending' ? `<div style="display:flex;gap:6px">
+              <button onclick="openVerifAction(${v.id},'approve')" style="padding:5px 12px;border-radius:6px;border:none;background:#22C55E;color:#fff;cursor:pointer;font-size:12px;font-weight:700">✓ Approve</button>
+              <button onclick="openVerifAction(${v.id},'reject')" style="padding:5px 12px;border-radius:6px;border:none;background:#EF4444;color:#fff;cursor:pointer;font-size:12px;font-weight:700">✗ Reject</button>
+            </div>` : ''}
+          </div>
+        `).join('')
+      }
+    `;
+    document.getElementById('verifDetailPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch(e) {
+    document.getElementById('verifDetailContent').innerHTML = `Error: ${e.message}`;
+  }
+}
+
+function openVerifAction(verificationId, action) {
+  pendingVerifAction = { verificationId, action };
+  document.getElementById('verifActionTitle').textContent = action === 'approve' ? '✅ Approve Verification' : '❌ Reject Verification';
+  const btn = document.getElementById('verifActionConfirmBtn');
+  btn.textContent = action === 'approve' ? 'Confirm Approve' : 'Confirm Reject';
+  btn.style.background = action === 'approve' ? '#22C55E' : '#EF4444';
+  document.getElementById('verifActionNotes').value = '';
+  document.getElementById('verifActionModal').style.display = 'flex';
+}
+
+async function submitVerifAction() {
+  if (!pendingVerifAction) return;
+  const { verificationId, action } = pendingVerifAction;
+  const notes = document.getElementById('verifActionNotes').value.trim();
+  const btn = document.getElementById('verifActionConfirmBtn');
+  btn.textContent = 'Saving…';
+  btn.disabled = true;
+  try {
+    const r = await fetch(`${API}/admin-verification-action?token=${adminToken}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ verificationId, action, notes })
+    });
+    const d = await r.json();
+    if (d.success) {
+      document.getElementById('verifActionModal').style.display = 'none';
+      pendingVerifAction = null;
+      await loadVerifications();
+    } else {
+      alert('Error: ' + (d.error || 'Unknown'));
+    }
+  } catch(e) { alert('Error: ' + e.message); }
+  btn.disabled = false;
+}
+
+function filterTable(tbodyId, inputId) {
+  const q = document.getElementById(inputId).value.toLowerCase().trim();
+  document.querySelectorAll('#'+tbodyId+' tr').forEach(tr => {
+    if(tr.classList.contains('loading-row')) return;
+    const hay = (tr.dataset.search||'') + tr.textContent.toLowerCase();
+    tr.style.display = !q || hay.includes(q) ? '' : 'none';
+  });
+}
+
+// ===== TRUST REVIEW =====
+let trustAllRows = [];
+let currentTrustFilter = 'all';
+let trustDetailData = null;
+let trustDetailSubtab = 'modules';
+let pendingTrustAction = null;
+
+const MODULE_LABELS = {
+  basic_profile: 'Basic Profile',
+  contact_verification: 'Contact Verification',
+  selfie_intro: 'Selfie & Intro',
+  care_experience: 'Care Experience',
+  references: 'References',
+  certifications: 'Certifications & Skills',
+  background_permission: 'Background Check Permission',
+  carehia_review: 'Carehia Review',
+  work_history: 'Work History Trust',
+  manual_proof: 'Manual Proof',
+};
+const MODULE_DESC = {
+  basic_profile: 'Name, photo, hourly rate, location, and bio.',
+  contact_verification: 'Email and/or phone verified.',
+  selfie_intro: 'Clear profile photo and written greeting.',
+  care_experience: 'Care specialties, skills, types of care provided.',
+  references: 'Professional or personal contacts who can vouch.',
+  certifications: 'CPR, First Aid, CNA, or other credentials.',
+  background_permission: 'Authorised a basic background check.',
+  carehia_review: 'Manual review by Carehia team.',
+  work_history: 'Completed visits, ratings, repeat clients.',
+  manual_proof: 'Additional supporting documents uploaded.',
+};
+const ALL_MODULES = ['basic_profile','contact_verification','selfie_intro','care_experience','references','certifications','background_permission','carehia_review','work_history','manual_proof'];
+
+async function loadTrustQueue() {
+  document.getElementById('trustBody').innerHTML = '<tr class="loading-row"><td colspan="8">⏳ Loading…</td></tr>';
+  try {
+    const r = await fetch(`${API}/admin-trust-queue?token=${adminToken}&filter=${currentTrustFilter}`);
+    const d = await r.json();
+    if (d.error) { doLogout(); return; }
+    trustAllRows = d.caregivers || [];
+    document.getElementById('trustCount').textContent = trustAllRows.length;
+    // Update filter chip counts
+    const fc = d.filterCounts || {};
+    Object.entries(fc).forEach(([k, v]) => {
+      const el = document.getElementById('tc-'+k);
+      if (el) el.textContent = '('+v+')';
+    });
+    renderTrustTable(trustAllRows);
+  } catch(e) {
+    document.getElementById('trustBody').innerHTML = `<tr class="loading-row"><td colspan="8">⚠️ Error: ${e.message}</td></tr>`;
+  }
+}
+
+function renderTrustTable(rows) {
+  const tbody = document.getElementById('trustBody');
+  if (!rows.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="8">No caregivers found for this filter.</td></tr>'; return; }
+  tbody.innerHTML = rows.map(c => {
+    const levelColor = c.trustScore >= 80 ? '#4ade80' : c.trustScore >= 60 ? '#a78bfa' : c.trustScore >= 40 ? '#60a5fa' : c.trustScore >= 20 ? '#fbbf24' : 'var(--muted)';
+    const statusHtml = [];
+    if (c.submitted_count > 0) statusHtml.push(`<span class="badge badge-blue">${c.submitted_count} pending</span>`);
+    if (c.quick_fix_count > 0) statusHtml.push(`<span class="badge badge-yellow">${c.quick_fix_count} quick fix</span>`);
+    if (c.quick_fix_count === 0 && c.submitted_count === 0 && c.verified_count > 0) statusHtml.push(`<span class="badge badge-green">clean</span>`);
+    if (statusHtml.length === 0) statusHtml.push('<span style="color:var(--muted);font-size:12px">no activity</span>');
+    const bgHtml = c.bg_consent_count > 0
+      ? '<span class="badge badge-blue">Consent given</span>'
+      : '<span style="color:var(--muted);font-size:11px">—</span>';
+    return `
+      <tr data-search="${esc(c.name||'')} ${esc(c.email||'')}">
+        <td>
+          <div style="font-weight:600">${esc(c.name||'—')}</div>
+          <div style="font-size:11px;color:var(--muted)">${esc(c.email||'')}</div>
+        </td>
+        <td class="hide-mobile" style="font-size:12px;color:var(--muted)">${esc((c.city||'')+(c.state?' '+c.state:'') || '—')}</td>
+        <td>
+          <div style="font-weight:700;color:${levelColor};font-size:13px">${c.trustLevel}</div>
+          <div style="font-size:11px;color:var(--muted)">${c.trustScore}/100</div>
+        </td>
+        <td>
+          <div style="font-size:12px"><span style="color:var(--success)">${c.verified_count}</span> verified · <span style="color:var(--muted)">${c.expired_count}</span> expired</div>
+        </td>
+        <td>${statusHtml.join(' ')}</td>
+        <td class="hide-mobile">${bgHtml}</td>
+        <td class="hide-mobile" style="font-size:11px;color:var(--muted)">${c.last_module_update ? fmtDate(c.last_module_update) : '—'}</td>
+        <td>
+          <button onclick="openTrustDetail(${c.id})" style="padding:5px 14px;border-radius:7px;border:1px solid var(--primary);background:rgba(124,92,255,0.1);color:var(--primary);cursor:pointer;font-size:12px;font-weight:700;white-space:nowrap">Review →</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function filterTrustTable() {
+  const q = document.getElementById('trustSearch').value.toLowerCase().trim();
+  const filtered = q ? trustAllRows.filter(c => (c.name||'').toLowerCase().includes(q) || (c.email||'').toLowerCase().includes(q)) : trustAllRows;
+  renderTrustTable(filtered);
+}
+
+function setTrustFilter(filter, btn) {
+  currentTrustFilter = filter;
+  document.querySelectorAll('.trust-chip').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadTrustQueue();
+}
+
+async function openTrustDetail(caregiverId) {
+  document.getElementById('trustDetailModal').style.display = 'block';
+  document.getElementById('trustDetailHeader').innerHTML = '⏳ Loading…';
+  document.getElementById('trustDetailSummary').innerHTML = '';
+  document.getElementById('trustDetailContent').innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)">⏳ Loading trust data…</div>';
+  try {
+    const r = await fetch(`${API}/admin-trust-detail?token=${adminToken}&caregiverId=${caregiverId}`);
+    const d = await r.json();
+    if (d.error) { alert('Error: ' + d.error); return; }
+    trustDetailData = { ...d, caregiverId };
+    trustDetailSubtab = 'modules';
+    document.querySelectorAll('.detail-subtab').forEach(b => b.classList.remove('active'));
+    document.getElementById('dst-modules').classList.add('active');
+    renderTrustDetailHeader(d);
+    renderTrustDetailSummary(d);
+    renderTrustDetailModules(d);
+  } catch(e) {
+    document.getElementById('trustDetailContent').innerHTML = `<p style="color:var(--error)">Error: ${e.message}</p>`;
+  }
+}
+
+function closeTrustDetail() {
+  document.getElementById('trustDetailModal').style.display = 'none';
+  trustDetailData = null;
+}
+
+function showDetailSubtab(tab) {
+  trustDetailSubtab = tab;
+  document.querySelectorAll('.detail-subtab').forEach(b => b.classList.remove('active'));
+  document.getElementById('dst-'+tab).classList.add('active');
+  if (!trustDetailData) return;
+  if (tab === 'modules') renderTrustDetailModules(trustDetailData);
+  else if (tab === 'documents') renderTrustDetailDocs(trustDetailData);
+  else if (tab === 'badges') renderTrustDetailBadges(trustDetailData);
+  else if (tab === 'audit') renderTrustDetailAudit(trustDetailData);
+}
+
+function renderTrustDetailHeader(d) {
+  const cg = d.caregiver || {};
+  document.getElementById('trustDetailHeader').innerHTML = `
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;flex-shrink:0">${(cg.name||'?')[0].toUpperCase()}</div>
+      <div>
+        <div style="font-size:16px;font-weight:700">${esc(cg.name||'—')}</div>
+        <div style="font-size:13px;color:var(--muted)">${esc(cg.email||'')} · ${esc((cg.city||'')+(cg.state?' '+cg.state:'') || '—')}</div>
+      </div>
+    </div>
+  `;
+}
+
+function renderTrustDetailSummary(d) {
+  const mods = d.moduleReviews || [];
+  const verified = mods.filter(m => m.status === 'verified').length;
+  const qf = mods.filter(m => m.status === 'needs_quick_fix').length;
+  const submitted = mods.filter(m => m.status === 'submitted').length;
+  const badges = (d.publicBadges || []).length;
+  const MODULE_W = { basic_profile:15,contact_verification:10,selfie_intro:10,care_experience:15,references:10,certifications:15,background_permission:10,carehia_review:10,work_history:5 };
+  const score = mods.filter(m => m.status === 'verified').reduce((s, m) => s + (MODULE_W[m.module_type] || 0), 0);
+  const levelColor = score >= 80 ? '#4ade80' : score >= 60 ? '#a78bfa' : score >= 40 ? '#60a5fa' : score >= 20 ? '#fbbf24' : 'var(--muted)';
+  const level = score >= 80 ? 'Trusted Pro' : score >= 60 ? 'Carehia Verified' : score >= 40 ? 'Care Ready' : score >= 20 ? 'Identity Ready' : 'Getting Started';
+  document.getElementById('trustDetailSummary').innerHTML = `
+    <div style="text-align:center;min-width:80px">
+      <div style="font-size:26px;font-weight:800;color:${levelColor}">${score}</div>
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em">Trust Score</div>
+      <div style="font-size:12px;font-weight:700;color:${levelColor};margin-top:2px">${level}</div>
+    </div>
+    <div style="width:1px;background:var(--border);min-height:40px"></div>
+    <div style="text-align:center;min-width:70px">
+      <div style="font-size:22px;font-weight:700;color:var(--success)">${verified}</div>
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em">Verified</div>
+    </div>
+    <div style="text-align:center;min-width:70px">
+      <div style="font-size:22px;font-weight:700;color:#60a5fa">${submitted}</div>
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em">Pending</div>
+    </div>
+    <div style="text-align:center;min-width:70px">
+      <div style="font-size:22px;font-weight:700;color:#fbbf24">${qf}</div>
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em">Quick Fix</div>
+    </div>
+    <div style="text-align:center;min-width:70px">
+      <div style="font-size:22px;font-weight:700;color:#a78bfa">${badges}</div>
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em">Badges</div>
+    </div>
+  `;
+}
+
+function renderTrustDetailModules(d) {
+  const mods = d.moduleReviews || [];
+  const reviewMap = {};
+  mods.forEach(m => { reviewMap[m.module_type] = m; });
+  const cgId = d.caregiverId;
+
+  const html = ALL_MODULES.map(modType => {
+    const rev = reviewMap[modType];
+    const status = rev?.status || 'not_started';
+    const statusBadge = {
+      verified: `<span class="ms-verified">✓ Verified</span>`,
+      submitted: `<span class="ms-submitted">⏳ Submitted</span>`,
+      needs_quick_fix: `<span class="ms-qf">⚠️ Needs Quick Fix</span>`,
+      expired: `<span class="ms-expired">⌛ Expired</span>`,
+      not_applicable: `<span class="ms-na">— N/A</span>`,
+      not_started: `<span class="ms-none">Not Reviewed</span>`,
+    }[status] || `<span class="ms-none">${esc(status)}</span>`;
+
+    const qfHint = rev?.quick_fix_reason ? `<div style="font-size:11px;color:#fbbf24;margin-top:4px">Reason: ${esc(rev.quick_fix_reason)}</div>` : '';
+    const cgNote = rev?.caregiver_note ? `<div style="font-size:11px;color:#60a5fa;margin-top:4px">Caregiver message: ${esc(rev.caregiver_note)}</div>` : '';
+    const adminNote = rev?.admin_note ? `<div style="font-size:11px;color:var(--muted);margin-top:4px">Internal: ${esc(rev.admin_note)}</div>` : '';
+
+    return `
+      <div class="module-card">
+        <div class="module-card-info">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">
+            <span style="font-size:14px;font-weight:700">${esc(MODULE_LABELS[modType]||modType)}</span>
+            ${statusBadge}
+          </div>
+          <div style="font-size:12px;color:var(--muted)">${esc(MODULE_DESC[modType]||'')}</div>
+          ${qfHint}${cgNote}${adminNote}
+          ${rev?.reviewed_by ? `<div style="font-size:11px;color:var(--muted);margin-top:4px">Last reviewed by ${esc(rev.reviewed_by)} · ${fmtDate(rev.reviewed_at)}</div>` : ''}
+        </div>
+        <div class="module-card-actions">
+          <button class="act-verify" onclick="openTrustAction(${cgId},'${modType}','verified')">✓ Verify</button>
+          <button class="act-qf" onclick="openTrustAction(${cgId},'${modType}','quick_fix_requested')">⚠️ Quick Fix</button>
+          <button class="act-expire" onclick="openTrustAction(${cgId},'${modType}','expired')">⌛ Expire</button>
+          <button class="act-note" onclick="openTrustAction(${cgId},'${modType}','note_added')">✎ Note</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('trustDetailContent').innerHTML = `
+    <div style="margin-bottom:12px;font-size:13px;color:var(--muted)">Click an action button to review each module. All actions are logged.</div>
+    ${html}
+  `;
+}
+
+function renderTrustDetailDocs(d) {
+  const docs = d.verifications || [];
+  const DOC_LABELS = { government_id:'🪪 Gov. ID', background_consent:'🔍 Background Consent', cna_license:'🏥 CNA License', cpr_certificate:'🫀 CPR Certificate', other:'📄 Other' };
+  if (!docs.length) {
+    document.getElementById('trustDetailContent').innerHTML = '<p style="color:var(--muted);padding:20px 0">No documents submitted yet.</p>';
+    return;
+  }
+  document.getElementById('trustDetailContent').innerHTML = docs.map(v => `
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <div>
+        <div style="font-weight:600;font-size:14px">${DOC_LABELS[v.doc_type]||esc(v.doc_type)}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">
+          ${v.consent_given ? '✅ Consent given' : ''}
+          ${v.submitted_at ? ' · Submitted ' + fmtDate(v.submitted_at) : ''}
+          ${v.rejection_reason ? ' · <span style="color:#f87171">'+esc(v.rejection_reason)+'</span>' : ''}
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span style="padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:${v.status==='approved'?'rgba(34,197,94,0.15)':v.status==='rejected'?'rgba(239,68,68,0.15)':'rgba(245,158,11,0.15)'};color:${v.status==='approved'?'#4ade80':v.status==='rejected'?'#f87171':'#fbbf24'}">${esc(v.status||'pending')}</span>
+        ${v.r2_key ? `<a href="${API.replace('carehia-admin','gotocare-original')}/api/admin-doc-view?adminToken=${adminToken}&r2Key=${encodeURIComponent(v.r2_key)}" target="_blank" style="color:var(--primary);font-size:12px;text-decoration:none">📎 View File</a>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderTrustDetailBadges(d) {
+  const badges = d.publicBadges || [];
+  const BADGE_ICONS = {
+    'Email Verified': '✉️', 'Identity Ready': '🪪', 'References Verified': '👥',
+    'Certification Verified': '📜', 'Background Check Completed': '🔍',
+    'Carehia Verified': '💜', 'Trusted Pro': '⭐',
+  };
+  const allPossible = ['Email Verified','Identity Ready','References Verified','Certification Verified','Background Check Completed','Carehia Verified','Trusted Pro'];
+  const cgId = d.caregiverId;
+  document.getElementById('trustDetailContent').innerHTML = `
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Badges visible on this caregiver's public profile. Granted automatically when admin verifies the corresponding module.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px">
+      ${allPossible.map(b => {
+        const active = badges.includes(b);
+        return `
+          <div style="display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:12px;border:1px solid ${active?'rgba(34,197,94,0.3)':'var(--border)'};background:${active?'rgba(34,197,94,0.08)':'var(--bg)'}">
+            <span style="font-size:18px">${BADGE_ICONS[b]||'🏷️'}</span>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:${active?'#4ade80':'var(--muted)'}">${esc(b)}</div>
+              <div style="font-size:10px;color:var(--muted)">${active?'Active':'Not yet earned'}</div>
+            </div>
+            ${active ? `<button class="act-badge-rm" style="margin-left:8px" onclick="openTrustAction(${cgId},null,'badge_removed','${b}')">Remove</button>` : ''}
+          </div>
+        `;
+      }).join('')}
+    </div>
+    <p style="font-size:12px;color:var(--muted)">To grant a badge, verify the corresponding module in the Modules tab.</p>
+  `;
+}
+
+function renderTrustDetailAudit(d) {
+  const logs = d.auditLogs || [];
+  const ACTION_LABELS = {
+    approved: '✅ Approved',
+    verified: '✅ Verified',
+    quick_fix_requested: '⚠️ Quick Fix Requested',
+    expired: '⌛ Marked Expired',
+    badge_removed: '🗑️ Badge Removed',
+    note_added: '✎ Note Added',
+    status_changed: '🔄 Status Changed',
+    manual_override: '⚙️ Manual Override',
+    submitted: '📋 Marked Submitted',
+    not_applicable: '— Marked N/A',
+  };
+  if (!logs.length) {
+    document.getElementById('trustDetailContent').innerHTML = '<p style="color:var(--muted);padding:20px 0">No admin actions recorded yet.</p>';
+    return;
+  }
+  document.getElementById('trustDetailContent').innerHTML = `
+    <div>
+      ${logs.map(l => `
+        <div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--border);align-items:flex-start">
+          <div style="flex-shrink:0;width:32px;height:32px;border-radius:50%;background:rgba(124,92,255,0.15);display:flex;align-items:center;justify-content:center;font-size:13px">👤</div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:600;margin-bottom:2px">${ACTION_LABELS[l.action]||esc(l.action)}</div>
+            <div style="font-size:12px;color:var(--muted)">
+              ${l.module_type ? `Module: <strong>${esc(MODULE_LABELS[l.module_type]||l.module_type)}</strong> · ` : ''}
+              ${l.previous_status ? `<span style="color:var(--muted)">${esc(l.previous_status)}</span> → <span style="color:var(--primary)">${esc(l.new_status||'')}</span> · ` : ''}
+              By ${esc(l.admin_email||'—')} · ${fmtDate(l.created_at)}
+            </div>
+            ${l.note ? `<div style="font-size:12px;color:var(--muted);margin-top:4px;font-style:italic">"${esc(l.note)}"</div>` : ''}
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function openTrustAction(caregiverId, moduleType, action, badgeLabel) {
+  pendingTrustAction = { caregiverId, moduleType, action, badgeLabel };
+  const ACTION_TITLES = {
+    verified: '✅ Verify Module',
+    quick_fix_requested: '⚠️ Request Quick Fix',
+    expired: '⌛ Mark as Expired',
+    note_added: '✎ Add Note',
+    badge_removed: '🗑️ Remove Badge',
+    submitted: '📋 Mark as Submitted',
+    not_applicable: '— Mark as Not Applicable',
+    manual_override: '⚙️ Manual Override',
+  };
+  const ACTION_SUBTITLES = {
+    verified: 'This module will be marked as verified and the caregiver will be notified.',
+    quick_fix_requested: 'Choose a reason and optionally add a message for the caregiver.',
+    expired: 'This will mark the module as expired. The caregiver will need to re-submit.',
+    note_added: 'Add an internal admin note and/or a message visible to the caregiver.',
+    badge_removed: badgeLabel ? `Remove the "${badgeLabel}" badge from the caregiver's public profile.` : 'Remove badge.',
+    submitted: 'Mark this module as submitted / awaiting admin review.',
+    not_applicable: 'This module does not apply to this caregiver.',
+    manual_override: 'Override the module status manually.',
+  };
+
+  document.getElementById('trustActionTitle').textContent = ACTION_TITLES[action] || action;
+  document.getElementById('trustActionSubtitle').textContent = (moduleType ? `Module: ${MODULE_LABELS[moduleType]||moduleType} — ` : '') + (ACTION_SUBTITLES[action] || '');
+  document.getElementById('trustQfReasonWrap').style.display = action === 'quick_fix_requested' ? 'block' : 'none';
+  document.getElementById('trustAdminNote').value = '';
+  document.getElementById('trustCaregiverNote').value = '';
+
+  const btn = document.getElementById('trustActionConfirmBtn');
+  const btnColors = { verified:'#22C55E', quick_fix_requested:'#F59E0B', expired:'#EF4444', badge_removed:'#EF4444', note_added:'var(--primary)', submitted:'var(--secondary)', not_applicable:'var(--muted)', manual_override:'var(--primary)' };
+  btn.style.background = btnColors[action] || 'var(--primary)';
+  btn.textContent = ACTION_TITLES[action] || 'Confirm';
+  btn.disabled = false;
+
+  document.getElementById('trustActionModal').style.display = 'flex';
+}
+
+function closeTrustActionModal() {
+  document.getElementById('trustActionModal').style.display = 'none';
+  pendingTrustAction = null;
+}
+
+async function submitTrustAction() {
+  if (!pendingTrustAction) return;
+  const { caregiverId, moduleType, action, badgeLabel } = pendingTrustAction;
+  const note = document.getElementById('trustAdminNote').value.trim();
+  const caregiverNote = document.getElementById('trustCaregiverNote').value.trim();
+  const quickFixReason = action === 'quick_fix_requested' ? document.getElementById('trustQfReason').value : null;
+
+  const btn = document.getElementById('trustActionConfirmBtn');
+  btn.textContent = 'Saving…';
+  btn.disabled = true;
+
+  try {
+    const r = await fetch(`${API}/admin-trust-action?token=${adminToken}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        caregiverId, moduleType, action, note: note || null,
+        caregiverNote: caregiverNote || null,
+        quickFixReason,
+        badgeLabel: badgeLabel || null,
+      })
+    });
+    const d = await r.json();
+    if (d.success) {
+      closeTrustActionModal();
+      // Refresh detail panel
+      await openTrustDetail(caregiverId);
+      // Show correct subtab
+      showDetailSubtab(trustDetailSubtab);
+      // Also refresh queue in background
+      loadTrustQueue();
+    } else {
+      alert('Error: ' + (d.error || 'Unknown error'));
+      btn.disabled = false;
+    }
+  } catch(e) {
+    alert('Network error: ' + e.message);
+    btn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>
