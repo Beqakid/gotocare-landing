@@ -333,6 +333,7 @@
     <button onclick="switchTab('bookings',this)">📅 Bookings</button>
     <button onclick="switchTab('verifications',this)" id="verif-tab-btn">🔍 Verifications</button>
     <button onclick="switchTab('trust',this)" id="trust-tab-btn">🛡️ Trust Review</button>
+    <button onclick="switchTab('marketplace',this)" id="mkt-tab-btn">🏪 Marketplace</button>
   </div>
 
   <div class="content">
@@ -555,6 +556,95 @@
       </div>
     </div>
 
+
+    <!-- ===== MARKETPLACE CONTROL CENTER TAB ===== -->
+    <div id="tab-marketplace" style="display:none">
+
+      <!-- Section 1: Today's Marketplace Status -->
+      <div class="stats-grid" id="mktStatsGrid">
+        <div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-val">—</div><div class="stat-label">Loading…</div></div>
+      </div>
+
+      <!-- Section 2+4: Request Flow + Caregiver Readiness side-by-side -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+        <div class="stat-card" style="padding:20px 24px">
+          <div style="font-size:12px;font-weight:700;margin-bottom:14px;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted)">📊 Care Request Flow</div>
+          <div id="mktRequestFlow">⏳ Loading…</div>
+        </div>
+        <div class="stat-card" style="padding:20px 24px">
+          <div style="font-size:12px;font-weight:700;margin-bottom:14px;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted)">💜 Caregiver Readiness</div>
+          <div id="mktReadiness">⏳ Loading…</div>
+        </div>
+      </div>
+
+      <!-- Section 3: Unfilled Requests -->
+      <div class="table-wrap" style="margin-bottom:16px">
+        <div class="table-header">
+          <div style="display:flex;align-items:center;gap:12px">
+            <span class="table-title">⚠️ Unfilled Requests</span>
+            <span class="table-count" id="mktUnfilledCount">—</span>
+          </div>
+          <button class="btn-refresh" onclick="loadMarketplace()">↻ Refresh</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr><th>ID</th><th>Client</th><th>Care Needs</th><th>Preferred Date</th><th>Status</th><th>Created</th><th>Age</th></tr></thead>
+            <tbody id="mktUnfilledBody"><tr class="loading-row"><td colspan="7">⏳ Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Sections 5-8: 2x2 grid of info cards -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+        <div class="stat-card" style="padding:20px 24px">
+          <div style="font-size:12px;font-weight:700;margin-bottom:14px;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted)">🛡️ Trust Passport Review</div>
+          <div id="mktTrustReview">⏳ Loading…</div>
+        </div>
+        <div class="stat-card" style="padding:20px 24px">
+          <div style="font-size:12px;font-weight:700;margin-bottom:14px;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted)">⚡ Response Speed</div>
+          <div id="mktResponseSpeed">⏳ Loading…</div>
+        </div>
+        <div class="stat-card" style="padding:20px 24px">
+          <div style="font-size:12px;font-weight:700;margin-bottom:14px;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted)">⏱️ Active Work</div>
+          <div id="mktActiveWork">⏳ Loading…</div>
+        </div>
+        <div class="stat-card" style="padding:20px 24px">
+          <div style="font-size:12px;font-weight:700;margin-bottom:14px;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted)">💰 Invoice &amp; Payment</div>
+          <div id="mktInvoiceIssues">⏳ Loading…</div>
+        </div>
+      </div>
+
+      <!-- Section 9: Reviews & Risk Signals -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+        <div class="stat-card" style="padding:20px 24px">
+          <div style="font-size:12px;font-weight:700;margin-bottom:14px;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted)">⭐ Recent Reviews</div>
+          <div id="mktRecentReviews">⏳ Loading…</div>
+        </div>
+        <div class="stat-card" style="padding:20px 24px;border-left:3px solid var(--error)">
+          <div style="font-size:12px;font-weight:700;margin-bottom:14px;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted)">⚠️ Low Rating Alerts</div>
+          <div id="mktLowRatings">⏳ Loading…</div>
+        </div>
+      </div>
+
+      <!-- Section 10: Top Matching Caregivers -->
+      <div class="table-wrap">
+        <div class="table-header">
+          <div style="display:flex;align-items:center;gap:12px">
+            <span class="table-title">🏆 Top Matching Caregivers</span>
+            <span class="table-count" id="mktTopCount">—</span>
+          </div>
+          <button onclick="switchTab('trust',document.getElementById('trust-tab-btn'))" style="font-size:13px;color:var(--primary);background:none;border:none;cursor:pointer;font-weight:600">Open Trust Review →</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr><th>Name</th><th>Location</th><th>Rate</th><th>Modules ✓</th><th>Trust Level</th><th>Care Types</th><th>Actions</th></tr></thead>
+            <tbody id="mktTopBody"><tr class="loading-row"><td colspan="7">⏳ Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /tab-marketplace -->
+
   </div><!-- /content -->
 </div><!-- /appShell -->
 
@@ -696,7 +786,7 @@ let currentTab = 'overview';
 function switchTab(name, btn) {
   document.querySelectorAll('.tabnav button').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  ['overview','clients','caregivers','bookings','verifications','trust'].forEach(t => {
+  ['overview','clients','caregivers','bookings','verifications','trust','marketplace'].forEach(t => {
     const el = document.getElementById('tab-'+t);
     if (el) el.style.display = t===name ? 'block' : 'none';
   });
@@ -706,6 +796,7 @@ function switchTab(name, btn) {
   else if(name==='bookings') loadBookings();
   else if(name==='verifications') loadVerifications();
   else if(name==='trust') loadTrustQueue();
+  else if(name==='marketplace') loadMarketplace();
   else loadOverview();
 }
 
@@ -1420,6 +1511,172 @@ async function submitTrustAction() {
     btn.disabled = false;
   }
 }
+
+// ===== MARKETPLACE CONTROL CENTER =====
+let mktData = null;
+
+async function loadMarketplace() {
+  document.getElementById('mktStatsGrid').innerHTML = '<div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-val">—</div><div class="stat-label">Loading…</div></div>';
+  try {
+    const r = await fetch(`${API}/admin-marketplace?token=${adminToken}`);
+    const d = await r.json();
+    if (d.error) { if (d.error === 'Unauthorized') doLogout(); return; }
+    mktData = d;
+    renderMarketplace(d);
+  } catch(e) { console.error('Marketplace load error:', e); }
+}
+
+function renderMarketplace(d) {
+  const ts = d.todayStatus || {};
+
+  // Section 1: Stat grid
+  document.getElementById('mktStatsGrid').innerHTML = [
+    { icon:'📋', val: ts.totalBookings   || 0, label:'Total Bookings' },
+    { icon:'⏳', val: ts.pendingRequests || 0, label:'Open Requests',    cls: (ts.pendingRequests||0)>0 ? 'red' : '' },
+    { icon:'🚨', val: ts.urgentUnfilled  || 0, label:'Urgent (>2d)',     cls: (ts.urgentUnfilled||0)>0  ? 'red' : '' },
+    { icon:'💜', val: ts.totalCaregivers || 0, label:'Total Caregivers' },
+    { icon:'🟢', val: ts.caregiverOnline || 0, label:'Online Now' },
+    { icon:'⏱️', val: ts.activeTimers    || 0, label:'Active Timers' },
+    { icon:'💰', val: ts.readyToInvoice  || 0, label:'Ready to Invoice', cls: (ts.readyToInvoice||0)>0  ? 'orange' : '' },
+    { icon:'🛡️', val: ts.trustPendingReview||0,label:'Trust Needs Review',cls:(ts.trustPendingReview||0)>0?'blue':'' },
+  ].map(s => `<div class="stat-card${s.cls?' '+s.cls:''}"><div class="stat-icon">${s.icon}</div><div class="stat-val">${s.val}</div><div class="stat-label">${s.label}</div></div>`).join('');
+
+  // Section 2: Request flow
+  const flow = d.requestFlow || [];
+  const FLOW_ORDER = ['pending','matching','dispatched','caregiver_accepted','client_confirming','interview_requested','hire_offer_sent','agreement_signed','confirmed','scheduled','in_progress','completed','invoiced','paid','reviewed','cancelled','expired'];
+  const FLOW_LABELS = { pending:'Pending',matching:'Matching',dispatched:'Dispatched',caregiver_accepted:'Accepted',client_confirming:'Client Confirming',interview_requested:'Interview',hire_offer_sent:'Hire Offer',agreement_signed:'Signed',confirmed:'Confirmed',scheduled:'Scheduled',in_progress:'In Progress',completed:'Completed',invoiced:'Invoiced',paid:'Paid',reviewed:'Reviewed',cancelled:'Cancelled',expired:'Expired' };
+  const flowTotal = flow.reduce((a,r) => a+(r.cnt||0), 0) || 1;
+  document.getElementById('mktRequestFlow').innerHTML = flow.length === 0
+    ? '<p style="color:var(--muted);font-size:13px">No bookings yet</p>'
+    : flow.slice().sort((a,b) => FLOW_ORDER.indexOf(a.status)-FLOW_ORDER.indexOf(b.status)).map(r => {
+        const pct = Math.round((r.cnt/flowTotal)*100);
+        const color = ['pending','matching'].includes(r.status)?'var(--warning)':['completed','reviewed','paid'].includes(r.status)?'var(--success)':['cancelled','expired'].includes(r.status)?'var(--error)':'var(--primary)';
+        return `<div style="margin-bottom:9px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>${FLOW_LABELS[r.status]||r.status}</span><span style="color:var(--muted)">${r.cnt}</span></div><div style="height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${color};border-radius:3px;min-width:${r.cnt>0?'4px':'0'}"></div></div></div>`;
+      }).join('');
+
+  // Section 4: Caregiver readiness
+  const rd = d.caregiverReadiness || {};
+  const rdTotal = (rd.not_ready||0)+(rd.level2||0)+(rd.level3||0)+(rd.level4||0)+(rd.level5||0)||1;
+  const rdRows = [
+    { label:'Not Ready (Level 1)',       count:rd.not_ready||0, color:'var(--muted)',    note:'No modules verified' },
+    { label:'Identity Ready (Level 2)',  count:rd.level2||0,    color:'var(--secondary)',note:'Basic profile done' },
+    { label:'Care Ready (Level 3)',      count:rd.level3||0,    color:'var(--warning)',  note:'Contact verified' },
+    { label:'Carehia Verified (Level 4)',count:rd.level4||0,    color:'var(--primary)',  note:'Carehia reviewed' },
+    { label:'Trusted Pro (Level 5)',     count:rd.level5||0,    color:'var(--success)',  note:'6+ modules verified' },
+  ];
+  document.getElementById('mktReadiness').innerHTML = rdRows.map(row => {
+    const pct = Math.round((row.count/rdTotal)*100);
+    return `<div style="margin-bottom:11px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span style="color:${row.color};font-weight:600">${row.label}</span><span style="color:var(--muted)">${row.count} (${pct}%)</span></div><div style="height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${row.color};border-radius:3px;min-width:${row.count>0?'4px':'0'}"></div></div><div style="font-size:11px;color:var(--muted);margin-top:2px">${row.note}</div></div>`;
+  }).join('');
+
+  // Section 3: Unfilled requests table
+  const unfilled = d.unfilledRequests || [];
+  document.getElementById('mktUnfilledCount').textContent = unfilled.length;
+  const now = Date.now();
+  document.getElementById('mktUnfilledBody').innerHTML = unfilled.length === 0
+    ? '<tr class="loading-row"><td colspan="7">✅ No unfilled requests</td></tr>'
+    : unfilled.map(b => {
+        const created = new Date((b.created_at||'').replace(' ','T'));
+        const ageH = Math.round((now-created.getTime())/3600000);
+        const ageLabel = ageH<1?'<1h':ageH<24?ageH+'h':Math.floor(ageH/24)+'d';
+        const ageCls = ageH>48?'color:#EF4444;font-weight:700':ageH>12?'color:#F59E0B;font-weight:600':'color:var(--muted)';
+        let needs='—'; try{const a=JSON.parse(b.care_needs||'[]');needs=Array.isArray(a)?a.slice(0,3).join(', '):b.care_needs||'—';}catch{}
+        return `<tr><td style="color:var(--muted);font-size:12px">#${b.id}</td><td style="font-size:12px">${esc(b.client_email||'—')}</td><td style="font-size:12px">${esc(needs)}</td><td style="font-size:12px;color:var(--muted)">${b.preferred_date||'—'}</td><td><span class="badge badge-yellow">${b.status||'pending'}</span></td><td style="font-size:12px;color:var(--muted)">${fmtDate(b.created_at)}</td><td style="font-size:12px;${ageCls}">${ageLabel}</td></tr>`;
+      }).join('');
+
+  // Section 5: Trust Passport review
+  const tr2 = d.trustReview || {};
+  document.getElementById('mktTrustReview').innerHTML = `
+    <div style="display:flex;gap:12px;margin-bottom:14px">
+      <div style="flex:1;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);border-radius:10px;padding:12px;text-align:center">
+        <div style="font-size:26px;font-weight:700;color:#F59E0B">${tr2.submitted||0}</div>
+        <div style="font-size:12px;color:var(--muted)">Awaiting Review</div>
+      </div>
+      <div style="flex:1;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);border-radius:10px;padding:12px;text-align:center">
+        <div style="font-size:26px;font-weight:700;color:#EF4444">${tr2.quickFix||0}</div>
+        <div style="font-size:12px;color:var(--muted)">Quick Fix Needed</div>
+      </div>
+    </div>
+    <button onclick="switchTab('trust',document.getElementById('trust-tab-btn'))" style="width:100%;padding:9px;background:var(--accent);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-weight:600;cursor:pointer">Open Trust Review Queue →</button>`;
+
+  // Section 6: Response speed
+  const rs = d.responseSpeed || {};
+  document.getElementById('mktResponseSpeed').innerHTML = `
+    <div style="margin-bottom:16px">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:4px">Caregivers Needing Nudge</div>
+      <div style="font-size:28px;font-weight:700;color:${(rs.nudgeNeeded||0)>0?'#F59E0B':'var(--success)'}">${rs.nudgeNeeded||0}</div>
+      <div style="font-size:11px;color:var(--muted)">Requests >1hr old, caregiver not responded</div>
+    </div>
+    <div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:4px">Requests Stale >2 Days</div>
+      <div style="font-size:28px;font-weight:700;color:${(rs.pendingOver2Days||0)>0?'#EF4444':'var(--success)'}">${rs.pendingOver2Days||0}</div>
+      <div style="font-size:11px;color:var(--muted)">Consider manual matching or outreach</div>
+    </div>`;
+
+  // Section 7: Active work
+  const aw = d.activeWork || {};
+  const timers = aw.activeTimers || [];
+  const visits = aw.todayVisits || [];
+  document.getElementById('mktActiveWork').innerHTML = `
+    <div style="display:flex;gap:10px;margin-bottom:14px">
+      <div style="flex:1;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);border-radius:8px;padding:10px;text-align:center">
+        <div style="font-size:22px;font-weight:700;color:#22C55E">${timers.length}</div>
+        <div style="font-size:11px;color:var(--muted)">Active Timers</div>
+      </div>
+      <div style="flex:1;background:rgba(74,144,226,0.1);border:1px solid rgba(74,144,226,0.25);border-radius:8px;padding:10px;text-align:center">
+        <div style="font-size:22px;font-weight:700;color:#4A90E2">${visits.length}</div>
+        <div style="font-size:11px;color:var(--muted)">Visits Today</div>
+      </div>
+      <div style="flex:1;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);border-radius:8px;padding:10px;text-align:center">
+        <div style="font-size:22px;font-weight:700;color:#F59E0B">${aw.completedNotInvoiced||0}</div>
+        <div style="font-size:11px;color:var(--muted)">Awaiting Invoice</div>
+      </div>
+    </div>
+    ${timers.length>0?'<div style="font-size:11px;font-weight:700;margin-bottom:6px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em">Active Timers</div>'+timers.slice(0,4).map(t=>`<div style="background:var(--bg);border-radius:7px;padding:8px 10px;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:500">${esc(t.caregiver_name||t.caregiver_email||'—')}</span><span style="font-size:11px;color:var(--success)">● Active</span></div>`).join(''):'<p style="font-size:13px;color:var(--muted)">No active timers right now.</p>'}`;
+
+  // Section 8: Invoice issues
+  const inv = d.invoiceIssues || {};
+  document.getElementById('mktInvoiceIssues').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:11px;background:var(--bg);border-radius:8px">
+        <div><div style="font-size:13px;font-weight:600">Ready to Send</div><div style="font-size:11px;color:var(--muted)">Completed work, invoice not yet sent</div></div>
+        <div style="font-size:20px;font-weight:700;color:${(inv.readyToSend||0)>0?'#F59E0B':'var(--muted)'}">${inv.readyToSend||0}</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:11px;background:var(--bg);border-radius:8px">
+        <div><div style="font-size:13px;font-weight:600">Sent — Awaiting Payment</div><div style="font-size:11px;color:var(--muted)">Invoice sent, not yet paid</div></div>
+        <div style="font-size:20px;font-weight:700;color:${(inv.sentWaiting||0)>0?'#4A90E2':'var(--muted)'}">${inv.sentWaiting||0}</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:11px;background:var(--bg);border-radius:8px;border-left:3px solid ${(inv.overdueCount||0)>0?'#EF4444':'transparent'}">
+        <div><div style="font-size:13px;font-weight:600">Overdue (&gt;14 days)</div><div style="font-size:11px;color:var(--muted)">Sent >2 weeks ago, still unpaid</div></div>
+        <div style="font-size:20px;font-weight:700;color:${(inv.overdueCount||0)>0?'#EF4444':'var(--muted)'}">${inv.overdueCount||0}</div>
+      </div>
+    </div>`;
+
+  // Section 9: Reviews
+  const revData = d.reviews || {};
+  const renderRev = rv => {
+    const stars = '★'.repeat(Math.min(5,Math.max(0,rv.rating||0)))+'☆'.repeat(Math.max(0,5-(rv.rating||0)));
+    const sc = (rv.rating||0)>=4?'#22C55E':(rv.rating||0)>=3?'#F59E0B':'#EF4444';
+    return `<div style="background:var(--bg);border-radius:8px;padding:10px;margin-bottom:8px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><span style="font-size:13px;font-weight:600">${esc(rv.caregiver_name||'Caregiver #'+rv.caregiver_id)}</span><span style="color:${sc};font-size:13px">${stars} ${rv.rating||'?'}</span></div>${rv.review_text?`<div style="font-size:12px;color:var(--muted)">${esc((rv.review_text||'').substring(0,80))}${(rv.review_text||'').length>80?'…':''}</div>`:''}<div style="font-size:11px;color:var(--muted);margin-top:3px">${fmtDate(rv.created_at)}</div></div>`;
+  };
+  document.getElementById('mktRecentReviews').innerHTML = (revData.recent||[]).length===0?'<p style="color:var(--muted);font-size:13px">No reviews yet</p>':(revData.recent||[]).map(renderRev).join('');
+  document.getElementById('mktLowRatings').innerHTML = (revData.lowRating||[]).length===0?'<p style="color:var(--success);font-size:13px">✅ No low ratings</p>':(revData.lowRating||[]).map(renderRev).join('');
+
+  // Section 10: Top caregivers
+  const top = d.topCaregivers || [];
+  document.getElementById('mktTopCount').textContent = top.length;
+  const getTL = vm => vm>=6?5:vm>=4?4:vm>=2?3:vm>=1?2:1;
+  const TL_NAMES  = {1:'Getting Started',2:'Identity Ready',3:'Care Ready',4:'Carehia Verified',5:'Trusted Pro'};
+  const TL_COLORS = {1:'var(--muted)',2:'var(--secondary)',3:'var(--warning)',4:'var(--primary)',5:'var(--success)'};
+  document.getElementById('mktTopBody').innerHTML = top.length===0
+    ? '<tr class="loading-row"><td colspan="7">No caregivers yet</td></tr>'
+    : top.map(cg => {
+        const tl = getTL(cg.verified_modules||0);
+        let careTypes='—'; try{const a=JSON.parse(cg.care_types||'[]');careTypes=Array.isArray(a)?a.slice(0,2).join(', '):cg.care_types||'—';}catch{}
+        return `<tr><td style="font-weight:600">${esc(cg.name||'—')}</td><td style="font-size:12px;color:var(--muted)">${esc(cg.city&&cg.state?cg.city+', '+cg.state:cg.city||cg.state||'—')}</td><td>${cg.hourly_rate?'<span style="color:var(--success);font-weight:600">$'+parseFloat(cg.hourly_rate).toFixed(0)+'/hr</span>':'<span style="color:var(--muted)">—</span>'}</td><td><span style="background:rgba(124,92,255,0.15);color:var(--primary);padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">${cg.verified_modules||0} ✓</span></td><td><span style="color:${TL_COLORS[tl]};font-weight:600;font-size:12px">${TL_NAMES[tl]}</span></td><td style="font-size:12px;color:var(--muted)">${esc(careTypes)}</td><td><button onclick="switchTab('trust',document.getElementById('trust-tab-btn'))" style="padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--text);cursor:pointer;font-size:11px">Trust →</button></td></tr>`;
+      }).join('');
+}
+
 </script>
 </body>
 </html>
