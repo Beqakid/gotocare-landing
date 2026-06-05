@@ -239,6 +239,49 @@
   .spin { display: inline-block; animation: spin 0.8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
+  /* Trust Review chips */
+  .trust-chip {
+    padding: 5px 14px; border-radius: 20px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.04);
+    color: var(--muted); font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s; white-space: nowrap;
+  }
+  .trust-chip.active { background: rgba(124,92,255,0.18); border-color: var(--primary); color: var(--primary); }
+  .trust-chip:hover:not(.active) { background: rgba(255,255,255,0.08); color: var(--text); }
+  /* Detail subtabs */
+  .detail-subtab {
+    padding: 12px 18px; background: none; border: none;
+    color: var(--muted); font-size: 13px; font-weight: 500;
+    cursor: pointer; border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .detail-subtab.active { color: var(--primary); border-color: var(--primary); }
+  .detail-subtab:hover:not(.active) { color: var(--text); }
+  /* Module card */
+  .module-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px 18px;
+    margin-bottom: 12px;
+    display: flex; align-items: flex-start; gap: 14px; flex-wrap: wrap;
+  }
+  .module-card-info { flex: 1; min-width: 200px; }
+  .module-card-actions { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  /* Status badges */
+  .ms-verified { background: rgba(34,197,94,0.15); color: #4ade80; padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+  .ms-submitted { background: rgba(74,144,226,0.15); color: #60a5fa; padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+  .ms-qf { background: rgba(245,158,11,0.15); color: #fbbf24; padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+  .ms-expired { background: rgba(239,68,68,0.15); color: #f87171; padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+  .ms-na { background: rgba(255,255,255,0.07); color: var(--muted); padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+  .ms-none { background: rgba(255,255,255,0.04); color: var(--muted); padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+  /* Action buttons */
+  .act-verify { padding:4px 11px;border-radius:6px;border:none;background:#22C55E;color:#fff;cursor:pointer;font-size:11px;font-weight:700; }
+  .act-qf { padding:4px 11px;border-radius:6px;border:none;background:#F59E0B;color:#fff;cursor:pointer;font-size:11px;font-weight:700; }
+  .act-expire { padding:4px 11px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;font-size:11px; }
+  .act-note { padding:4px 11px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;font-size:11px; }
+  .act-badge-rm { padding:4px 11px;border-radius:6px;border:1px solid rgba(239,68,68,0.3);background:rgba(239,68,68,0.1);color:#f87171;cursor:pointer;font-size:11px; }
+
   /* Responsive */
   @media (max-width: 640px) {
     .content { padding: 16px; }
@@ -289,6 +332,7 @@
     <button onclick="switchTab('caregivers',this)">💜 Caregivers</button>
     <button onclick="switchTab('bookings',this)">📅 Bookings</button>
     <button onclick="switchTab('verifications',this)" id="verif-tab-btn">🔍 Verifications</button>
+    <button onclick="switchTab('trust',this)" id="trust-tab-btn">🛡️ Trust Review</button>
   </div>
 
   <div class="content">
@@ -468,8 +512,113 @@
       </div>
     </div>
 
+    <!-- TRUST REVIEW TAB -->
+    <div id="tab-trust" style="display:none">
+      <div class="table-wrap" style="margin-bottom:20px">
+        <div class="table-header" style="flex-wrap:wrap;gap:10px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <span class="table-title">Trust Review Queue</span>
+            <span class="table-count" id="trustCount">—</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <input class="search-box" id="trustSearch" placeholder="Search name or email…" oninput="filterTrustTable()"/>
+            <button class="btn-refresh" onclick="loadTrustQueue()">↻ Refresh</button>
+          </div>
+        </div>
+        <!-- Filter chips -->
+        <div style="padding:0 20px 8px;display:flex;flex-wrap:wrap;gap:8px" id="trustFilterChips">
+          <button class="trust-chip active" data-filter="all" onclick="setTrustFilter('all',this)">All <span id="tc-all">—</span></button>
+          <button class="trust-chip" data-filter="needs_review" onclick="setTrustFilter('needs_review',this)">🔍 Needs Review <span id="tc-needs_review">—</span></button>
+          <button class="trust-chip" data-filter="needs_quick_fix" onclick="setTrustFilter('needs_quick_fix',this)">⚠️ Needs Quick Fix <span id="tc-needs_quick_fix">—</span></button>
+          <button class="trust-chip" data-filter="verified" onclick="setTrustFilter('verified',this)">✅ Verified <span id="tc-verified">—</span></button>
+          <button class="trust-chip" data-filter="expiring_soon" onclick="setTrustFilter('expiring_soon',this)">⌛ Expiring Soon <span id="tc-expiring_soon">—</span></button>
+          <button class="trust-chip" data-filter="background_pending" onclick="setTrustFilter('background_pending',this)">🔍 Background Pending <span id="tc-background_pending">—</span></button>
+          <button class="trust-chip" data-filter="carehia_verified" onclick="setTrustFilter('carehia_verified',this)">💜 Carehia Verified <span id="tc-carehia_verified">—</span></button>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr>
+              <th>Caregiver</th>
+              <th class="hide-mobile">Location</th>
+              <th>Trust Level</th>
+              <th>Modules</th>
+              <th>Status</th>
+              <th class="hide-mobile">Background</th>
+              <th class="hide-mobile">Last Updated</th>
+              <th>Actions</th>
+            </tr></thead>
+            <tbody id="trustBody">
+              <tr class="loading-row"><td colspan="8">⏳ Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
   </div><!-- /content -->
 </div><!-- /appShell -->
+
+<!-- ===== TRUST DETAIL MODAL ===== -->
+<div id="trustDetailModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;overflow-y:auto;padding:20px 16px">
+  <div style="max-width:860px;margin:0 auto;background:var(--card);border-radius:16px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.5)">
+    <!-- Header -->
+    <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--card2)">
+      <div id="trustDetailHeader"><span style="color:var(--muted)">Loading…</span></div>
+      <button onclick="closeTrustDetail()" style="background:rgba(255,255,255,0.07);border:none;border-radius:8px;color:var(--text);cursor:pointer;padding:6px 14px;font-size:13px;font-weight:600">✕ Close</button>
+    </div>
+    <!-- Summary bar -->
+    <div id="trustDetailSummary" style="padding:16px 24px;border-bottom:1px solid var(--border);display:flex;gap:16px;flex-wrap:wrap;background:rgba(124,92,255,0.05)"></div>
+    <!-- Tabs inside detail -->
+    <div style="display:flex;border-bottom:1px solid var(--border);padding:0 24px;background:var(--card2)">
+      <button class="detail-subtab active" id="dst-modules" onclick="showDetailSubtab('modules')">Modules</button>
+      <button class="detail-subtab" id="dst-documents" onclick="showDetailSubtab('documents')">Documents</button>
+      <button class="detail-subtab" id="dst-badges" onclick="showDetailSubtab('badges')">Public Badges</button>
+      <button class="detail-subtab" id="dst-audit" onclick="showDetailSubtab('audit')">Audit Log</button>
+    </div>
+    <!-- Detail content panes -->
+    <div id="trustDetailContent" style="padding:24px;min-height:300px"></div>
+  </div>
+</div>
+
+<!-- ===== TRUST ACTION MODAL ===== -->
+<div id="trustActionModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1100;align-items:center;justify-content:center">
+  <div style="background:var(--card);border-radius:16px;padding:28px;width:480px;max-width:92vw;box-shadow:0 8px 40px rgba(0,0,0,0.5)">
+    <h3 id="trustActionTitle" style="margin:0 0 6px;font-size:16px;font-weight:700"></h3>
+    <p id="trustActionSubtitle" style="margin:0 0 20px;font-size:13px;color:var(--muted)"></p>
+
+    <!-- Quick fix reason (shown only for quick_fix action) -->
+    <div id="trustQfReasonWrap" style="display:none;margin-bottom:14px">
+      <label style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:6px">Quick Fix Reason</label>
+      <select id="trustQfReason" style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px">
+        <option value="Photo is unclear">Photo is unclear</option>
+        <option value="Missing information">Missing information</option>
+        <option value="Expired document">Expired document</option>
+        <option value="Name does not match">Name does not match</option>
+        <option value="Certification details incomplete">Certification details incomplete</option>
+        <option value="Reference could not be verified">Reference could not be verified</option>
+        <option value="Background permission incomplete">Background permission incomplete</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+
+    <!-- Internal admin note -->
+    <div style="margin-bottom:14px">
+      <label style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:6px">Internal Note <span style="font-weight:400;text-transform:none">(admin only — not visible to caregiver)</span></label>
+      <textarea id="trustAdminNote" placeholder="Internal note…" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;min-height:64px;resize:vertical;box-sizing:border-box"></textarea>
+    </div>
+
+    <!-- Caregiver-facing note -->
+    <div style="margin-bottom:20px">
+      <label style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:6px">Message to Caregiver <span style="font-weight:400;text-transform:none">(shown on their Trust Passport)</span></label>
+      <textarea id="trustCaregiverNote" placeholder="What should the caregiver do next?…" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;min-height:64px;resize:vertical;box-sizing:border-box"></textarea>
+    </div>
+
+    <div style="display:flex;gap:10px">
+      <button onclick="closeTrustActionModal()" style="flex:1;padding:11px;border-radius:8px;border:1px solid var(--border);background:none;color:var(--text);cursor:pointer;font-size:14px;font-weight:600">Cancel</button>
+      <button id="trustActionConfirmBtn" onclick="submitTrustAction()" style="flex:2;padding:11px;border-radius:8px;border:none;color:#fff;cursor:pointer;font-size:14px;font-weight:700"></button>
+    </div>
+  </div>
+</div>
 
 <script>
 const API = 'https://carehia-admin.jjioji.workers.dev';
@@ -547,7 +696,7 @@ let currentTab = 'overview';
 function switchTab(name, btn) {
   document.querySelectorAll('.tabnav button').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  ['overview','clients','caregivers','bookings','verifications'].forEach(t => {
+  ['overview','clients','caregivers','bookings','verifications','trust'].forEach(t => {
     const el = document.getElementById('tab-'+t);
     if (el) el.style.display = t===name ? 'block' : 'none';
   });
@@ -556,6 +705,7 @@ function switchTab(name, btn) {
   else if(name==='caregivers') loadCaregivers();
   else if(name==='bookings') loadBookings();
   else if(name==='verifications') loadVerifications();
+  else if(name==='trust') loadTrustQueue();
   else loadOverview();
 }
 
@@ -853,6 +1003,422 @@ function filterTable(tbodyId, inputId) {
     const hay = (tr.dataset.search||'') + tr.textContent.toLowerCase();
     tr.style.display = !q || hay.includes(q) ? '' : 'none';
   });
+}
+
+// ===== TRUST REVIEW =====
+let trustAllRows = [];
+let currentTrustFilter = 'all';
+let trustDetailData = null;
+let trustDetailSubtab = 'modules';
+let pendingTrustAction = null;
+
+const MODULE_LABELS = {
+  basic_profile: 'Basic Profile',
+  contact_verification: 'Contact Verification',
+  selfie_intro: 'Selfie & Intro',
+  care_experience: 'Care Experience',
+  references: 'References',
+  certifications: 'Certifications & Skills',
+  background_permission: 'Background Check Permission',
+  carehia_review: 'Carehia Review',
+  work_history: 'Work History Trust',
+  manual_proof: 'Manual Proof',
+};
+const MODULE_DESC = {
+  basic_profile: 'Name, photo, hourly rate, location, and bio.',
+  contact_verification: 'Email and/or phone verified.',
+  selfie_intro: 'Clear profile photo and written greeting.',
+  care_experience: 'Care specialties, skills, types of care provided.',
+  references: 'Professional or personal contacts who can vouch.',
+  certifications: 'CPR, First Aid, CNA, or other credentials.',
+  background_permission: 'Authorised a basic background check.',
+  carehia_review: 'Manual review by Carehia team.',
+  work_history: 'Completed visits, ratings, repeat clients.',
+  manual_proof: 'Additional supporting documents uploaded.',
+};
+const ALL_MODULES = ['basic_profile','contact_verification','selfie_intro','care_experience','references','certifications','background_permission','carehia_review','work_history','manual_proof'];
+
+async function loadTrustQueue() {
+  document.getElementById('trustBody').innerHTML = '<tr class="loading-row"><td colspan="8">⏳ Loading…</td></tr>';
+  try {
+    const r = await fetch(`${API}/admin-trust-queue?token=${adminToken}&filter=${currentTrustFilter}`);
+    const d = await r.json();
+    if (d.error) { doLogout(); return; }
+    trustAllRows = d.caregivers || [];
+    document.getElementById('trustCount').textContent = trustAllRows.length;
+    // Update filter chip counts
+    const fc = d.filterCounts || {};
+    Object.entries(fc).forEach(([k, v]) => {
+      const el = document.getElementById('tc-'+k);
+      if (el) el.textContent = '('+v+')';
+    });
+    renderTrustTable(trustAllRows);
+  } catch(e) {
+    document.getElementById('trustBody').innerHTML = `<tr class="loading-row"><td colspan="8">⚠️ Error: ${e.message}</td></tr>`;
+  }
+}
+
+function renderTrustTable(rows) {
+  const tbody = document.getElementById('trustBody');
+  if (!rows.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="8">No caregivers found for this filter.</td></tr>'; return; }
+  tbody.innerHTML = rows.map(c => {
+    const levelColor = c.trustScore >= 80 ? '#4ade80' : c.trustScore >= 60 ? '#a78bfa' : c.trustScore >= 40 ? '#60a5fa' : c.trustScore >= 20 ? '#fbbf24' : 'var(--muted)';
+    const statusHtml = [];
+    if (c.submitted_count > 0) statusHtml.push(`<span class="badge badge-blue">${c.submitted_count} pending</span>`);
+    if (c.quick_fix_count > 0) statusHtml.push(`<span class="badge badge-yellow">${c.quick_fix_count} quick fix</span>`);
+    if (c.quick_fix_count === 0 && c.submitted_count === 0 && c.verified_count > 0) statusHtml.push(`<span class="badge badge-green">clean</span>`);
+    if (statusHtml.length === 0) statusHtml.push('<span style="color:var(--muted);font-size:12px">no activity</span>');
+    const bgHtml = c.bg_consent_count > 0
+      ? '<span class="badge badge-blue">Consent given</span>'
+      : '<span style="color:var(--muted);font-size:11px">—</span>';
+    return `
+      <tr data-search="${esc(c.name||'')} ${esc(c.email||'')}">
+        <td>
+          <div style="font-weight:600">${esc(c.name||'—')}</div>
+          <div style="font-size:11px;color:var(--muted)">${esc(c.email||'')}</div>
+        </td>
+        <td class="hide-mobile" style="font-size:12px;color:var(--muted)">${esc((c.city||'')+(c.state?' '+c.state:'') || '—')}</td>
+        <td>
+          <div style="font-weight:700;color:${levelColor};font-size:13px">${c.trustLevel}</div>
+          <div style="font-size:11px;color:var(--muted)">${c.trustScore}/100</div>
+        </td>
+        <td>
+          <div style="font-size:12px"><span style="color:var(--success)">${c.verified_count}</span> verified · <span style="color:var(--muted)">${c.expired_count}</span> expired</div>
+        </td>
+        <td>${statusHtml.join(' ')}</td>
+        <td class="hide-mobile">${bgHtml}</td>
+        <td class="hide-mobile" style="font-size:11px;color:var(--muted)">${c.last_module_update ? fmtDate(c.last_module_update) : '—'}</td>
+        <td>
+          <button onclick="openTrustDetail(${c.id})" style="padding:5px 14px;border-radius:7px;border:1px solid var(--primary);background:rgba(124,92,255,0.1);color:var(--primary);cursor:pointer;font-size:12px;font-weight:700;white-space:nowrap">Review →</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function filterTrustTable() {
+  const q = document.getElementById('trustSearch').value.toLowerCase().trim();
+  const filtered = q ? trustAllRows.filter(c => (c.name||'').toLowerCase().includes(q) || (c.email||'').toLowerCase().includes(q)) : trustAllRows;
+  renderTrustTable(filtered);
+}
+
+function setTrustFilter(filter, btn) {
+  currentTrustFilter = filter;
+  document.querySelectorAll('.trust-chip').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadTrustQueue();
+}
+
+async function openTrustDetail(caregiverId) {
+  document.getElementById('trustDetailModal').style.display = 'block';
+  document.getElementById('trustDetailHeader').innerHTML = '⏳ Loading…';
+  document.getElementById('trustDetailSummary').innerHTML = '';
+  document.getElementById('trustDetailContent').innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)">⏳ Loading trust data…</div>';
+  try {
+    const r = await fetch(`${API}/admin-trust-detail?token=${adminToken}&caregiverId=${caregiverId}`);
+    const d = await r.json();
+    if (d.error) { alert('Error: ' + d.error); return; }
+    trustDetailData = { ...d, caregiverId };
+    trustDetailSubtab = 'modules';
+    document.querySelectorAll('.detail-subtab').forEach(b => b.classList.remove('active'));
+    document.getElementById('dst-modules').classList.add('active');
+    renderTrustDetailHeader(trustDetailData);
+    renderTrustDetailSummary(trustDetailData);
+    renderTrustDetailModules(trustDetailData);
+  } catch(e) {
+    document.getElementById('trustDetailContent').innerHTML = `<p style="color:var(--error)">Error: ${e.message}</p>`;
+  }
+}
+
+function closeTrustDetail() {
+  document.getElementById('trustDetailModal').style.display = 'none';
+  trustDetailData = null;
+}
+
+function showDetailSubtab(tab) {
+  trustDetailSubtab = tab;
+  document.querySelectorAll('.detail-subtab').forEach(b => b.classList.remove('active'));
+  document.getElementById('dst-'+tab).classList.add('active');
+  if (!trustDetailData) return;
+  if (tab === 'modules') renderTrustDetailModules(trustDetailData);
+  else if (tab === 'documents') renderTrustDetailDocs(trustDetailData);
+  else if (tab === 'badges') renderTrustDetailBadges(trustDetailData);
+  else if (tab === 'audit') renderTrustDetailAudit(trustDetailData);
+}
+
+function renderTrustDetailHeader(d) {
+  const cg = d.caregiver || {};
+  document.getElementById('trustDetailHeader').innerHTML = `
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;flex-shrink:0">${(cg.name||'?')[0].toUpperCase()}</div>
+      <div>
+        <div style="font-size:16px;font-weight:700">${esc(cg.name||'—')}</div>
+        <div style="font-size:13px;color:var(--muted)">${esc(cg.email||'')} · ${esc((cg.city||'')+(cg.state?' '+cg.state:'') || '—')}</div>
+      </div>
+    </div>
+  `;
+}
+
+function renderTrustDetailSummary(d) {
+  const mods = d.moduleReviews || [];
+  const verified = mods.filter(m => m.status === 'verified').length;
+  const qf = mods.filter(m => m.status === 'needs_quick_fix').length;
+  const submitted = mods.filter(m => m.status === 'submitted').length;
+  const badges = (d.publicBadges || []).length;
+  const MODULE_W = { basic_profile:15,contact_verification:10,selfie_intro:10,care_experience:15,references:10,certifications:15,background_permission:10,carehia_review:10,work_history:5 };
+  const score = mods.filter(m => m.status === 'verified').reduce((s, m) => s + (MODULE_W[m.module_type] || 0), 0);
+  const levelColor = score >= 80 ? '#4ade80' : score >= 60 ? '#a78bfa' : score >= 40 ? '#60a5fa' : score >= 20 ? '#fbbf24' : 'var(--muted)';
+  const level = score >= 80 ? 'Trusted Pro' : score >= 60 ? 'Carehia Verified' : score >= 40 ? 'Care Ready' : score >= 20 ? 'Identity Ready' : 'Getting Started';
+  document.getElementById('trustDetailSummary').innerHTML = `
+    <div style="text-align:center;min-width:80px">
+      <div style="font-size:26px;font-weight:800;color:${levelColor}">${score}</div>
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em">Trust Score</div>
+      <div style="font-size:12px;font-weight:700;color:${levelColor};margin-top:2px">${level}</div>
+    </div>
+    <div style="width:1px;background:var(--border);min-height:40px"></div>
+    <div style="text-align:center;min-width:70px">
+      <div style="font-size:22px;font-weight:700;color:var(--success)">${verified}</div>
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em">Verified</div>
+    </div>
+    <div style="text-align:center;min-width:70px">
+      <div style="font-size:22px;font-weight:700;color:#60a5fa">${submitted}</div>
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em">Pending</div>
+    </div>
+    <div style="text-align:center;min-width:70px">
+      <div style="font-size:22px;font-weight:700;color:#fbbf24">${qf}</div>
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em">Quick Fix</div>
+    </div>
+    <div style="text-align:center;min-width:70px">
+      <div style="font-size:22px;font-weight:700;color:#a78bfa">${badges}</div>
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em">Badges</div>
+    </div>
+  `;
+}
+
+function renderTrustDetailModules(d) {
+  const mods = d.moduleReviews || [];
+  const reviewMap = {};
+  mods.forEach(m => { reviewMap[m.module_type] = m; });
+  const cgId = d.caregiverId;
+
+  const html = ALL_MODULES.map(modType => {
+    const rev = reviewMap[modType];
+    const status = rev?.status || 'not_started';
+    const statusBadge = {
+      verified: `<span class="ms-verified">✓ Verified</span>`,
+      submitted: `<span class="ms-submitted">⏳ Submitted</span>`,
+      needs_quick_fix: `<span class="ms-qf">⚠️ Needs Quick Fix</span>`,
+      expired: `<span class="ms-expired">⌛ Expired</span>`,
+      not_applicable: `<span class="ms-na">— N/A</span>`,
+      not_started: `<span class="ms-none">Not Reviewed</span>`,
+    }[status] || `<span class="ms-none">${esc(status)}</span>`;
+
+    const qfHint = rev?.quick_fix_reason ? `<div style="font-size:11px;color:#fbbf24;margin-top:4px">Reason: ${esc(rev.quick_fix_reason)}</div>` : '';
+    const cgNote = rev?.caregiver_note ? `<div style="font-size:11px;color:#60a5fa;margin-top:4px">Caregiver message: ${esc(rev.caregiver_note)}</div>` : '';
+    const adminNote = rev?.admin_note ? `<div style="font-size:11px;color:var(--muted);margin-top:4px">Internal: ${esc(rev.admin_note)}</div>` : '';
+
+    return `
+      <div class="module-card">
+        <div class="module-card-info">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">
+            <span style="font-size:14px;font-weight:700">${esc(MODULE_LABELS[modType]||modType)}</span>
+            ${statusBadge}
+          </div>
+          <div style="font-size:12px;color:var(--muted)">${esc(MODULE_DESC[modType]||'')}</div>
+          ${qfHint}${cgNote}${adminNote}
+          ${rev?.reviewed_by ? `<div style="font-size:11px;color:var(--muted);margin-top:4px">Last reviewed by ${esc(rev.reviewed_by)} · ${fmtDate(rev.reviewed_at)}</div>` : ''}
+        </div>
+        <div class="module-card-actions">
+          <button class="act-verify" onclick="openTrustAction(${cgId},'${modType}','verified')">✓ Verify</button>
+          <button class="act-qf" onclick="openTrustAction(${cgId},'${modType}','quick_fix_requested')">⚠️ Quick Fix</button>
+          <button class="act-expire" onclick="openTrustAction(${cgId},'${modType}','expired')">⌛ Expire</button>
+          <button class="act-note" onclick="openTrustAction(${cgId},'${modType}','note_added')">✎ Note</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('trustDetailContent').innerHTML = `
+    <div style="margin-bottom:12px;font-size:13px;color:var(--muted)">Click an action button to review each module. All actions are logged.</div>
+    ${html}
+  `;
+}
+
+function renderTrustDetailDocs(d) {
+  const docs = d.verifications || [];
+  const DOC_LABELS = { government_id:'🪪 Gov. ID', background_consent:'🔍 Background Consent', cna_license:'🏥 CNA License', cpr_certificate:'🫀 CPR Certificate', other:'📄 Other' };
+  if (!docs.length) {
+    document.getElementById('trustDetailContent').innerHTML = '<p style="color:var(--muted);padding:20px 0">No documents submitted yet.</p>';
+    return;
+  }
+  document.getElementById('trustDetailContent').innerHTML = docs.map(v => `
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <div>
+        <div style="font-weight:600;font-size:14px">${DOC_LABELS[v.doc_type]||esc(v.doc_type)}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">
+          ${v.consent_given ? '✅ Consent given' : ''}
+          ${v.submitted_at ? ' · Submitted ' + fmtDate(v.submitted_at) : ''}
+          ${v.rejection_reason ? ' · <span style="color:#f87171">'+esc(v.rejection_reason)+'</span>' : ''}
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span style="padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:${v.status==='approved'?'rgba(34,197,94,0.15)':v.status==='rejected'?'rgba(239,68,68,0.15)':'rgba(245,158,11,0.15)'};color:${v.status==='approved'?'#4ade80':v.status==='rejected'?'#f87171':'#fbbf24'}">${esc(v.status||'pending')}</span>
+        ${v.r2_key ? `<a href="${API.replace('carehia-admin','gotocare-original')}/api/admin-doc-view?adminToken=${adminToken}&r2Key=${encodeURIComponent(v.r2_key)}" target="_blank" style="color:var(--primary);font-size:12px;text-decoration:none">📎 View File</a>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderTrustDetailBadges(d) {
+  const badges = d.publicBadges || [];
+  const BADGE_ICONS = {
+    'Email Verified': '✉️', 'Identity Ready': '🪪', 'References Verified': '👥',
+    'Certification Verified': '📜', 'Background Check Completed': '🔍',
+    'Carehia Verified': '💜', 'Trusted Pro': '⭐',
+  };
+  const allPossible = ['Email Verified','Identity Ready','References Verified','Certification Verified','Background Check Completed','Carehia Verified','Trusted Pro'];
+  const cgId = d.caregiverId;
+  document.getElementById('trustDetailContent').innerHTML = `
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Badges visible on this caregiver's public profile. Granted automatically when admin verifies the corresponding module.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px">
+      ${allPossible.map(b => {
+        const active = badges.includes(b);
+        return `
+          <div style="display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:12px;border:1px solid ${active?'rgba(34,197,94,0.3)':'var(--border)'};background:${active?'rgba(34,197,94,0.08)':'var(--bg)'}">
+            <span style="font-size:18px">${BADGE_ICONS[b]||'🏷️'}</span>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:${active?'#4ade80':'var(--muted)'}">${esc(b)}</div>
+              <div style="font-size:10px;color:var(--muted)">${active?'Active':'Not yet earned'}</div>
+            </div>
+            ${active ? `<button class="act-badge-rm" style="margin-left:8px" onclick="openTrustAction(${cgId},null,'badge_removed','${b}')">Remove</button>` : ''}
+          </div>
+        `;
+      }).join('')}
+    </div>
+    <p style="font-size:12px;color:var(--muted)">To grant a badge, verify the corresponding module in the Modules tab.</p>
+  `;
+}
+
+function renderTrustDetailAudit(d) {
+  const logs = d.auditLogs || [];
+  const ACTION_LABELS = {
+    approved: '✅ Approved',
+    verified: '✅ Verified',
+    quick_fix_requested: '⚠️ Quick Fix Requested',
+    expired: '⌛ Marked Expired',
+    badge_removed: '🗑️ Badge Removed',
+    note_added: '✎ Note Added',
+    status_changed: '🔄 Status Changed',
+    manual_override: '⚙️ Manual Override',
+    submitted: '📋 Marked Submitted',
+    not_applicable: '— Marked N/A',
+  };
+  if (!logs.length) {
+    document.getElementById('trustDetailContent').innerHTML = '<p style="color:var(--muted);padding:20px 0">No admin actions recorded yet.</p>';
+    return;
+  }
+  document.getElementById('trustDetailContent').innerHTML = `
+    <div>
+      ${logs.map(l => `
+        <div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--border);align-items:flex-start">
+          <div style="flex-shrink:0;width:32px;height:32px;border-radius:50%;background:rgba(124,92,255,0.15);display:flex;align-items:center;justify-content:center;font-size:13px">👤</div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:600;margin-bottom:2px">${ACTION_LABELS[l.action]||esc(l.action)}</div>
+            <div style="font-size:12px;color:var(--muted)">
+              ${l.module_type ? `Module: <strong>${esc(MODULE_LABELS[l.module_type]||l.module_type)}</strong> · ` : ''}
+              ${l.previous_status ? `<span style="color:var(--muted)">${esc(l.previous_status)}</span> → <span style="color:var(--primary)">${esc(l.new_status||'')}</span> · ` : ''}
+              By ${esc(l.admin_email||'—')} · ${fmtDate(l.created_at)}
+            </div>
+            ${l.note ? `<div style="font-size:12px;color:var(--muted);margin-top:4px;font-style:italic">"${esc(l.note)}"</div>` : ''}
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function openTrustAction(caregiverId, moduleType, action, badgeLabel) {
+  pendingTrustAction = { caregiverId, moduleType, action, badgeLabel };
+  const ACTION_TITLES = {
+    verified: '✅ Verify Module',
+    quick_fix_requested: '⚠️ Request Quick Fix',
+    expired: '⌛ Mark as Expired',
+    note_added: '✎ Add Note',
+    badge_removed: '🗑️ Remove Badge',
+    submitted: '📋 Mark as Submitted',
+    not_applicable: '— Mark as Not Applicable',
+    manual_override: '⚙️ Manual Override',
+  };
+  const ACTION_SUBTITLES = {
+    verified: 'This module will be marked as verified and the caregiver will be notified.',
+    quick_fix_requested: 'Choose a reason and optionally add a message for the caregiver.',
+    expired: 'This will mark the module as expired. The caregiver will need to re-submit.',
+    note_added: 'Add an internal admin note and/or a message visible to the caregiver.',
+    badge_removed: badgeLabel ? `Remove the "${badgeLabel}" badge from the caregiver's public profile.` : 'Remove badge.',
+    submitted: 'Mark this module as submitted / awaiting admin review.',
+    not_applicable: 'This module does not apply to this caregiver.',
+    manual_override: 'Override the module status manually.',
+  };
+
+  document.getElementById('trustActionTitle').textContent = ACTION_TITLES[action] || action;
+  document.getElementById('trustActionSubtitle').textContent = (moduleType ? `Module: ${MODULE_LABELS[moduleType]||moduleType} — ` : '') + (ACTION_SUBTITLES[action] || '');
+  document.getElementById('trustQfReasonWrap').style.display = action === 'quick_fix_requested' ? 'block' : 'none';
+  document.getElementById('trustAdminNote').value = '';
+  document.getElementById('trustCaregiverNote').value = '';
+
+  const btn = document.getElementById('trustActionConfirmBtn');
+  const btnColors = { verified:'#22C55E', quick_fix_requested:'#F59E0B', expired:'#EF4444', badge_removed:'#EF4444', note_added:'var(--primary)', submitted:'var(--secondary)', not_applicable:'var(--muted)', manual_override:'var(--primary)' };
+  btn.style.background = btnColors[action] || 'var(--primary)';
+  btn.textContent = ACTION_TITLES[action] || 'Confirm';
+  btn.disabled = false;
+
+  document.getElementById('trustActionModal').style.display = 'flex';
+}
+
+function closeTrustActionModal() {
+  document.getElementById('trustActionModal').style.display = 'none';
+  pendingTrustAction = null;
+}
+
+async function submitTrustAction() {
+  if (!pendingTrustAction) return;
+  const { caregiverId, moduleType, action, badgeLabel } = pendingTrustAction;
+  const note = document.getElementById('trustAdminNote').value.trim();
+  const caregiverNote = document.getElementById('trustCaregiverNote').value.trim();
+  const quickFixReason = action === 'quick_fix_requested' ? document.getElementById('trustQfReason').value : null;
+
+  const btn = document.getElementById('trustActionConfirmBtn');
+  btn.textContent = 'Saving…';
+  btn.disabled = true;
+
+  try {
+    const r = await fetch(`${API}/admin-trust-action?token=${adminToken}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        caregiverId, moduleType, action, note: note || null,
+        caregiverNote: caregiverNote || null,
+        quickFixReason,
+        badgeLabel: badgeLabel || null,
+      })
+    });
+    const d = await r.json();
+    if (d.success) {
+      closeTrustActionModal();
+      // Refresh detail panel
+      await openTrustDetail(caregiverId);
+      // Show correct subtab
+      showDetailSubtab(trustDetailSubtab);
+      // Also refresh queue in background
+      loadTrustQueue();
+    } else {
+      alert('Error: ' + (d.error || 'Unknown error'));
+      btn.disabled = false;
+    }
+  } catch(e) {
+    alert('Network error: ' + e.message);
+    btn.disabled = false;
+  }
 }
 </script>
 </body>
