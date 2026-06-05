@@ -336,6 +336,7 @@
     <button onclick="switchTab('marketplace',this)" id="mkt-tab-btn">🏪 Marketplace</button>
     <button onclick="switchTab('pilot',this)" id="pilot-tab-btn">&#x1F680; Pilot</button>
         <button id="acq-tab-btn" onclick="switchTab('acq')" style="padding:8px 16px;border:none;background:transparent;cursor:pointer;border-bottom:3px solid transparent;color:#64748b;font-weight:500;white-space:nowrap;font-size:13px;">📣 Acquisition</button>
+        <button id="loc-tab-btn" onclick="switchTab('loc',this)" style="padding:8px 16px;border:none;background:transparent;cursor:pointer;border-bottom:3px solid transparent;color:#64748b;font-weight:500;white-space:nowrap;font-size:13px;">📍 Location</button>
   </div>
 
   <div class="content">
@@ -883,7 +884,7 @@ let currentTab = 'overview';
 function switchTab(name, btn) {
   document.querySelectorAll('.tabnav button').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  ['overview','clients','caregivers','bookings','verifications','trust','marketplace','pilot','acq'].forEach(t => {
+  ['overview','clients','caregivers','bookings','verifications','trust','marketplace','pilot','acq','loc'].forEach(t => {
     const el = document.getElementById('tab-'+t);
     if (el) el.style.display = t===name ? 'block' : 'none';
   });
@@ -895,6 +896,7 @@ function switchTab(name, btn) {
   else if(name==='trust') loadTrustQueue();
   else if(name==='marketplace') loadMarketplace();
   if(name==='pilot') loadPilot();
+  else if(name==='loc') loadLocationReview();
   else loadOverview();
 }
 
@@ -2148,6 +2150,66 @@ async function loadPilot() {
     } catch(e) { alert('Error: ' + e.message); }
   }
 
+// ===== PHASE 25: LOCATION REVIEW =====
+async function loadLocationReview(filterStatus = 'all') {
+  const container = document.getElementById('loc-rows');
+  const badge = document.getElementById('loc-needs-review-count');
+  if (!container) return;
+  container.innerHTML = '<div style="color:#94a3b8;font-size:13px;text-align:center;padding:20px 0;">Loading…</div>';
+  try {
+    const r = await fetch(`${ADMIN_API}/admin-location-review?token=${authToken}&status=${filterStatus}&limit=100`);
+    const d = await r.json();
+    if (d.error && d.error === 'Unauthorized') { doLogout(); return; }
+    if (badge) badge.textContent = d.needsReviewCount || 0;
+    const rows = d.reviews || [];
+    if (!rows.length) { container.innerHTML = '<div style="color:#94a3b8;font-size:13px;text-align:center;padding:32px 0;">No location check-ins found.</div>'; return; }
+    const statusColor = s => ({'confirmed_location':'#22C55E','manual_pending_review':'#F59E0B','outside_geofence_review':'#EF4444','gps_unavailable':'#94A3B8','pending':'#94A3B8'}[s]||'#94A3B8');
+    const adminColor = s => ({'needs_review':'#F59E0B','approved':'#22C55E','flagged':'#EF4444','ok':'#22C55E','reviewed':'#94A3B8'}[s]||'#94A3B8');
+    container.innerHTML = rows.map(v => {
+      const checkinDate = v.check_in_at ? new Date(v.check_in_at.replace(' ','T')+'Z').toLocaleString() : '—';
+      const checkoutDate = v.check_out_at ? new Date(v.check_out_at.replace(' ','T')+'Z').toLocaleString() : 'Active';
+      const dist = v.check_in_distance_m != null ? Math.round(v.check_in_distance_m) + 'm' : '—';
+      const acc = v.check_in_accuracy_m != null ? '±' + Math.round(v.check_in_accuracy_m) + 'm' : '—';
+      return `<tr>
+        <td style="font-weight:600;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(v.caregiver_name||v.caregiver_email||'—')}</td>
+        <td style="font-size:12px;color:#475569">${checkinDate}</td>
+        <td style="font-size:12px;color:#475569">${checkoutDate}</td>
+        <td><span style="background:${statusColor(v.check_in_status)}22;color:${statusColor(v.check_in_status)};padding:2px 7px;border-radius:10px;font-size:11px;font-weight:700">${v.check_in_status||'—'}</span></td>
+        <td style="font-size:12px;color:#475569">${dist}</td>
+        <td style="font-size:12px;color:#475569">${acc}</td>
+        <td style="font-size:12px;color:#475569;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(v.check_in_manual_reason||'—')}</td>
+        <td><span style="background:${adminColor(v.admin_status)}22;color:${adminColor(v.admin_status)};padding:2px 7px;border-radius:10px;font-size:11px;font-weight:700">${v.admin_status||'—'}</span></td>
+        <td>
+          ${v.admin_status === 'needs_review' ? `<button onclick="approveLocation(${v.id})" style="padding:3px 8px;border-radius:6px;border:1px solid #22C55E;background:none;color:#15803D;font-size:11px;cursor:pointer;margin-right:4px">✓ Approve</button>
+          <button onclick="flagLocation(${v.id})" style="padding:3px 8px;border-radius:6px;border:1px solid #EF4444;background:none;color:#DC2626;font-size:11px;cursor:pointer">⚑ Flag</button>` : '—'}
+        </td>
+      </tr>`;
+    }).join('');
+  } catch(e) { container.innerHTML = '<div style="color:#EF4444;padding:12px;">Error: '+e.message+'</div>'; }
+}
+
+async function approveLocation(visitId) {
+  try {
+    await fetch(ADMIN_API + '/admin-location-action', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: authToken, visitId, action: 'approve' })
+    });
+    loadLocationReview();
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+async function flagLocation(visitId) {
+  const note = prompt('Reason for flagging (optional):');
+  if (note === null) return;
+  try {
+    await fetch(ADMIN_API + '/admin-location-action', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: authToken, visitId, action: 'flag', internalNote: note || null })
+    });
+    loadLocationReview();
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
 </script>
 
   <!-- ===================== ACQUISITION TAB (Phase 20) ===================== -->
@@ -2265,6 +2327,54 @@ async function loadPilot() {
       </div>
     </div>
   </div>
+
+  <!-- ===================== LOCATION REVIEW TAB (Phase 25) ===================== -->
+  <div id="tab-loc" class="tab-content" style="display:none;">
+    <div style="padding:32px 24px;max-width:1200px;margin:0 auto;">
+      <div style="margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div>
+          <h2 style="font-size:24px;font-weight:700;color:#0F172A;margin:0 0 4px;">📍 Location Check-In Review</h2>
+          <p style="color:#64748b;margin:0;font-size:14px;">Review caregiver visit check-ins, manual exceptions, and GPS flags. <strong id="loc-needs-review-count">—</strong> pending review.</p>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button onclick="loadLocationReview('all')" style="padding:7px 14px;border-radius:8px;border:1.5px solid #E2E8F0;background:#fff;color:#475569;font-size:12px;font-weight:600;cursor:pointer">All</button>
+          <button onclick="loadLocationReview('needs_review')" style="padding:7px 14px;border-radius:8px;border:1.5px solid #F59E0B;background:#FFF7ED;color:#92400E;font-size:12px;font-weight:700;cursor:pointer">⚠️ Needs Review</button>
+          <button onclick="loadLocationReview('confirmed_location')" style="padding:7px 14px;border-radius:8px;border:1.5px solid #22C55E;background:#F0FDF4;color:#166534;font-size:12px;font-weight:600;cursor:pointer">✓ Confirmed</button>
+          <button onclick="loadLocationReview('manual_pending_review')" style="padding:7px 14px;border-radius:8px;border:1.5px solid #F59E0B;background:#FFF7ED;color:#92400E;font-size:12px;font-weight:600;cursor:pointer">Manual</button>
+        </div>
+      </div>
+
+      <!-- Privacy note -->
+      <div style="background:#F0F9FF;border:1px solid #BAE6FD;border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:13px;color:#0369A1;">
+        🔒 <strong>Admin only.</strong> GPS coordinates and exact distances visible here are never shown to clients or caregivers.
+        Clients see only a calm status label ("Location confirmed" or "Visit confirmation pending review").
+      </div>
+
+      <div style="background:#fff;border-radius:16px;border:1px solid #E2E8F0;overflow:hidden;">
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;">
+            <thead>
+              <tr style="background:#F8FAFC;border-bottom:1px solid #E2E8F0;">
+                <th style="padding:12px 14px;text-align:left;font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;">Caregiver</th>
+                <th style="padding:12px 14px;text-align:left;font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;">Check-In</th>
+                <th style="padding:12px 14px;text-align:left;font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;">Check-Out</th>
+                <th style="padding:12px 14px;text-align:left;font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;">Status</th>
+                <th style="padding:12px 14px;text-align:left;font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;">Distance</th>
+                <th style="padding:12px 14px;text-align:left;font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;">GPS ±</th>
+                <th style="padding:12px 14px;text-align:left;font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;">Manual Reason</th>
+                <th style="padding:12px 14px;text-align:left;font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;">Review</th>
+                <th style="padding:12px 14px;text-align:left;font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="loc-rows">
+              <tr><td colspan="9" style="padding:40px;text-align:center;color:#94a3b8;font-size:13px;">Click the tab to load location data.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
 
 </body>
 </html>
