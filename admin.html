@@ -82,7 +82,7 @@
   }
 
   /* ===== APP SHELL ===== */
-  #appShell { display: none; flex-direction: column; min-height: 100vh; }
+  /* #appShell CSS moved to sidebar layout section */
 
   /* Header */
   .topbar {
@@ -282,15 +282,194 @@
   .act-note { padding:4px 11px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;font-size:11px; }
   .act-badge-rm { padding:4px 11px;border-radius:6px;border:1px solid rgba(239,68,68,0.3);background:rgba(239,68,68,0.1);color:#f87171;cursor:pointer;font-size:11px; }
 
-  /* Responsive */
-  @media (max-width: 640px) {
-    .content { padding: 16px; }
-    .tabnav button { padding: 12px 12px; font-size: 13px; }
-    th, td { padding: 10px 12px; }
-    .login-card { padding: 32px 24px; margin: 16px; }
-    .stats-grid { grid-template-columns: 1fr 1fr; }
-    .hide-mobile { display: none; }
+
+  /* ===== SIDEBAR LAYOUT ===== */
+  #appShell { display:none; min-height:100vh; flex-direction:column; }
+
+  /* Slim top header */
+  .admin-header {
+    height:56px;
+    background:var(--card);
+    border-bottom:1px solid var(--border);
+    display:flex; align-items:center;
+    padding:0 16px; gap:12px;
+    position:sticky; top:0; z-index:200;
+    flex-shrink:0;
   }
+  .sidebar-toggle {
+    background:none; border:none; color:var(--muted);
+    font-size:20px; cursor:pointer; padding:4px 8px;
+    border-radius:6px; line-height:1;
+    display:none; /* desktop: hidden */
+  }
+  .header-logo { font-weight:700; font-size:15px; flex:1; display:flex; align-items:center; gap:10px; }
+  .header-logo-icon {
+    width:32px; height:32px;
+    background:linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:15px;
+  }
+  .header-user { display:flex; align-items:center; gap:10px; font-size:13px; color:var(--muted); }
+
+  /* App body: sidebar + content */
+  .admin-body { display:flex; flex:1; min-height:0; overflow:hidden; }
+
+  /* Sidebar */
+  .sidebar {
+    width:240px; flex-shrink:0;
+    background:var(--card2);
+    border-right:1px solid var(--border);
+    display:flex; flex-direction:column;
+    height:calc(100vh - 56px);
+    position:sticky; top:56px;
+    overflow-y:auto;
+  }
+  .sidebar-section-label {
+    font-size:10px; font-weight:700; color:var(--muted);
+    text-transform:uppercase; letter-spacing:.08em;
+    padding:20px 20px 6px;
+  }
+  .sidebar-item {
+    display:flex; align-items:center; gap:10px;
+    padding:10px 20px;
+    color:var(--muted); font-size:14px; font-weight:500;
+    cursor:pointer; border:none; background:none;
+    width:100%; text-align:left;
+    border-radius:0;
+    transition:color .15s, background .15s;
+    position:relative;
+  }
+  .sidebar-item:hover:not(.active) { background:rgba(255,255,255,.04); color:var(--text); }
+  .sidebar-item.active {
+    color:var(--primary);
+    background:rgba(124,92,255,.10);
+  }
+  .sidebar-item.active::before {
+    content:''; position:absolute; left:0; top:4px; bottom:4px;
+    width:3px; background:var(--primary); border-radius:0 3px 3px 0;
+  }
+  .sidebar-item .item-icon { font-size:16px; width:20px; text-align:center; flex-shrink:0; }
+  .sidebar-badge {
+    margin-left:auto; background:var(--primary);
+    color:#fff; border-radius:20px;
+    font-size:10px; font-weight:700;
+    padding:2px 7px; min-width:20px; text-align:center;
+  }
+  .sidebar-badge.yellow { background:var(--warning); color:#000; }
+  .sidebar-badge.red { background:var(--error); }
+  .sidebar-footer {
+    margin-top:auto; border-top:1px solid var(--border);
+    padding:16px 20px;
+  }
+  .btn-sidebar-logout {
+    width:100%; padding:9px 14px;
+    background:rgba(239,68,68,.08);
+    border:1px solid rgba(239,68,68,.2);
+    color:#f87171; border-radius:8px;
+    font-size:13px; font-weight:600; cursor:pointer;
+    transition:background .2s;
+  }
+  .btn-sidebar-logout:hover { background:rgba(239,68,68,.18); }
+
+  /* Main content area */
+  .admin-content {
+    flex:1; overflow-y:auto; min-width:0;
+  }
+  /* Keep existing .content class working */
+  .content { padding:28px; max-width:1400px; margin:0 auto; width:100%; }
+
+  /* Sidebar overlay on mobile */
+  .sidebar-overlay {
+    display:none; position:fixed; inset:0;
+    background:rgba(0,0,0,.5); z-index:150;
+  }
+  .sidebar-overlay.open { display:block; }
+
+  /* Today ops cards */
+  .ops-header { margin-bottom:28px; }
+  .ops-header h1 { font-size:24px; font-weight:700; margin-bottom:4px; }
+  .ops-header p { color:var(--muted); font-size:14px; }
+  .ops-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+    gap:14px; margin-bottom:28px;
+  }
+  .ops-card {
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:12px; padding:16px 18px;
+    cursor:pointer; transition:border-color .15s;
+  }
+  .ops-card:hover { border-color:var(--primary); }
+  .ops-card-icon { font-size:22px; margin-bottom:10px; }
+  .ops-card-val { font-size:26px; font-weight:700; line-height:1; }
+  .ops-card-label { font-size:11px; color:var(--muted); margin-top:3px; text-transform:uppercase; letter-spacing:.05em; }
+  .ops-card.urgent { border-color:rgba(239,68,68,.4); }
+  .ops-card.urgent .ops-card-val { color:var(--error); }
+  .attention-section { margin-bottom:28px; }
+  .attention-header { font-size:16px; font-weight:700; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+  .attention-item {
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:10px; padding:14px 18px;
+    margin-bottom:8px;
+    display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  }
+  .attention-type {
+    font-size:10px; font-weight:700; text-transform:uppercase;
+    letter-spacing:.06em; color:var(--muted);
+    background:rgba(255,255,255,.06);
+    border-radius:6px; padding:2px 8px;
+  }
+  .attention-title { font-size:14px; font-weight:600; flex:1; }
+  .attention-meta { font-size:12px; color:var(--muted); }
+  .attention-action {
+    padding:5px 12px; border-radius:7px;
+    border:1px solid var(--border);
+    background:var(--accent); color:var(--primary);
+    font-size:12px; font-weight:600; cursor:pointer;
+    white-space:nowrap;
+    transition:background .15s;
+  }
+  .attention-action:hover { background:rgba(124,92,255,.18); }
+  .empty-ops {
+    text-align:center; padding:40px 20px;
+    color:var(--muted); font-size:14px;
+  }
+  .empty-ops-icon { font-size:36px; margin-bottom:12px; }
+
+  /* Scaffolded section */
+  .scaffold-section {
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:14px; padding:40px 28px;
+    text-align:center; margin-bottom:20px;
+  }
+  .scaffold-icon { font-size:40px; margin-bottom:16px; }
+  .scaffold-title { font-size:18px; font-weight:700; margin-bottom:8px; }
+  .scaffold-desc { color:var(--muted); font-size:14px; line-height:1.6; max-width:480px; margin:0 auto; }
+
+  /* Responsive — mobile sidebar */
+  @media (max-width:768px) {
+    .sidebar-toggle { display:flex; }
+    .sidebar {
+      position:fixed; top:56px; left:0; bottom:0;
+      z-index:160; transform:translateX(-100%);
+      transition:transform .25s ease;
+      height:calc(100vh - 56px);
+    }
+    .sidebar.open { transform:translateX(0); }
+    .admin-body { overflow:visible; }
+    .admin-content { overflow-y:auto; }
+    .content { padding:16px; }
+    th, td { padding:10px 12px; }
+    .login-card { padding:32px 24px; margin:16px; }
+    .stats-grid { grid-template-columns:1fr 1fr; }
+    .hide-mobile { display:none; }
+  }
+  @media (min-width:769px) {
+    .admin-body { height:calc(100vh - 56px); }
+  }
+
 </style>
 </head>
 <body>
@@ -316,30 +495,97 @@
 
 <!-- APP SHELL -->
 <div id="appShell" style="display:none; flex-direction:column; min-height:100vh;">
-  <div class="topbar">
-    <div class="topbar-logo">🛡️</div>
-    <div class="topbar-title">Carehia Super Admin</div>
-    <div class="topbar-user">
+
+  <!-- Slim header -->
+  <div class="admin-header">
+    <button class="sidebar-toggle" onclick="toggleSidebar()" title="Menu">&#9776;</button>
+    <div class="header-logo">
+      <div class="header-logo-icon">🛡️</div>
+      Carehia Admin
+    </div>
+    <div class="header-user">
       <div class="topbar-avatar" id="adminInitial">A</div>
       <span id="adminEmail" class="hide-mobile"></span>
     </div>
-    <button class="btn-logout" onclick="doLogout()">Sign Out</button>
   </div>
 
-  <div class="tabnav">
-    <button class="active" onclick="switchTab('overview',this)">📊 Overview</button>
-    <button onclick="switchTab('clients',this)">👤 Clients</button>
-    <button onclick="switchTab('caregivers',this)">💜 Caregivers</button>
-    <button onclick="switchTab('bookings',this)">📅 Bookings</button>
-    <button onclick="switchTab('verifications',this)" id="verif-tab-btn">🔍 Verifications</button>
-    <button onclick="switchTab('trust',this)" id="trust-tab-btn">🛡️ Trust Review</button>
-    <button onclick="switchTab('marketplace',this)" id="mkt-tab-btn">🏪 Marketplace</button>
-    <button onclick="switchTab('pilot',this)" id="pilot-tab-btn">&#x1F680; Pilot</button>
-        <button id="acq-tab-btn" onclick="switchTab('acq')" style="padding:8px 16px;border:none;background:transparent;cursor:pointer;border-bottom:3px solid transparent;color:#64748b;font-weight:500;white-space:nowrap;font-size:13px;">📣 Acquisition</button>
-        <button id="loc-tab-btn" onclick="switchTab('loc',this)" style="padding:8px 16px;border:none;background:transparent;cursor:pointer;border-bottom:3px solid transparent;color:#64748b;font-weight:500;white-space:nowrap;font-size:13px;">📍 Location</button>
-  </div>
+  <!-- Sidebar overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-  <div class="content">
+  <!-- Body: sidebar + content -->
+  <div class="admin-body">
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar" id="adminSidebar">
+      <div class="sidebar-section-label">Operations</div>
+      <button class="sidebar-item active" data-tab="today" onclick="switchTab('today')">
+        <span class="item-icon">📋</span> Today
+      </button>
+      <button class="sidebar-item" data-tab="requests" onclick="switchTab('requests')">
+        <span class="item-icon">📬</span> Requests
+        <span class="sidebar-badge red" id="sb-badge-requests" style="display:none"></span>
+      </button>
+      <button class="sidebar-item" data-tab="caregivers" onclick="switchTab('caregivers')">
+        <span class="item-icon">💜</span> Caregivers
+        <span class="sidebar-badge" id="sb-badge-caregivers" style="display:none"></span>
+      </button>
+      <button class="sidebar-item" data-tab="clients" onclick="switchTab('clients')">
+        <span class="item-icon">👤</span> Clients
+        <span class="sidebar-badge" id="sb-badge-clients" style="display:none"></span>
+      </button>
+
+      <div class="sidebar-section-label">Trust &amp; Quality</div>
+      <button class="sidebar-item" data-tab="trust" onclick="switchTab('trust')" id="trust-tab-btn">
+        <span class="item-icon">🛡️</span> Trust Review
+        <span class="sidebar-badge yellow" id="sb-badge-trust" style="display:none"></span>
+      </button>
+      <button class="sidebar-item" data-tab="reviews" onclick="switchTab('reviews')">
+        <span class="item-icon">⭐</span> Reviews
+        <span class="sidebar-badge" id="sb-badge-reviews" style="display:none"></span>
+      </button>
+
+      <div class="sidebar-section-label">Operations</div>
+      <button class="sidebar-item" data-tab="schedules" onclick="switchTab('schedules')">
+        <span class="item-icon">📍</span> Schedules
+      </button>
+      <button class="sidebar-item" data-tab="invoices" onclick="switchTab('invoices')">
+        <span class="item-icon">🧾</span> Invoices
+      </button>
+      <button class="sidebar-item" data-tab="subscriptions" onclick="switchTab('subscriptions')">
+        <span class="item-icon">💳</span> Subscriptions
+      </button>
+
+      <div class="sidebar-section-label">Other</div>
+      <button class="sidebar-item" data-tab="overview" onclick="switchTab('overview')">
+        <span class="item-icon">📊</span> Stats
+      </button>
+      <button class="sidebar-item" data-tab="bookings" onclick="switchTab('bookings')">
+        <span class="item-icon">📅</span> Bookings
+      </button>
+      <button class="sidebar-item" data-tab="verifications" onclick="switchTab('verifications')" id="verif-tab-btn">
+        <span class="item-icon">🔍</span> Verifications
+      </button>
+      <button class="sidebar-item" data-tab="marketplace" onclick="switchTab('marketplace')" id="mkt-tab-btn">
+        <span class="item-icon">🏪</span> Marketplace
+      </button>
+      <button class="sidebar-item" data-tab="pilot" onclick="switchTab('pilot')" id="pilot-tab-btn">
+        <span class="item-icon">🚀</span> Pilot
+      </button>
+      <button class="sidebar-item" data-tab="acq" onclick="switchTab('acq')" id="acq-tab-btn">
+        <span class="item-icon">📣</span> Acquisition
+      </button>
+      <button class="sidebar-item" data-tab="settings" onclick="switchTab('settings')">
+        <span class="item-icon">⚙️</span> Settings
+      </button>
+
+      <div class="sidebar-footer">
+        <button class="btn-sidebar-logout" onclick="doLogout()">Sign Out</button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="admin-content">
+    <div class="content">
 
     <!-- OVERVIEW TAB -->
     <div id="tab-overview">
@@ -868,7 +1114,11 @@ function showApp() {
   app.style.display = 'flex';
   document.getElementById('adminInitial').textContent = (adminName||'A')[0].toUpperCase();
   document.getElementById('adminEmail').textContent = adminEmail;
-  loadOverview();
+  // Also populate settings tab email
+  const se = document.getElementById('settings-email');
+  if (se) se.textContent = adminEmail;
+  // Start on Today tab
+  switchTab('today');
 }
 
 // Auto-login if token saved
@@ -880,24 +1130,229 @@ if (adminToken) {
 }
 
 // ===== TABS =====
-let currentTab = 'overview';
-function switchTab(name, btn) {
-  document.querySelectorAll('.tabnav button').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  ['overview','clients','caregivers','bookings','verifications','trust','marketplace','pilot','acq','loc'].forEach(t => {
+let currentTab = 'today';
+
+// All tab IDs known to the app (existing + new Phase 32)
+const ALL_TAB_IDS = [
+  'today','requests','overview','clients','caregivers','bookings',
+  'verifications','trust','marketplace','pilot','acq','loc',
+  'schedules','invoices','reviews','subscriptions','settings'
+];
+
+function switchTab(name, _btn) {
+  // Update sidebar active state
+  document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
+  const sidebarItem = document.querySelector(`.sidebar-item[data-tab="${name}"]`);
+  if (sidebarItem) sidebarItem.classList.add('active');
+
+  // Show/hide all panels
+  ALL_TAB_IDS.forEach(t => {
     const el = document.getElementById('tab-'+t);
-    if (el) el.style.display = t===name ? 'block' : 'none';
+    if (el) el.style.display = (t === name) ? 'block' : 'none';
   });
   currentTab = name;
-  if(name==='clients') loadClients();
-  else if(name==='caregivers') loadCaregivers();
-  else if(name==='bookings') loadBookings();
-  else if(name==='verifications') loadVerifications();
-  else if(name==='trust') loadTrustQueue();
-  else if(name==='marketplace') loadMarketplace();
-  if(name==='pilot') loadPilot();
-  else if(name==='loc') loadLocationReview();
-  else loadOverview();
+
+  // Close sidebar on mobile after navigation
+  closeSidebar();
+
+  // Load data for tab
+  if (name === 'today')          loadTodayOps();
+  else if (name === 'clients')   loadClients();
+  else if (name === 'caregivers') loadCaregivers();
+  else if (name === 'bookings' || name === 'requests') loadBookings();
+  else if (name === 'verifications') loadVerifications();
+  else if (name === 'trust')     loadTrustQueue();
+  else if (name === 'marketplace') loadMarketplace();
+  else if (name === 'pilot')     loadPilot();
+  else if (name === 'loc')       loadLocationReview();
+  else if (name === 'schedules') loadSchedulesView('needs_review');
+  else if (name === 'acq')       { if (typeof loadAcquisition === 'function') loadAcquisition(); }
+  else if (name === 'overview')  loadOverview();
+}
+
+// ===== SIDEBAR TOGGLE (mobile) =====
+function toggleSidebar() {
+  const sb = document.getElementById('adminSidebar');
+  const ov = document.getElementById('sidebarOverlay');
+  sb.classList.toggle('open');
+  ov.classList.toggle('open');
+}
+function closeSidebar() {
+  document.getElementById('adminSidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
+}
+
+// ===== TODAY OPS =====
+async function loadTodayOps() {
+  try {
+    // Reuse existing admin-stats for summary counts
+    const r = await fetch(`${API}/admin-stats?token=${adminToken}`);
+    if (!r.ok) return;
+    const d = await r.json();
+    if (d.error) { doLogout(); return; }
+
+    // Populate summary cards
+    const setEl = (id, v) => { const e = document.getElementById(id); if(e) e.textContent = v; };
+    setEl('ops-open-requests', d.totalBookings ?? '—');
+    setEl('ops-caregivers',    d.totalCaregivers ?? '—');
+    setEl('ops-clients',       d.totalClients ?? '—');
+    setEl('ops-bookings',      d.totalBookings ?? '—');
+
+    // Update sidebar badges
+    const updateBadge = (id, count) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (count > 0) { el.textContent = count; el.style.display = ''; }
+      else el.style.display = 'none';
+    };
+    updateBadge('sb-badge-caregivers', d.totalCaregivers ?? 0);
+    updateBadge('sb-badge-clients',    d.totalClients ?? 0);
+
+    // Load trust queue count for badge
+    try {
+      const tr = await fetch(`${API}/admin-trust-queue?token=${adminToken}&filter=needs_review`);
+      if (tr.ok) {
+        const td = await tr.json();
+        const trustCount = Array.isArray(td) ? td.length : (td.queue?.length ?? 0);
+        setEl('ops-trust-reviews', trustCount);
+        updateBadge('sb-badge-trust', trustCount);
+      }
+    } catch(e) { setEl('ops-trust-reviews', '—'); }
+
+    // Load location flags count
+    try {
+      const lr = await fetch(`${API}/admin-location-review?token=${adminToken}&status=needs_review&limit=100`);
+      if (lr.ok) {
+        const ld = await lr.json();
+        const locCount = Array.isArray(ld.logs) ? ld.logs.length : (Array.isArray(ld) ? ld.length : 0);
+        setEl('ops-location-flags', locCount);
+      }
+    } catch(e) { setEl('ops-location-flags', '—'); }
+
+    // Build attention list
+    buildAttentionList(d);
+
+  } catch(e) {
+    console.error('loadTodayOps error:', e);
+  }
+}
+
+function buildAttentionList(stats) {
+  const el = document.getElementById('todayAttentionList');
+  if (!el) return;
+  const items = [];
+
+  // Check for trust reviews needing attention
+  const trustCount = parseInt(document.getElementById('ops-trust-reviews')?.textContent) || 0;
+  if (trustCount > 0) {
+    items.push({
+      type: 'Trust Review',
+      title: `${trustCount} caregiver module${trustCount>1?'s':''} waiting for review`,
+      meta: 'Trust Passport submissions pending',
+      priority: 'urgent',
+      action: 'Review Now',
+      tab: 'trust'
+    });
+  }
+
+  // Location flags
+  const locCount = parseInt(document.getElementById('ops-location-flags')?.textContent) || 0;
+  if (locCount > 0) {
+    items.push({
+      type: 'Check-In Exception',
+      title: `${locCount} location check-in${locCount>1?'s':''} need review`,
+      meta: 'Manual or GPS exception pending admin approval',
+      priority: 'warning',
+      action: 'Review Check-ins',
+      tab: 'schedules'
+    });
+  }
+
+  if (items.length === 0) {
+    el.innerHTML = `<div class="empty-ops"><div class="empty-ops-icon">✅</div><div>All caught up! No items need immediate attention.</div></div>`;
+    return;
+  }
+
+  el.innerHTML = items.map(item => `
+    <div class="attention-item">
+      <span class="attention-type">${esc(item.type)}</span>
+      <span class="attention-title">${esc(item.title)}</span>
+      <span class="attention-meta">${esc(item.meta)}</span>
+      <button class="attention-action" onclick="switchTab('${item.tab}')">${esc(item.action)} →</button>
+    </div>
+  `).join('');
+}
+
+// ===== SCHEDULES VIEW (wraps location review data) =====
+async function loadSchedulesView(status) {
+  status = status || 'all';
+  const tbody = document.getElementById('sched-rows');
+  const countEl = document.getElementById('sched-needs-review-count');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="9" class="loading-row">Loading…</td></tr>';
+
+  try {
+    const r = await fetch(`${API}/admin-location-review?token=${adminToken}&status=${status}&limit=100`);
+    if (!r.ok) throw new Error(r.status);
+    const d = await r.json();
+    const logs = Array.isArray(d.logs) ? d.logs : (Array.isArray(d) ? d : []);
+
+    if (countEl) countEl.textContent = `${logs.length}`;
+
+    if (!logs.length) {
+      tbody.innerHTML = '<tr><td colspan="9" class="loading-row">No schedule records match this filter.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = logs.map(l => {
+      const statusColors = {
+        'needs_review': '#F59E0B',
+        'confirmed_location': '#22C55E',
+        'manual_pending_review': '#4A90E2',
+        'admin_approved': '#7C5CFF',
+        'flagged': '#EF4444'
+      };
+      const statusColor = statusColors[l.status] || '#8884A8';
+      return `<tr>
+        <td style="font-weight:600">${esc(l.caregiver_name||l.caregiver_email||'—')}</td>
+        <td style="font-size:12px">${esc(l.checkin_time||'—')}</td>
+        <td style="font-size:12px">${esc(l.checkout_time||'—')}</td>
+        <td><span style="color:${statusColor};font-weight:600;font-size:12px">${esc(l.status||'—')}</span></td>
+        <td style="font-size:12px">${l.distance_meters!=null ? Math.round(l.distance_meters)+'m' : '—'}</td>
+        <td style="font-size:12px">${l.accuracy_meters!=null ? '±'+Math.round(l.accuracy_meters)+'m' : '—'}</td>
+        <td style="font-size:12px;color:var(--muted)">${esc(l.manual_reason||'—')}</td>
+        <td style="font-size:12px;color:var(--muted)">${esc(l.admin_review_note||'—')}</td>
+        <td>
+          ${l.status==='needs_review'||l.status==='manual_pending_review' ? `
+            <button onclick="schedApprove(${l.id})" style="margin-right:4px;padding:3px 8px;border-radius:5px;border:none;background:#22C55E;color:#fff;cursor:pointer;font-size:11px;font-weight:700">✓ Approve</button>
+            <button onclick="schedFlag(${l.id})" style="padding:3px 8px;border-radius:5px;border:1px solid rgba(239,68,68,.3);background:rgba(239,68,68,.08);color:#f87171;cursor:pointer;font-size:11px">Flag</button>
+          ` : '<span style="color:var(--muted);font-size:11px">—</span>'}
+        </td>
+      </tr>`;
+    }).join('');
+
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="9" class="loading-row">Error loading schedule data. ${e.message}</td></tr>`;
+  }
+}
+
+async function schedApprove(id) {
+  try {
+    await fetch(`${API}/admin-location-action`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ token: adminToken, log_id: id, action: 'approve', note: 'Admin approved via Schedules tab' })
+    });
+    loadSchedulesView('all');
+  } catch(e) { alert('Action failed: ' + e.message); }
+}
+async function schedFlag(id) {
+  try {
+    await fetch(`${API}/admin-location-action`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ token: adminToken, log_id: id, action: 'flag', note: 'Admin flagged via Schedules tab' })
+    });
+    loadSchedulesView('all');
+  } catch(e) { alert('Action failed: ' + e.message); }
 }
 
 // ===== OVERVIEW =====
@@ -2375,6 +2830,234 @@ async function flagLocation(visitId) {
     </div>
   </div>
 
+
+
+
+  <!-- ===================== TODAY / OPERATIONS TAB ===================== -->
+  <div id="tab-today" style="display:none;">
+    <div class="ops-header">
+      <h1>📋 Today's Operations</h1>
+      <p>What needs Carehia attention right now.</p>
+    </div>
+
+    <!-- Summary cards -->
+    <div class="ops-grid" id="todayOpsGrid">
+      <div class="ops-card" onclick="switchTab('requests')">
+        <div class="ops-card-icon">📬</div>
+        <div class="ops-card-val" id="ops-open-requests">—</div>
+        <div class="ops-card-label">Open Requests</div>
+      </div>
+      <div class="ops-card urgent" onclick="switchTab('trust')">
+        <div class="ops-card-icon">🛡️</div>
+        <div class="ops-card-val" id="ops-trust-reviews">—</div>
+        <div class="ops-card-label">Trust Reviews</div>
+      </div>
+      <div class="ops-card" onclick="switchTab('caregivers')">
+        <div class="ops-card-icon">💜</div>
+        <div class="ops-card-val" id="ops-caregivers">—</div>
+        <div class="ops-card-label">Caregivers</div>
+      </div>
+      <div class="ops-card" onclick="switchTab('clients')">
+        <div class="ops-card-icon">👤</div>
+        <div class="ops-card-val" id="ops-clients">—</div>
+        <div class="ops-card-label">Clients</div>
+      </div>
+      <div class="ops-card" onclick="switchTab('bookings')">
+        <div class="ops-card-icon">📅</div>
+        <div class="ops-card-val" id="ops-bookings">—</div>
+        <div class="ops-card-label">Bookings</div>
+      </div>
+      <div class="ops-card" onclick="switchTab('schedules')">
+        <div class="ops-card-icon">📍</div>
+        <div class="ops-card-val" id="ops-location-flags">—</div>
+        <div class="ops-card-label">Location Flags</div>
+      </div>
+    </div>
+
+    <!-- Needs Attention -->
+    <div class="attention-section">
+      <div class="attention-header">⚠️ Needs Attention</div>
+      <div id="todayAttentionList">
+        <div class="empty-ops">
+          <div class="empty-ops-icon">✅</div>
+          <div>Loading operations status…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick links -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:8px;">
+      <button class="btn-refresh" style="text-align:left;padding:14px 18px;border-radius:12px;" onclick="switchTab('trust')">
+        🛡️ Open Trust Review Queue →
+      </button>
+      <button class="btn-refresh" style="text-align:left;padding:14px 18px;border-radius:12px;" onclick="switchTab('verifications')">
+        🔍 Open Verifications Queue →
+      </button>
+      <button class="btn-refresh" style="text-align:left;padding:14px 18px;border-radius:12px;" onclick="switchTab('schedules')">
+        📍 Review Location Check-ins →
+      </button>
+      <button class="btn-refresh" style="text-align:left;padding:14px 18px;border-radius:12px;" onclick="switchTab('bookings')">
+        📅 Review Bookings →
+      </button>
+    </div>
+  </div>
+
+  <!-- ===================== REQUESTS TAB ===================== -->
+  <div id="tab-requests" style="display:none;">
+    <div class="ops-header">
+      <h1>📬 Care Requests</h1>
+      <p>Manage the full care request lifecycle.</p>
+    </div>
+    <div class="scaffold-section">
+      <div class="scaffold-icon">📬</div>
+      <div class="scaffold-title">Requests Board</div>
+      <div class="scaffold-desc">
+        This section will show all care requests across statuses: Draft → Submitted → Matching → Dispatched → Accepted → Scheduled → Completed.<br><br>
+        For now, use the <strong>Bookings</strong> tab in the Other section for booking data.<br><br>
+        <em style="color:var(--muted);font-size:12px;">TODO: Connect <code>GET /api/admin/requests</code> endpoint with full lifecycle status filtering.</em>
+      </div>
+      <button class="btn-refresh" style="margin-top:20px;" onclick="switchTab('bookings')">View Bookings →</button>
+    </div>
+  </div>
+
+  <!-- ===================== SCHEDULES TAB ===================== -->
+  <div id="tab-schedules" style="display:none;">
+    <!-- Reuse existing location review UI -->
+    <div style="padding:0;">
+      <div style="margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div>
+          <h2 style="font-size:24px;font-weight:700;margin:0 0 4px;">📍 Schedules &amp; Check-Ins</h2>
+          <p style="color:var(--muted);margin:0;font-size:14px;">Review caregiver visit check-ins, manual exceptions, and GPS flags. <strong id="sched-needs-review-count">—</strong> pending review.</p>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button onclick="loadSchedulesView('all')" style="padding:7px 14px;border-radius:8px;border:1.5px solid var(--border);background:var(--card);color:var(--muted);font-size:12px;font-weight:600;cursor:pointer">All</button>
+          <button onclick="loadSchedulesView('needs_review')" style="padding:7px 14px;border-radius:8px;border:1.5px solid var(--warning);background:rgba(245,158,11,.1);color:var(--warning);font-size:12px;font-weight:700;cursor:pointer">⚠️ Needs Review</button>
+          <button onclick="loadSchedulesView('confirmed_location')" style="padding:7px 14px;border-radius:8px;border:1.5px solid var(--success);background:rgba(34,197,94,.1);color:var(--success);font-size:12px;font-weight:600;cursor:pointer">✓ Confirmed</button>
+          <button onclick="loadSchedulesView('manual_pending_review')" style="padding:7px 14px;border-radius:8px;border:1.5px solid var(--warning);background:rgba(245,158,11,.1);color:var(--warning);font-size:12px;font-weight:600;cursor:pointer">Manual</button>
+        </div>
+      </div>
+      <div style="background:rgba(74,144,226,.08);border:1px solid rgba(74,144,226,.2);border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:13px;color:var(--secondary);">
+        🔒 <strong>Admin only.</strong> GPS coordinates and exact distances are never shown to clients or caregivers.
+      </div>
+      <div class="table-wrap">
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Caregiver</th><th>Check-In</th><th>Check-Out</th>
+                <th>Status</th><th>Distance</th><th>GPS ±</th>
+                <th>Manual Reason</th><th>Review</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="sched-rows">
+              <tr><td colspan="9" class="loading-row">Click to load schedule data.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== INVOICES TAB ===================== -->
+  <div id="tab-invoices" style="display:none;">
+    <div class="ops-header">
+      <h1>🧾 Invoices</h1>
+      <p>Monitor invoice and payment issues across caregivers.</p>
+    </div>
+    <div class="scaffold-section">
+      <div class="scaffold-icon">🧾</div>
+      <div class="scaffold-title">Invoice Monitor</div>
+      <div class="scaffold-desc">
+        This section will show: invoices created, sent, paid, overdue, and send failures.<br><br>
+        Caregiver invoice data is stored in <code>caregiver_personal_invoices</code> (D1).<br><br>
+        <em style="color:var(--muted);font-size:12px;">TODO: Connect <code>GET /admin-invoices</code> endpoint on <code>carehia-admin</code> worker.</em>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== REVIEWS TAB ===================== -->
+  <div id="tab-reviews" style="display:none;">
+    <div class="ops-header">
+      <h1>⭐ Reviews</h1>
+      <p>Moderate caregiver reviews and references.</p>
+    </div>
+    <div class="scaffold-section">
+      <div class="scaffold-icon">⭐</div>
+      <div class="scaffold-title">Review Moderation Queue</div>
+      <div class="scaffold-desc">
+        This section will show caregiver reviews pending approval, flagged reviews, and reference checks.<br><br>
+        Review data is in <code>caregiver_reviews</code> and <code>caregiver_review_tags</code> (D1).<br><br>
+        <em style="color:var(--muted);font-size:12px;">TODO: Connect <code>GET /admin-reviews</code> and <code>POST /admin-reviews/:id/approve</code> endpoints.</em>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SUBSCRIPTIONS TAB ===================== -->
+  <div id="tab-subscriptions" style="display:none;">
+    <div class="ops-header">
+      <h1>💳 Subscriptions</h1>
+      <p>Monitor caregiver and client subscription status.</p>
+    </div>
+    <div class="scaffold-section">
+      <div class="scaffold-icon">💳</div>
+      <div class="scaffold-title">Subscription Monitor</div>
+      <div class="scaffold-desc">
+        This section will show active, trialing, past-due, and cancelled subscriptions for both caregivers and clients.<br><br>
+        Data sources: <code>caregiver_subscriptions</code>, <code>client_subscriptions</code> (D1) + Stripe metadata.<br><br>
+        <em style="color:var(--muted);font-size:12px;">TODO: Connect <code>GET /admin-subscriptions</code> endpoint on <code>carehia-admin</code> worker.</em>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SETTINGS TAB ===================== -->
+  <div id="tab-settings" style="display:none;">
+    <div class="ops-header">
+      <h1>⚙️ Settings</h1>
+      <p>Admin account and application configuration.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;">
+      <div class="scaffold-section" style="text-align:left;padding:24px;">
+        <div style="font-size:22px;margin-bottom:12px;">👤</div>
+        <div style="font-weight:700;font-size:16px;margin-bottom:6px;">Admin Profile</div>
+        <div style="color:var(--muted);font-size:13px;margin-bottom:16px;">Signed in as:</div>
+        <div style="font-weight:600;" id="settings-email">—</div>
+        <button class="btn-sidebar-logout" style="margin-top:16px;width:auto;padding:8px 20px;" onclick="doLogout()">Sign Out</button>
+      </div>
+      <div class="scaffold-section" style="text-align:left;padding:24px;">
+        <div style="font-size:22px;margin-bottom:12px;">🔧</div>
+        <div style="font-weight:700;font-size:16px;margin-bottom:6px;">App Configuration</div>
+        <div style="color:var(--muted);font-size:13px;">
+          Worker: <strong>carehia-admin.jjioji.workers.dev</strong><br>
+          D1: <strong>gotocare</strong><br>
+          R2: <strong>gotocare</strong><br>
+          Portals: <strong>work.carehia.com</strong> / <strong>app.carehia.com</strong>
+        </div>
+      </div>
+      <div class="scaffold-section" style="text-align:left;padding:24px;">
+        <div style="font-size:22px;margin-bottom:12px;">🔒</div>
+        <div style="font-weight:700;font-size:16px;margin-bottom:6px;">Access Control</div>
+        <div style="color:var(--muted);font-size:13px;">
+          Role: <strong style="color:var(--primary);">super_admin</strong><br>
+          Admin access is validated server-side on every request.<br>
+          Session token stored in localStorage.
+        </div>
+      </div>
+      <div class="scaffold-section" style="text-align:left;padding:24px;">
+        <div style="font-size:22px;margin-bottom:12px;">📞</div>
+        <div style="font-weight:700;font-size:16px;margin-bottom:6px;">Support</div>
+        <div style="color:var(--muted);font-size:13px;">
+          Caregiver support: <strong>support@carehia.com</strong><br>
+          Admin issues: check Cloudflare Worker logs.
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+    </div><!-- /.content -->
+    </main><!-- /.admin-content -->
+  </div><!-- /.admin-body -->
+</div><!-- /#appShell -->
 
 </body>
 </html>
