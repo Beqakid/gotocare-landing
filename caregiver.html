@@ -559,6 +559,16 @@
       </div>
     </div>
 
+    <!-- TRUST PASSPORT BADGES (Phase 10) -->
+    <div class="card" id="trust-passport-card" style="display:none;">
+      <p class="card-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#7C5CFF" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Carehia Trust Passport
+      </p>
+      <p style="font-size:12px;color:#64748B;margin:-4px 0 14px;line-height:1.5;">Verified trust signals to help families choose with confidence.</p>
+      <div id="trust-badges-list" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+    </div>
+
     <!-- REVIEWS SECTION -->
     <div class="card" id="reviews-card" style="display:none;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
@@ -844,12 +854,15 @@
   async function loadTrustData(cgId) {
     try {
       const TAPI = 'https://gotocare-original.jjioji.workers.dev/api'
-      const [trustRes, reviewRes] = await Promise.all([
+      const ADMIN_API = 'https://carehia-admin.jjioji.workers.dev'
+      const [trustRes, reviewRes, badgesRes] = await Promise.all([
         fetch(`${TAPI}/trust-score?id=${cgId}`),
-        fetch(`${TAPI}/caregiver-reviews?id=${cgId}`)
+        fetch(`${TAPI}/caregiver-reviews?id=${cgId}`),
+        fetch(`${ADMIN_API}/public-trust-badges?caregiver_id=${cgId}`).catch(() => null)
       ])
       const trustData = await trustRes.json()
       const reviewData = await reviewRes.json()
+      const badgesData = badgesRes ? await badgesRes.json().catch(() => ({ success: false, badges: [] })) : { success: false, badges: [] }
 
       // Render trust score
       if (trustData.success) {
@@ -884,6 +897,16 @@
             `<span style="font-size:11px;font-weight:600;padding:4px 10px;border-radius:50px;background:${b.bg};color:${b.color}">${b.label}</span>`
           ).join('') || '<span style="font-size:12px;color:#94a3b8;font-style:italic;">Verification in progress</span>'
         }
+      }
+
+      // Render Trust Passport badges (Phase 10)
+      const passportCard = document.getElementById('trust-passport-card')
+      const badgesList = document.getElementById('trust-badges-list')
+      if (badgesData && badgesData.success && badgesData.badges && badgesData.badges.length > 0 && passportCard && badgesList) {
+        passportCard.style.display = 'block'
+        badgesList.innerHTML = badgesData.badges.map(b =>
+          `<span style="display:inline-flex;align-items:center;gap:5px;background:${b.bg};color:${b.color};border:1px solid ${b.color}30;padding:5px 12px;border-radius:50px;font-size:12px;font-weight:700;">${b.icon} ${b.label}</span>`
+        ).join('')
       }
 
       // Render reviews
