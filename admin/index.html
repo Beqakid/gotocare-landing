@@ -594,6 +594,9 @@
       <button class="sidebar-item" data-tab="acq" onclick="switchTab('acq')" id="acq-tab-btn">
         <span class="item-icon">📣</span> Acquisition
       </button>
+      <button class="sidebar-item" data-tab="incidents" onclick="switchTab('incidents')" id="incidents-tab-btn">
+        <span>🚨</span><span class="sidebar-label">Incidents</span>
+      </button>
       <button class="sidebar-item" data-tab="settings" onclick="switchTab('settings')">
         <span class="item-icon">⚙️</span> Settings
       </button>
@@ -1239,7 +1242,7 @@ let currentTab = 'today';
 const ALL_TAB_IDS = [
   'today','requests','overview','clients','caregivers','bookings',
   'verifications','trust','marketplace','pilot','acq','loc',
-  'schedules','invoices','reviews','subscriptions','settings','team'
+  'schedules','invoices','reviews','subscriptions','incidents','settings','team'
 ];
 
 function switchTab(name, _btn) {
@@ -1284,6 +1287,119 @@ function switchTab(name, _btn) {
   else if (name === 'invoices')  loadInvoices();
   else if (name === 'subscriptions') loadSubscriptions();
   else if (name === 'team') loadTeamAccess();
+  else if (name === 'incidents') loadIncidents();
+}
+
+
+// ===== PHASE 15D: INCIDENTS QUEUE =====
+let currentIncidentFilter = 'all';
+let currentIncidentId = null;
+
+async function loadIncidents(filter, btn) {
+  currentIncidentFilter = filter || 'all';
+  if (btn) setFilterTabActive('incidentFilterTabs', btn);
+  const tbody = document.getElementById('incidentsBody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr class="loading-row"><td colspan="8">⏳ Loading incidents…</td></tr>';
+  const BACKEND = 'https://gotocare-original.jjioji.workers.dev/api';
+  try {
+    const r = await fetch(`${BACKEND}/admin-incidents?token=${adminToken}&filter=${currentIncidentFilter}`);
+    const d = await r.json();
+    if (!r.ok) { tbody.innerHTML = `<tr class="loading-row"><td colspan="8">⚠️ ${esc(d.error||'Error loading incidents')}</td></tr>`; return; }
+    const rows = d.incidents || [];
+    const urgencyColor = { low:'#22C55E', medium:'#F59E0B', high:'#F97316', emergency:'#EF4444' };
+    const statusColor = { new:'#7C5CFF', triage:'#F59E0B', investigating:'#4A90E2', waiting_on_user:'#F97316', action_taken:'#22C55E', closed:'#94A3B8', escalated:'#EF4444' };
+    if (!rows.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="8">No incidents found.</td></tr>'; return; }
+    tbody.innerHTML = rows.map(i => `
+      <tr>
+        <td style="font-weight:600;color:var(--primary)">#${i.id}</td>
+        <td style="font-size:12px">${esc(i.reporter_type||'guest')}</td>
+        <td style="font-size:12px">${esc(i.reporter_name||i.reporter_email||'—')}</td>
+        <td style="font-size:12px">${esc(i.category?.replace(/_/g,' ')||'—')}</td>
+        <td><span style="background:${urgencyColor[i.urgency]||'#94A3B8'}20;color:${urgencyColor[i.urgency]||'#94A3B8'};padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700">${esc(i.urgency||'medium')}</span></td>
+        <td><span style="background:${statusColor[i.status]||'#94A3B8'}20;color:${statusColor[i.status]||'#94A3B8'};padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700">${esc(i.status||'new')}</span></td>
+        <td style="font-size:11px;color:var(--muted)">${esc(i.created_at?.substring(0,10)||'—')}</td>
+        <td><button onclick="openIncidentDetail(${i.id})" style="padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--text);cursor:pointer;font-size:11px">View →</button></td>
+      </tr>
+    `).join('');
+  } catch(e) { tbody.innerHTML = `<tr class="loading-row"><td colspan="8">⚠️ ${esc(String(e))}</td></tr>`; }
+}
+
+async function openIncidentDetail(id) {
+  currentIncidentId = id;
+  const BACKEND = 'https://gotocare-original.jjioji.workers.dev/api';
+  const modal = document.getElementById('incidentDetailModal');
+  const body = document.getElementById('incidentDetailBody');
+  if (!modal || !body) return;
+  modal.style.display = 'flex';
+  body.innerHTML = '<p style="text-align:center;color:var(--muted);padding:40px">⏳ Loading…</p>';
+  try {
+    const r = await fetch(`${BACKEND}/admin-incident-detail?token=${adminToken}&id=${id}`);
+    const d = await r.json();
+    if (!r.ok) { body.innerHTML = `<p style="color:var(--error)">⚠️ ${esc(d.error||'Error')}</p>`; return; }
+    const inc = d.incident;
+    const logs = d.auditLogs || [];
+    body.innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+        <div><label style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase">Reporter</label><p style="font-size:13px;margin-top:2px">${esc(inc.reporter_name||inc.reporter_email||inc.reporter_type||'Anonymous')}</p></div>
+        <div><label style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase">Category</label><p style="font-size:13px;margin-top:2px">${esc((inc.category||'').replace(/_/g,' '))}</p></div>
+        <div><label style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase">Urgency</label><p style="font-size:13px;margin-top:2px;font-weight:700;color:${inc.urgency==='emergency'?'var(--error)':inc.urgency==='high'?'#F97316':'var(--warning)'}">${esc(inc.urgency||'medium')}</p></div>
+        <div><label style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase">Status</label><p style="font-size:13px;margin-top:2px">${esc(inc.status||'new')}</p></div>
+        ${inc.related_caregiver_id?`<div><label style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase">Caregiver ID</label><p style="font-size:13px;margin-top:2px">#${esc(String(inc.related_caregiver_id))}</p></div>`:''}
+        ${inc.related_booking_id?`<div><label style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase">Booking ID</label><p style="font-size:13px;margin-top:2px">#${esc(String(inc.related_booking_id))}</p></div>`:''}
+        <div style="grid-column:span 2"><label style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase">Submitted</label><p style="font-size:12px;margin-top:2px">${esc(inc.created_at||'—')}</p></div>
+      </div>
+      <div style="margin-bottom:16px">
+        <label style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;display:block;margin-bottom:6px">Description</label>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:13px;line-height:1.6;color:var(--text);white-space:pre-wrap">${esc(inc.description||'—')}</div>
+      </div>
+      <div style="margin-bottom:16px">
+        <label style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;display:block;margin-bottom:6px">Update Status</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          ${['new','triage','investigating','waiting_on_user','action_taken','escalated','closed'].map(s=>`<button onclick="updateIncidentStatus(${inc.id},'${s}')" style="padding:5px 12px;border-radius:8px;border:1px solid var(--border);background:${inc.status===s?'var(--primary)':'none'};color:${inc.status===s?'#fff':'var(--text)'};font-size:11px;font-weight:600;cursor:pointer">${s.replace(/_/g,' ')}</button>`).join('')}
+        </div>
+      </div>
+      <div style="margin-bottom:16px">
+        <label style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;display:block;margin-bottom:6px">Internal Notes</label>
+        <textarea id="incidentInternalNotes" rows="3" style="width:100%;border:1px solid var(--border);border-radius:8px;padding:10px;font-size:13px;font-family:inherit;background:#fff;color:var(--text)">${esc(inc.internal_notes||'')}</textarea>
+        <label style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;display:block;margin:8px 0 4px">Assign to Admin</label>
+        <input type="text" id="incidentAssign" value="${esc(inc.assigned_admin||'')}" placeholder="Admin email" style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;background:#fff;color:var(--text)"/>
+        <button onclick="saveIncidentNotes(${inc.id})" style="margin-top:8px;padding:8px 16px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">Save Notes</button>
+      </div>
+      ${logs.length?`<div><label style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;display:block;margin-bottom:6px">Audit Trail</label><div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;max-height:160px;overflow-y:auto">${logs.map(l=>`<div style="padding:8px 12px;border-bottom:1px solid var(--border);font-size:11px"><span style="color:var(--primary);font-weight:600">${esc(l.action||'')}</span> <span style="color:var(--muted)">by ${esc(l.actor_email||'system')} · ${esc((l.created_at||'').substring(0,16))}</span>${l.new_value?` <span style="color:var(--text)">→ ${esc(l.new_value)}</span>`:''}</div>`).join('')}</div></div>`:''}
+    `;
+  } catch(e) { body.innerHTML = `<p style="color:var(--error)">Error: ${esc(String(e))}</p>`; }
+}
+
+async function updateIncidentStatus(id, status) {
+  const BACKEND = 'https://gotocare-original.jjioji.workers.dev/api';
+  try {
+    await fetch(`${BACKEND}/admin-incident-action?token=${adminToken}`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ id, new_status: status })
+    });
+    openIncidentDetail(id);
+    loadIncidents(currentIncidentFilter);
+  } catch(e) { alert('Error: ' + e); }
+}
+
+async function saveIncidentNotes(id) {
+  const BACKEND = 'https://gotocare-original.jjioji.workers.dev/api';
+  const notes = document.getElementById('incidentInternalNotes')?.value || '';
+  const assigned = document.getElementById('incidentAssign')?.value || '';
+  try {
+    await fetch(`${BACKEND}/admin-incident-action?token=${adminToken}`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ id, internal_notes: notes, assigned_admin: assigned })
+    });
+    const btn = event.target;
+    btn.textContent = '✓ Saved'; btn.style.background = '#22C55E';
+    setTimeout(() => { btn.textContent = 'Save Notes'; btn.style.background = 'var(--primary)'; }, 2000);
+  } catch(e) { alert('Error: ' + e); }
+}
+
+function closeIncidentModal() {
+  document.getElementById('incidentDetailModal').style.display = 'none';
 }
 
 // ===== PHASE 33: FILTER TAB HELPER =====
@@ -3892,6 +4008,48 @@ async function revokeInvite(inviteId) {
   loadTeamAccess();
 }
 </script>
+
+
+<!-- PHASE 15D: Incidents Panel -->
+<div id="tab-incidents" style="display:none">
+  <div style="margin-bottom:20px">
+    <h2 style="font-size:20px;font-weight:800;color:var(--text);margin-bottom:4px">🚨 Incident Queue</h2>
+    <p style="font-size:13px;color:var(--muted)">Review and manage trust &amp; safety reports submitted by caregivers, clients, and guests.</p>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px" id="incidentFilterTabs">
+    <button class="filter-tab active" onclick="loadIncidents('all',this)">All</button>
+    <button class="filter-tab" onclick="loadIncidents('new',this)" style="color:#7C5CFF;font-weight:700">🆕 New</button>
+    <button class="filter-tab" onclick="loadIncidents('high',this)" style="color:#EF4444">🔴 High / Emergency</button>
+    <button class="filter-tab" onclick="loadIncidents('investigating',this)">🔍 Investigating</button>
+    <button class="filter-tab" onclick="loadIncidents('waiting',this)">⏳ Waiting</button>
+    <button class="filter-tab" onclick="loadIncidents('escalated',this)" style="color:#F97316">⚠️ Escalated</button>
+    <button class="filter-tab" onclick="loadIncidents('closed',this)" style="color:var(--muted)">✅ Closed</button>
+  </div>
+  <div class="data-card">
+    <div style="overflow-x:auto">
+      <table class="data-table">
+        <thead><tr>
+          <th>#</th><th>Reporter</th><th>Name / Email</th><th>Category</th>
+          <th>Urgency</th><th>Status</th><th>Submitted</th><th>Action</th>
+        </tr></thead>
+        <tbody id="incidentsBody">
+          <tr class="loading-row"><td colspan="8">Select Incidents tab to load…</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- PHASE 15D: Incident Detail Modal -->
+<div id="incidentDetailModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:9999;align-items:center;justify-content:center;padding:20px">
+  <div style="background:var(--card);border-radius:16px;width:100%;max-width:620px;max-height:85vh;overflow-y:auto;padding:24px;position:relative">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;position:sticky;top:0;background:var(--card);padding-bottom:12px;border-bottom:1px solid var(--border)">
+      <h3 style="font-size:18px;font-weight:800;color:var(--text)">Incident Detail</h3>
+      <button onclick="closeIncidentModal()" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text)">✕ Close</button>
+    </div>
+    <div id="incidentDetailBody"></div>
+  </div>
+</div>
 
 </body>
 </html>

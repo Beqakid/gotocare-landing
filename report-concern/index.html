@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Report a Concern — Carehia</title>
+  <link rel="icon" href="https://carehia.com/favicon.ico"/>
+  <style>
+    :root{--primary:#7C5CFF;--secondary:#4A90E2;--success:#22C55E;--warning:#F59E0B;--error:#EF4444;--bg:#F8FAFC;--card:#fff;--text:#0F172A;--muted:#475569;--border:#E2E8F0}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+    nav{background:#fff;border-bottom:1px solid var(--border);padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+    .nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;font-weight:800;font-size:20px;color:var(--text)}
+    .nav-logo-dot{width:10px;height:10px;background:var(--primary);border-radius:50%}
+    .nav-back{color:var(--primary);text-decoration:none;font-size:14px;font-weight:600;padding:8px 16px;border:1.5px solid var(--primary);border-radius:20px}
+    .hero{background:linear-gradient(135deg,#7C5CFF15 0%,#4A90E215 100%);padding:48px 24px 36px;text-align:center;border-bottom:1px solid var(--border)}
+    .hero h1{font-size:clamp(24px,4vw,36px);font-weight:900;margin-bottom:10px}
+    .hero p{font-size:16px;color:var(--muted);max-width:520px;margin:0 auto}
+    .emergency-bar{background:#EF444410;border:1.5px solid #EF444430;border-radius:12px;padding:14px 20px;max-width:520px;margin:20px auto 0;display:flex;align-items:center;gap:12px;text-align:left}
+    .emergency-bar p{font-size:13px;font-weight:600;color:#B91C1C}
+    .emergency-bar a{color:#B91C1C;font-weight:700}
+    .container{max-width:640px;margin:0 auto;padding:40px 24px 64px}
+    /* FORM CARD */
+    .form-card{background:var(--card);border-radius:20px;border:1px solid var(--border);padding:32px;box-shadow:0 2px 16px rgba(0,0,0,.06)}
+    .form-group{margin-bottom:20px}
+    label{display:block;font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px}
+    label .optional{font-weight:400;color:var(--muted);font-size:12px}
+    input[type=text],input[type=email],select,textarea{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;font-size:15px;color:var(--text);background:#fff;outline:none;transition:border-color .2s;font-family:inherit}
+    input:focus,select:focus,textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(124,92,255,.1)}
+    textarea{min-height:120px;resize:vertical}
+    .char-count{font-size:11px;color:var(--muted);text-align:right;margin-top:4px}
+    .hint{font-size:12px;color:var(--muted);margin-top:4px}
+    /* URGENCY PILLS */
+    .urgency-pills{display:flex;gap:8px;flex-wrap:wrap}
+    .urgency-pill{padding:8px 16px;border-radius:20px;font-size:13px;font-weight:600;border:1.5px solid var(--border);background:#fff;cursor:pointer;transition:all .2s;color:var(--muted)}
+    .urgency-pill:hover{border-color:var(--primary);color:var(--primary)}
+    .urgency-pill.selected{border-color:var(--primary);background:var(--primary);color:#fff}
+    .urgency-pill.selected-low{border-color:var(--success);background:var(--success);color:#fff}
+    .urgency-pill.selected-medium{border-color:var(--warning);background:var(--warning);color:#fff}
+    .urgency-pill.selected-high{border-color:#F97316;background:#F97316;color:#fff}
+    .urgency-pill.selected-emergency{border-color:var(--error);background:var(--error);color:#fff}
+    /* CHECKBOX */
+    .checkbox-row{display:flex;align-items:flex-start;gap:10px}
+    .checkbox-row input[type=checkbox]{width:18px;height:18px;margin-top:2px;accent-color:var(--primary);flex-shrink:0}
+    .checkbox-row label{font-size:14px;color:var(--muted);font-weight:400;margin:0}
+    /* SUBMIT */
+    .submit-btn{width:100%;padding:16px;background:var(--primary);color:#fff;border:none;border-radius:14px;font-size:16px;font-weight:800;cursor:pointer;transition:all .2s;margin-top:8px}
+    .submit-btn:hover{background:#6B4FE8;transform:translateY(-1px)}
+    .submit-btn:disabled{background:#C4B5FD;cursor:not-allowed;transform:none}
+    /* EMERGENCY MODAL */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);display:none;align-items:center;justify-content:center;z-index:999;padding:20px}
+    .modal-overlay.open{display:flex}
+    .modal{background:#fff;border-radius:20px;padding:28px;max-width:420px;width:100%;text-align:center}
+    .modal-icon{font-size:48px;margin-bottom:12px}
+    .modal h2{font-size:22px;font-weight:900;color:#B91C1C;margin-bottom:10px}
+    .modal p{font-size:14px;color:var(--muted);margin-bottom:20px;line-height:1.6}
+    .modal-btns{display:flex;flex-direction:column;gap:10px}
+    .btn-call{background:#EF4444;color:#fff;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;text-decoration:none;display:block}
+    .btn-understand{background:#fff;color:var(--primary);border:1.5px solid var(--primary);border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer}
+    /* SUCCESS STATE */
+    .success-card{text-align:center;padding:48px 24px;display:none}
+    .success-card.show{display:block}
+    .success-icon{font-size:64px;margin-bottom:16px}
+    .success-card h2{font-size:24px;font-weight:900;margin-bottom:10px;color:var(--text)}
+    .success-card p{font-size:16px;color:var(--muted);margin-bottom:8px}
+    .success-emergency{background:#EF444412;border:1px solid #EF444430;border-radius:12px;padding:14px 16px;margin-top:16px}
+    .success-emergency p{font-size:13px;color:#B91C1C;font-weight:600}
+    /* ERROR */
+    .error-msg{background:#EF444410;border:1px solid #EF444430;border-radius:10px;padding:12px 14px;margin-top:12px;font-size:14px;color:#B91C1C;display:none}
+    @media(max-width:600px){.form-card{padding:20px}.hero{padding:32px 16px 24px}}
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo"><div class="nav-logo-dot"></div>Carehia</a>
+  <a href="/trust-safety" class="nav-back">← Trust &amp; Safety</a>
+</nav>
+
+<div class="hero">
+  <h1>📋 Report a Concern</h1>
+  <p>Tell us what happened. Our team reviews every report. This form is for non-emergency situations.</p>
+  <div class="emergency-bar">
+    <span>🚨</span>
+    <p>If anyone is in immediate danger, <a href="tel:911">call 911</a> or local emergency services <em>now</em> — do not wait.</p>
+  </div>
+</div>
+
+<div class="container">
+  <div class="form-card" id="formCard">
+    <form id="reportForm">
+
+      <div class="form-group">
+        <label>I am a <span class="optional"></span></label>
+        <select id="reporterType" required>
+          <option value="">Select your role…</option>
+          <option value="caregiver">Caregiver</option>
+          <option value="client">Family / Client</option>
+          <option value="admin">Admin / Staff</option>
+          <option value="guest">Other / Guest</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Your Name <span class="optional">(optional)</span></label>
+        <input type="text" id="reporterName" placeholder="Your name"/>
+      </div>
+
+      <div class="form-group">
+        <label>Your Email <span class="optional">(optional)</span></label>
+        <input type="email" id="reporterEmail" placeholder="your@email.com"/>
+        <div class="hint">We may reach out to follow up if you provide your email.</div>
+      </div>
+
+      <div class="form-group">
+        <label>Concern Category</label>
+        <select id="category" required>
+          <option value="">Select a category…</option>
+          <option value="safety_concern">Safety concern</option>
+          <option value="harassment">Harassment or inappropriate behavior</option>
+          <option value="noshow">No-show or abandonment</option>
+          <option value="payment">Payment or invoice issue</option>
+          <option value="misrepresentation">Misrepresentation</option>
+          <option value="fraud">Suspected fraud</option>
+          <option value="discrimination">Discrimination</option>
+          <option value="privacy">Privacy concern</option>
+          <option value="medical">Medical / emergency concern</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Urgency Level</label>
+        <div class="urgency-pills" id="urgencyPills">
+          <button type="button" class="urgency-pill" data-level="low" onclick="selectUrgency('low')">🟢 Low</button>
+          <button type="button" class="urgency-pill" data-level="medium" onclick="selectUrgency('medium')">🟡 Medium</button>
+          <button type="button" class="urgency-pill" data-level="high" onclick="selectUrgency('high')">🟠 High</button>
+          <button type="button" class="urgency-pill" data-level="emergency" onclick="selectUrgency('emergency')">🔴 Emergency</button>
+        </div>
+        <input type="hidden" id="urgency" value="medium"/>
+      </div>
+
+      <div class="form-group">
+        <label>Related Caregiver ID <span class="optional">(optional)</span></label>
+        <input type="text" id="relatedCaregiverId" placeholder="e.g. 4"/>
+      </div>
+
+      <div class="form-group">
+        <label>Related Booking or Request ID <span class="optional">(optional)</span></label>
+        <input type="text" id="relatedBookingId" placeholder="e.g. 21"/>
+      </div>
+
+      <div class="form-group">
+        <label>Describe the Concern <span style="color:var(--error)">*</span></label>
+        <textarea id="description" placeholder="Please describe what happened, when it happened, and any context that would help us understand the situation…" required oninput="updateCharCount()"></textarea>
+        <div class="char-count"><span id="charCount">0</span> / 3000 characters (minimum 10)</div>
+      </div>
+
+      <div class="form-group">
+        <div class="checkbox-row">
+          <input type="checkbox" id="contactPermission"/>
+          <label for="contactPermission">Carehia may contact me about this report for follow-up questions or to provide an update.</label>
+        </div>
+      </div>
+
+      <div class="error-msg" id="errorMsg"></div>
+
+      <button type="submit" class="submit-btn" id="submitBtn">Submit Report</button>
+    </form>
+  </div>
+
+  <div class="success-card" id="successCard">
+    <div class="success-icon">✅</div>
+    <h2>Report Submitted</h2>
+    <p>Your concern has been submitted. Carehia will review it.</p>
+    <p style="font-size:14px;color:var(--muted)">Thank you for helping us keep the Carehia community safe.</p>
+    <div id="emergencyNote" class="success-emergency" style="display:none">
+      <p>🚨 If anyone is in immediate danger, call 911 or local emergency services now. Carehia reports are not monitored as an emergency dispatch service.</p>
+    </div>
+    <div style="margin-top:24px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <a href="/" style="padding:12px 24px;background:var(--primary);color:#fff;border-radius:12px;text-decoration:none;font-weight:700;font-size:14px">← Back to Carehia</a>
+      <a href="/trust-safety" style="padding:12px 24px;background:#fff;color:var(--primary);border:1.5px solid var(--primary);border-radius:12px;text-decoration:none;font-weight:700;font-size:14px">Trust &amp; Safety</a>
+    </div>
+  </div>
+</div>
+
+<!-- Emergency Modal -->
+<div class="modal-overlay" id="emergencyModal">
+  <div class="modal">
+    <div class="modal-icon">🚨</div>
+    <h2>Emergency Situation?</h2>
+    <p>If anyone is in immediate danger or needs urgent medical help, <strong>call 911 or your local emergency number immediately.</strong><br><br>Carehia reports are <strong>not monitored as an emergency dispatch service.</strong></p>
+    <div class="modal-btns">
+      <a href="tel:911" class="btn-call">📞 Call 911</a>
+      <button class="btn-understand" onclick="closeEmergencyModal()">I understand — Continue Report</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = 'https://gotocare-original.jjioji.workers.dev/api/submit-concern';
+let selectedUrgency = 'medium';
+let emergencyAcknowledged = false;
+
+// Default medium selected
+document.querySelector('[data-level="medium"]').classList.add('selected-medium');
+
+function selectUrgency(level) {
+  selectedUrgency = level;
+  document.getElementById('urgency').value = level;
+  document.querySelectorAll('.urgency-pill').forEach(p => {
+    p.className = 'urgency-pill';
+  });
+  document.querySelector(`[data-level="${level}"]`).classList.add('urgency-pill', `selected-${level}`);
+  if (level === 'emergency' && !emergencyAcknowledged) {
+    document.getElementById('emergencyModal').classList.add('open');
+  }
+}
+
+function closeEmergencyModal() {
+  emergencyAcknowledged = true;
+  document.getElementById('emergencyModal').classList.remove('open');
+}
+
+function updateCharCount() {
+  const len = document.getElementById('description').value.length;
+  document.getElementById('charCount').textContent = len;
+  document.getElementById('charCount').style.color = len > 2800 ? 'var(--error)' : len >= 10 ? 'var(--success)' : 'var(--muted)';
+}
+
+document.getElementById('reportForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const desc = document.getElementById('description').value.trim();
+  const category = document.getElementById('category').value;
+  const errorMsg = document.getElementById('errorMsg');
+  errorMsg.style.display = 'none';
+
+  if (!category) { showError('Please select a concern category.'); return; }
+  if (desc.length < 10) { showError('Please describe the concern in at least 10 characters.'); return; }
+  if (desc.length > 3000) { showError('Description is too long. Maximum 3000 characters.'); return; }
+  if (selectedUrgency === 'emergency' && !emergencyAcknowledged) {
+    document.getElementById('emergencyModal').classList.add('open');
+    return;
+  }
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Submitting…';
+
+  try {
+    const body = {
+      reporter_type: document.getElementById('reporterType').value || 'guest',
+      reporter_name: document.getElementById('reporterName').value.trim(),
+      reporter_email: document.getElementById('reporterEmail').value.trim(),
+      related_caregiver_id: document.getElementById('relatedCaregiverId').value.trim(),
+      related_booking_id: document.getElementById('relatedBookingId').value.trim(),
+      category,
+      urgency: selectedUrgency,
+      description: desc,
+      contact_permission: document.getElementById('contactPermission').checked ? 1 : 0
+    };
+
+    const resp = await fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const data = await resp.json();
+    if (!resp.ok || !data.success) throw new Error(data.error || 'Submission failed');
+
+    document.getElementById('formCard').style.display = 'none';
+    document.getElementById('successCard').style.display = 'block';
+    if (selectedUrgency === 'emergency') {
+      document.getElementById('emergencyNote').style.display = 'block';
+    }
+  } catch(err) {
+    showError('Could not submit your report. Please try again or email support@carehia.com.');
+    btn.disabled = false;
+    btn.textContent = 'Submit Report';
+  }
+});
+
+function showError(msg) {
+  const el = document.getElementById('errorMsg');
+  el.textContent = msg;
+  el.style.display = 'block';
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// Close modal on overlay click
+document.getElementById('emergencyModal').addEventListener('click', function(e) {
+  if (e.target === this) closeEmergencyModal();
+});
+</script>
+</body>
+</html>
