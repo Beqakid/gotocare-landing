@@ -1095,10 +1095,11 @@ let adminEmail = localStorage.getItem('carehia_admin_email') || '';
 
 
 // ===== ADMIN FETCH HELPER (Phase 33) =====
-async function adminFetch(path, options = {}) {
+async async function adminFetch(path, options = {}) {
   try {
-    const url = `${API}${path}`;
-    const headers = { 'Authorization': `Bearer ${adminToken}`, ...(options.headers || {}) };
+    const sep = path.includes('?') ? '&' : '?';
+    const url = `${API}${path}${sep}token=${encodeURIComponent(adminToken)}`;
+    const headers = { ...(options.headers || {}) };
     const res = await fetch(url, { ...options, headers });
     if (res.status === 401 || res.status === 403) {
       console.warn('Admin access denied:', path);
