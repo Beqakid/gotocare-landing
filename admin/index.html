@@ -82,7 +82,7 @@
   }
 
   /* ===== APP SHELL ===== */
-  #appShell { display: none; flex-direction: column; min-height: 100vh; }
+  /* #appShell CSS moved to sidebar layout section */
 
   /* Header */
   .topbar {
@@ -239,15 +239,257 @@
   .spin { display: inline-block; animation: spin 0.8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* Responsive */
-  @media (max-width: 640px) {
-    .content { padding: 16px; }
-    .tabnav button { padding: 12px 12px; font-size: 13px; }
-    th, td { padding: 10px 12px; }
-    .login-card { padding: 32px 24px; margin: 16px; }
-    .stats-grid { grid-template-columns: 1fr 1fr; }
-    .hide-mobile { display: none; }
+  /* Trust Review chips */
+  .trust-chip {
+    padding: 5px 14px; border-radius: 20px;
+    border: 1px solid var(--border);
+    background: rgba(255,255,255,0.04);
+    color: var(--muted); font-size: 12px; font-weight: 600;
+    cursor: pointer; transition: all 0.15s; white-space: nowrap;
   }
+  .trust-chip.active { background: rgba(124,92,255,0.18); border-color: var(--primary); color: var(--primary); }
+  .trust-chip:hover:not(.active) { background: rgba(255,255,255,0.08); color: var(--text); }
+  /* Detail subtabs */
+  .detail-subtab {
+    padding: 12px 18px; background: none; border: none;
+    color: var(--muted); font-size: 13px; font-weight: 500;
+    cursor: pointer; border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .detail-subtab.active { color: var(--primary); border-color: var(--primary); }
+  .detail-subtab:hover:not(.active) { color: var(--text); }
+  /* Module card */
+  .module-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px; padding: 16px 18px;
+    margin-bottom: 12px;
+    display: flex; align-items: flex-start; gap: 14px; flex-wrap: wrap;
+  }
+  .module-card-info { flex: 1; min-width: 200px; }
+  .module-card-actions { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  /* Status badges */
+  .ms-verified { background: rgba(34,197,94,0.15); color: #4ade80; padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+  .ms-submitted { background: rgba(74,144,226,0.15); color: #60a5fa; padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+  .ms-qf { background: rgba(245,158,11,0.15); color: #fbbf24; padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+  .ms-expired { background: rgba(239,68,68,0.15); color: #f87171; padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+  .ms-na { background: rgba(255,255,255,0.07); color: var(--muted); padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+  .ms-none { background: rgba(255,255,255,0.04); color: var(--muted); padding: 2px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+  /* Action buttons */
+  .act-verify { padding:4px 11px;border-radius:6px;border:none;background:#22C55E;color:#fff;cursor:pointer;font-size:11px;font-weight:700; }
+  .act-qf { padding:4px 11px;border-radius:6px;border:none;background:#F59E0B;color:#fff;cursor:pointer;font-size:11px;font-weight:700; }
+  .act-expire { padding:4px 11px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;font-size:11px; }
+  .act-note { padding:4px 11px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;font-size:11px; }
+  .act-badge-rm { padding:4px 11px;border-radius:6px;border:1px solid rgba(239,68,68,0.3);background:rgba(239,68,68,0.1);color:#f87171;cursor:pointer;font-size:11px; }
+
+
+  /* ===== SIDEBAR LAYOUT ===== */
+  #appShell { display:none; min-height:100vh; flex-direction:column; }
+
+  /* Slim top header */
+  .admin-header {
+    height:56px;
+    background:var(--card);
+    border-bottom:1px solid var(--border);
+    display:flex; align-items:center;
+    padding:0 16px; gap:12px;
+    position:sticky; top:0; z-index:200;
+    flex-shrink:0;
+  }
+  .sidebar-toggle {
+    background:none; border:none; color:var(--muted);
+    font-size:20px; cursor:pointer; padding:4px 8px;
+    border-radius:6px; line-height:1;
+    display:none; /* desktop: hidden */
+  }
+  .header-logo { font-weight:700; font-size:15px; flex:1; display:flex; align-items:center; gap:10px; }
+  .header-logo-icon {
+    width:32px; height:32px;
+    background:linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:15px;
+  }
+  .header-user { display:flex; align-items:center; gap:10px; font-size:13px; color:var(--muted); }
+
+  /* App body: sidebar + content */
+  .admin-body { display:flex; flex:1; min-height:0; overflow:hidden; }
+
+  /* Sidebar */
+  .sidebar {
+    width:240px; flex-shrink:0;
+    background:var(--card2);
+    border-right:1px solid var(--border);
+    display:flex; flex-direction:column;
+    height:calc(100vh - 56px);
+    position:sticky; top:56px;
+    overflow-y:auto;
+  }
+  .sidebar-section-label {
+    font-size:10px; font-weight:700; color:var(--muted);
+    text-transform:uppercase; letter-spacing:.08em;
+    padding:20px 20px 6px;
+  }
+  .sidebar-item {
+    display:flex; align-items:center; gap:10px;
+    padding:10px 20px;
+    color:var(--muted); font-size:14px; font-weight:500;
+    cursor:pointer; border:none; background:none;
+    width:100%; text-align:left;
+    border-radius:0;
+    transition:color .15s, background .15s;
+    position:relative;
+  }
+  .sidebar-item:hover:not(.active) { background:rgba(255,255,255,.04); color:var(--text); }
+  .sidebar-item.active {
+    color:var(--primary);
+    background:rgba(124,92,255,.10);
+  }
+  .sidebar-item.active::before {
+    content:''; position:absolute; left:0; top:4px; bottom:4px;
+    width:3px; background:var(--primary); border-radius:0 3px 3px 0;
+  }
+  .sidebar-item .item-icon { font-size:16px; width:20px; text-align:center; flex-shrink:0; }
+  .sidebar-badge {
+    margin-left:auto; background:var(--primary);
+    color:#fff; border-radius:20px;
+    font-size:10px; font-weight:700;
+    padding:2px 7px; min-width:20px; text-align:center;
+  }
+  .sidebar-badge.yellow { background:var(--warning); color:#000; }
+  .sidebar-badge.red { background:var(--error); }
+  .sidebar-footer {
+    margin-top:auto; border-top:1px solid var(--border);
+    padding:16px 20px;
+  }
+  .btn-sidebar-logout {
+    width:100%; padding:9px 14px;
+    background:rgba(239,68,68,.08);
+    border:1px solid rgba(239,68,68,.2);
+    color:#f87171; border-radius:8px;
+    font-size:13px; font-weight:600; cursor:pointer;
+    transition:background .2s;
+  }
+  .btn-sidebar-logout:hover { background:rgba(239,68,68,.18); }
+
+  /* Main content area */
+  .admin-content {
+    flex:1; overflow-y:auto; min-width:0;
+  }
+  /* Keep existing .content class working */
+  .content { padding:28px; max-width:1400px; margin:0 auto; width:100%; }
+
+  /* Sidebar overlay on mobile */
+  .sidebar-overlay {
+    display:none; position:fixed; inset:0;
+    background:rgba(0,0,0,.5); z-index:150;
+  }
+  .sidebar-overlay.open { display:block; }
+
+  /* Today ops cards */
+  .ops-header { margin-bottom:28px; }
+  .ops-header h1 { font-size:24px; font-weight:700; margin-bottom:4px; }
+  .ops-header p { color:var(--muted); font-size:14px; }
+  .ops-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+    gap:14px; margin-bottom:28px;
+  }
+  .ops-card {
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:12px; padding:16px 18px;
+    cursor:pointer; transition:border-color .15s;
+  }
+  .ops-card:hover { border-color:var(--primary); }
+  .ops-card-icon { font-size:22px; margin-bottom:10px; }
+  .ops-card-val { font-size:26px; font-weight:700; line-height:1; }
+  .ops-card-label { font-size:11px; color:var(--muted); margin-top:3px; text-transform:uppercase; letter-spacing:.05em; }
+  .ops-card.urgent { border-color:rgba(239,68,68,.4); }
+  .ops-card.urgent .ops-card-val { color:var(--error); }
+  .attention-section { margin-bottom:28px; }
+  .filter-tab {
+  padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 500;
+  border: 1px solid var(--border); background: var(--card); color: var(--muted);
+  cursor: pointer; transition: all .15s; white-space: nowrap;
+}
+.filter-tab:hover { background: var(--sidebar-bg); color: var(--text); }
+.filter-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.attention-item {
+  display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px;
+  border-radius: 10px; background: var(--card); border: 1px solid var(--border);
+  margin-bottom: 8px; transition: background .15s;
+}
+.attention-item:hover { background: var(--sidebar-bg); }
+.attention-item-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.attention-item.priority-critical { border-left: 3px solid #dc2626; }
+.attention-item.priority-high { border-left: 3px solid #f97316; }
+.attention-item.priority-medium { border-left: 3px solid #eab308; }
+.attention-item.priority-low { border-left: 3px solid #60a5fa; }
+.badge-danger { background: #fee2e2; color: #dc2626; }
+
+.attention-header { font-size:16px; font-weight:700; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+  .attention-item {
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:10px; padding:14px 18px;
+    margin-bottom:8px;
+    display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+  }
+  .attention-type {
+    font-size:10px; font-weight:700; text-transform:uppercase;
+    letter-spacing:.06em; color:var(--muted);
+    background:rgba(255,255,255,.06);
+    border-radius:6px; padding:2px 8px;
+  }
+  .attention-title { font-size:14px; font-weight:600; flex:1; }
+  .attention-meta { font-size:12px; color:var(--muted); }
+  .attention-action {
+    padding:5px 12px; border-radius:7px;
+    border:1px solid var(--border);
+    background:var(--accent); color:var(--primary);
+    font-size:12px; font-weight:600; cursor:pointer;
+    white-space:nowrap;
+    transition:background .15s;
+  }
+  .attention-action:hover { background:rgba(124,92,255,.18); }
+  .empty-ops {
+    text-align:center; padding:40px 20px;
+    color:var(--muted); font-size:14px;
+  }
+  .empty-ops-icon { font-size:36px; margin-bottom:12px; }
+
+  /* Scaffolded section */
+  .scaffold-section {
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:14px; padding:40px 28px;
+    text-align:center; margin-bottom:20px;
+  }
+  .scaffold-icon { font-size:40px; margin-bottom:16px; }
+  .scaffold-title { font-size:18px; font-weight:700; margin-bottom:8px; }
+  .scaffold-desc { color:var(--muted); font-size:14px; line-height:1.6; max-width:480px; margin:0 auto; }
+
+  /* Responsive — mobile sidebar */
+  @media (max-width:768px) {
+    .sidebar-toggle { display:flex; }
+    .sidebar {
+      position:fixed; top:56px; left:0; bottom:0;
+      z-index:160; transform:translateX(-100%);
+      transition:transform .25s ease;
+      height:calc(100vh - 56px);
+    }
+    .sidebar.open { transform:translateX(0); }
+    .admin-body { overflow:visible; }
+    .admin-content { overflow-y:auto; }
+    .content { padding:16px; }
+    th, td { padding:10px 12px; }
+    .login-card { padding:32px 24px; margin:16px; }
+    .stats-grid { grid-template-columns:1fr 1fr; }
+    .hide-mobile { display:none; }
+  }
+  @media (min-width:769px) {
+    .admin-body { height:calc(100vh - 56px); }
+  }
+
 </style>
 </head>
 <body>
@@ -273,24 +515,97 @@
 
 <!-- APP SHELL -->
 <div id="appShell" style="display:none; flex-direction:column; min-height:100vh;">
-  <div class="topbar">
-    <div class="topbar-logo">🛡️</div>
-    <div class="topbar-title">Carehia Super Admin</div>
-    <div class="topbar-user">
+
+  <!-- Slim header -->
+  <div class="admin-header">
+    <button class="sidebar-toggle" onclick="toggleSidebar()" title="Menu">&#9776;</button>
+    <div class="header-logo">
+      <div class="header-logo-icon">🛡️</div>
+      Carehia Admin
+    </div>
+    <div class="header-user">
       <div class="topbar-avatar" id="adminInitial">A</div>
       <span id="adminEmail" class="hide-mobile"></span>
     </div>
-    <button class="btn-logout" onclick="doLogout()">Sign Out</button>
   </div>
 
-  <div class="tabnav">
-    <button class="active" onclick="switchTab('overview',this)">📊 Overview</button>
-    <button onclick="switchTab('clients',this)">👤 Clients</button>
-    <button onclick="switchTab('caregivers',this)">💜 Caregivers</button>
-    <button onclick="switchTab('bookings',this)">📅 Bookings</button>
-  </div>
+  <!-- Sidebar overlay (mobile) -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-  <div class="content">
+  <!-- Body: sidebar + content -->
+  <div class="admin-body">
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar" id="adminSidebar">
+      <div class="sidebar-section-label">Operations</div>
+      <button class="sidebar-item active" data-tab="today" onclick="switchTab('today')">
+        <span class="item-icon">📋</span> Today
+      </button>
+      <button class="sidebar-item" data-tab="requests" onclick="switchTab('requests')">
+        <span class="item-icon">📬</span> Requests
+        <span class="sidebar-badge red" id="sb-badge-requests" style="display:none"></span>
+      </button>
+      <button class="sidebar-item" data-tab="caregivers" onclick="switchTab('caregivers')">
+        <span class="item-icon">💜</span> Caregivers
+        <span class="sidebar-badge" id="sb-badge-caregivers" style="display:none"></span>
+      </button>
+      <button class="sidebar-item" data-tab="clients" onclick="switchTab('clients')">
+        <span class="item-icon">👤</span> Clients
+        <span class="sidebar-badge" id="sb-badge-clients" style="display:none"></span>
+      </button>
+
+      <div class="sidebar-section-label">Trust &amp; Quality</div>
+      <button class="sidebar-item" data-tab="trust" onclick="switchTab('trust')" id="trust-tab-btn">
+        <span class="item-icon">🛡️</span> Trust Review
+        <span class="sidebar-badge yellow" id="sb-badge-trust" style="display:none"></span>
+      </button>
+      <button class="sidebar-item" data-tab="reviews" onclick="switchTab('reviews')">
+        <span class="item-icon">⭐</span> Reviews
+        <span class="sidebar-badge" id="sb-badge-reviews" style="display:none"></span>
+      </button>
+
+      <div class="sidebar-section-label">Operations</div>
+      <button class="sidebar-item" data-tab="schedules" onclick="switchTab('schedules')">
+        <span class="item-icon">📍</span> Schedules
+      </button>
+      <button class="sidebar-item" data-tab="invoices" onclick="switchTab('invoices')">
+        <span class="item-icon">🧾</span> Invoices
+      </button>
+      <button class="sidebar-item" data-tab="subscriptions" onclick="switchTab('subscriptions')">
+        <span class="item-icon">💳</span> Subscriptions
+      </button>
+
+      <div class="sidebar-section-label">Other</div>
+      <button class="sidebar-item" data-tab="overview" onclick="switchTab('overview')">
+        <span class="item-icon">📊</span> Stats
+      </button>
+      <button class="sidebar-item" data-tab="bookings" onclick="switchTab('bookings')">
+        <span class="item-icon">📅</span> Bookings
+      </button>
+      <button class="sidebar-item" data-tab="verifications" onclick="switchTab('verifications')" id="verif-tab-btn">
+        <span class="item-icon">🔍</span> Verifications
+      </button>
+      <button class="sidebar-item" data-tab="marketplace" onclick="switchTab('marketplace')" id="mkt-tab-btn">
+        <span class="item-icon">🏪</span> Marketplace
+      </button>
+      <button class="sidebar-item" data-tab="pilot" onclick="switchTab('pilot')" id="pilot-tab-btn">
+        <span class="item-icon">🚀</span> Pilot
+      </button>
+      <button class="sidebar-item" data-tab="acq" onclick="switchTab('acq')" id="acq-tab-btn">
+        <span class="item-icon">📣</span> Acquisition
+      </button>
+      <button class="sidebar-item" data-tab="settings" onclick="switchTab('settings')">
+        <span class="item-icon">⚙️</span> Settings
+      </button>
+
+      <div class="sidebar-footer">
+        <button class="btn-sidebar-logout" onclick="doLogout()">Sign Out</button>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="admin-content">
+    <div class="content">
 
     <!-- OVERVIEW TAB -->
     <div id="tab-overview">
@@ -328,12 +643,14 @@
                 <th>Name</th>
                 <th>Email</th>
                 <th class="hide-mobile">Auth</th>
-                <th class="hide-mobile">Admin</th>
+                <th class="hide-mobile">Requests</th>
+                <th class="hide-mobile">Team</th>
+                <th class="hide-mobile">Last Active</th>
                 <th>Joined</th>
               </tr>
             </thead>
             <tbody id="clientsBody">
-              <tr class="loading-row"><td colspan="6">⏳ Loading…</td></tr>
+              <tr class="loading-row"><td colspan="8">⏳ Loading…</td></tr>
             </tbody>
           </table>
         </div>
@@ -348,7 +665,15 @@
             <span class="table-title">Caregivers</span>
             <span class="table-count" id="caregiverCount">—</span>
           </div>
-          <div style="display:flex;gap:10px;align-items:center;">
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+            <select id="cgFilter" onchange="loadCaregivers(this.value)" style="height:36px;border-radius:8px;border:1px solid var(--border);padding:0 10px;font-size:13px;background:var(--card);color:var(--text);">
+              <option value="all">All</option>
+              <option value="new">New (7d)</option>
+              <option value="online">Online</option>
+              <option value="incomplete">Profile Incomplete</option>
+              <option value="needs_review">Needs Trust Review</option>
+              <option value="verified">Verified (3+ modules)</option>
+            </select>
             <input class="search-box" id="caregiverSearch" placeholder="Search name or email…" oninput="filterTable('caregiversBody','caregiverSearch')"/>
             <button class="btn-refresh" onclick="loadCaregivers()">↻ Refresh</button>
           </div>
@@ -361,12 +686,15 @@
                 <th>Name</th>
                 <th>Email</th>
                 <th class="hide-mobile">Location</th>
-                <th class="hide-mobile">Rate/hr</th>
+                <th class="hide-mobile">Trust Level</th>
+                <th class="hide-mobile">Status</th>
+                <th class="hide-mobile">Rating</th>
+                <th class="hide-mobile">Visits</th>
                 <th>Joined</th>
               </tr>
             </thead>
             <tbody id="caregiversBody">
-              <tr class="loading-row"><td colspan="6">⏳ Loading…</td></tr>
+              <tr class="loading-row"><td colspan="9">⏳ Loading…</td></tr>
             </tbody>
           </table>
         </div>
@@ -407,14 +735,395 @@
       </div>
     </div>
 
+    <!-- VERIFICATIONS TAB -->
+    <div id="tab-verifications" style="display:none">
+      <div class="table-wrap">
+        <div class="table-header" style="flex-wrap:wrap;gap:10px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <span class="table-title">Verification Queue</span>
+            <span class="table-count" id="verifCount">—</span>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <select id="verifStatusFilter" onchange="loadVerifications()" style="padding:6px 10px;border-radius:8px;border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px">
+              <option value="pending">Pending</option>
+              <option value="approved">Approved</option>
+              <option value="rejected">Rejected</option>
+              <option value="all">All</option>
+            </select>
+            <input class="search-box" id="verifSearch" placeholder="Search name or email…" oninput="filterVerifTable()"/>
+          </div>
+        </div>
+        <div id="verifStatusBadges" style="display:flex;gap:8px;padding:0 16px 12px;flex-wrap:wrap"></div>
+        <table>
+          <thead><tr>
+            <th>Caregiver</th>
+            <th>Email</th>
+            <th>Location</th>
+            <th>Doc Type</th>
+            <th>File</th>
+            <th>Status</th>
+            <th>Submitted</th>
+            <th>Actions</th>
+          </tr></thead>
+          <tbody id="verifBody">
+            <tr class="loading-row"><td colspan="8">⏳ Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Detail Panel -->
+      <div id="verifDetailPanel" style="display:none;margin-top:20px">
+        <div class="table-wrap" style="padding:20px">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+            <h3 style="margin:0;font-size:16px;font-weight:700">Caregiver Detail</h3>
+            <button onclick="document.getElementById('verifDetailPanel').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:20px;color:var(--text-muted)">✕</button>
+          </div>
+          <div id="verifDetailContent"></div>
+        </div>
+      </div>
+
+      <!-- Action Modal -->
+      <div id="verifActionModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;display:none;align-items:center;justify-content:center">
+        <div style="background:var(--card);border-radius:16px;padding:28px;width:440px;max-width:90vw;box-shadow:0 8px 40px rgba(0,0,0,0.4)">
+          <h3 id="verifActionTitle" style="margin:0 0 16px;font-size:16px;font-weight:700"></h3>
+          <textarea id="verifActionNotes" placeholder="Notes (optional — shown to caregiver on rejection)" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;min-height:80px;resize:vertical;margin-bottom:16px;box-sizing:border-box"></textarea>
+          <div style="display:flex;gap:10px">
+            <button onclick="document.getElementById('verifActionModal').style.display='none'" style="flex:1;padding:10px;border-radius:8px;border:1px solid var(--border);background:none;color:var(--text);cursor:pointer;font-size:14px">Cancel</button>
+            <button id="verifActionConfirmBtn" onclick="submitVerifAction()" style="flex:2;padding:10px;border-radius:8px;border:none;color:#fff;cursor:pointer;font-size:14px;font-weight:700"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRUST REVIEW TAB -->
+    <div id="tab-trust" style="display:none">
+      <div class="table-wrap" style="margin-bottom:20px">
+        <div class="table-header" style="flex-wrap:wrap;gap:10px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <span class="table-title">Trust Review Queue</span>
+            <span class="table-count" id="trustCount">—</span>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+            <input class="search-box" id="trustSearch" placeholder="Search name or email…" oninput="filterTrustTable()"/>
+            <button class="btn-refresh" onclick="loadTrustQueue()">↻ Refresh</button>
+          </div>
+        </div>
+        <!-- Filter chips -->
+        <div style="padding:0 20px 8px;display:flex;flex-wrap:wrap;gap:8px" id="trustFilterChips">
+          <button class="trust-chip active" data-filter="all" onclick="setTrustFilter('all',this)">All <span id="tc-all">—</span></button>
+          <button class="trust-chip" data-filter="needs_review" onclick="setTrustFilter('needs_review',this)">🔍 Needs Review <span id="tc-needs_review">—</span></button>
+          <button class="trust-chip" data-filter="needs_quick_fix" onclick="setTrustFilter('needs_quick_fix',this)">⚠️ Needs Quick Fix <span id="tc-needs_quick_fix">—</span></button>
+          <button class="trust-chip" data-filter="verified" onclick="setTrustFilter('verified',this)">✅ Verified <span id="tc-verified">—</span></button>
+          <button class="trust-chip" data-filter="expiring_soon" onclick="setTrustFilter('expiring_soon',this)">⌛ Expiring Soon <span id="tc-expiring_soon">—</span></button>
+          <button class="trust-chip" data-filter="background_pending" onclick="setTrustFilter('background_pending',this)">🔍 Background Pending <span id="tc-background_pending">—</span></button>
+          <button class="trust-chip" data-filter="carehia_verified" onclick="setTrustFilter('carehia_verified',this)">💜 Carehia Verified <span id="tc-carehia_verified">—</span></button>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr>
+              <th>Caregiver</th>
+              <th class="hide-mobile">Location</th>
+              <th>Trust Level</th>
+              <th>Modules</th>
+              <th>Status</th>
+              <th class="hide-mobile">Background</th>
+              <th class="hide-mobile">Last Updated</th>
+              <th>Actions</th>
+            </tr></thead>
+            <tbody id="trustBody">
+              <tr class="loading-row"><td colspan="8">⏳ Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ===== MARKETPLACE CONTROL CENTER TAB ===== -->
+    <div id="tab-marketplace" style="display:none">
+
+      <!-- Section 1: Today's Marketplace Status -->
+      <div class="stats-grid" id="mktStatsGrid">
+        <div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-val">—</div><div class="stat-label">Loading…</div></div>
+      </div>
+
+      <!-- Section 2+4: Request Flow + Caregiver Readiness side-by-side -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+        <div class="stat-card" style="padding:20px 24px">
+          <div style="font-size:12px;font-weight:700;margin-bottom:14px;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted)">📊 Care Request Flow</div>
+          <div id="mktRequestFlow">⏳ Loading…</div>
+        </div>
+        <div class="stat-card" style="padding:20px 24px">
+          <div style="font-size:12px;font-weight:700;margin-bottom:14px;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted)">💜 Caregiver Readiness</div>
+          <div id="mktReadiness">⏳ Loading…</div>
+        </div>
+      </div>
+
+      <!-- Section 3: Unfilled Requests -->
+      <div class="table-wrap" style="margin-bottom:16px">
+        <div class="table-header">
+          <div style="display:flex;align-items:center;gap:12px">
+            <span class="table-title">⚠️ Unfilled Requests</span>
+            <span class="table-count" id="mktUnfilledCount">—</span>
+          </div>
+          <button class="btn-refresh" onclick="loadMarketplace()">↻ Refresh</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr><th>ID</th><th>Client</th><th>Care Needs</th><th>Preferred Date</th><th>Status</th><th>Created</th><th>Age</th></tr></thead>
+            <tbody id="mktUnfilledBody"><tr class="loading-row"><td colspan="7">⏳ Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Sections 5-8: 2x2 grid of info cards -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+        <div class="stat-card" style="padding:20px 24px">
+          <div style="font-size:12px;font-weight:700;margin-bottom:14px;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted)">🛡️ Trust Passport Review</div>
+          <div id="mktTrustReview">⏳ Loading…</div>
+        </div>
+        <div class="stat-card" style="padding:20px 24px">
+          <div style="font-size:12px;font-weight:700;margin-bottom:14px;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted)">⚡ Response Speed</div>
+          <div id="mktResponseSpeed">⏳ Loading…</div>
+        </div>
+        <div class="stat-card" style="padding:20px 24px">
+          <div style="font-size:12px;font-weight:700;margin-bottom:14px;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted)">⏱️ Active Work</div>
+          <div id="mktActiveWork">⏳ Loading…</div>
+        </div>
+        <div class="stat-card" style="padding:20px 24px">
+          <div style="font-size:12px;font-weight:700;margin-bottom:14px;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted)">💰 Invoice &amp; Payment</div>
+          <div id="mktInvoiceIssues">⏳ Loading…</div>
+        </div>
+      </div>
+
+      <!-- Section 9: Reviews & Risk Signals -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+        <div class="stat-card" style="padding:20px 24px">
+          <div style="font-size:12px;font-weight:700;margin-bottom:14px;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted)">⭐ Recent Reviews</div>
+          <div id="mktRecentReviews">⏳ Loading…</div>
+        </div>
+        <div class="stat-card" style="padding:20px 24px;border-left:3px solid var(--error)">
+          <div style="font-size:12px;font-weight:700;margin-bottom:14px;text-transform:uppercase;letter-spacing:0.07em;color:var(--muted)">⚠️ Low Rating Alerts</div>
+          <div id="mktLowRatings">⏳ Loading…</div>
+        </div>
+      </div>
+
+      <!-- Section 10: Top Matching Caregivers -->
+      <div class="table-wrap">
+        <div class="table-header">
+          <div style="display:flex;align-items:center;gap:12px">
+            <span class="table-title">🏆 Top Matching Caregivers</span>
+            <span class="table-count" id="mktTopCount">—</span>
+          </div>
+          <button onclick="switchTab('trust',document.getElementById('trust-tab-btn'))" style="font-size:13px;color:var(--primary);background:none;border:none;cursor:pointer;font-weight:600">Open Trust Review →</button>
+        </div>
+        <div style="overflow-x:auto">
+          <table>
+            <thead><tr><th>Name</th><th>Location</th><th>Rate</th><th>Modules ✓</th><th>Trust Level</th><th>Care Types</th><th>Actions</th></tr></thead>
+            <tbody id="mktTopBody"><tr class="loading-row"><td colspan="7">⏳ Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /tab-marketplace -->
+
   </div><!-- /content -->
 </div><!-- /appShell -->
+
+<!-- ===== TRUST DETAIL MODAL ===== -->
+<div id="trustDetailModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;overflow-y:auto;padding:20px 16px">
+  <div style="max-width:860px;margin:0 auto;background:var(--card);border-radius:16px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.5)">
+    <!-- Header -->
+    <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--card2)">
+      <div id="trustDetailHeader"><span style="color:var(--muted)">Loading…</span></div>
+      <button onclick="closeTrustDetail()" style="background:rgba(255,255,255,0.07);border:none;border-radius:8px;color:var(--text);cursor:pointer;padding:6px 14px;font-size:13px;font-weight:600">✕ Close</button>
+    </div>
+    <!-- Summary bar -->
+    <div id="trustDetailSummary" style="padding:16px 24px;border-bottom:1px solid var(--border);display:flex;gap:16px;flex-wrap:wrap;background:rgba(124,92,255,0.05)"></div>
+    <!-- Tabs inside detail -->
+    <div style="display:flex;border-bottom:1px solid var(--border);padding:0 24px;background:var(--card2)">
+      <button class="detail-subtab active" id="dst-modules" onclick="showDetailSubtab('modules')">Modules</button>
+      <button class="detail-subtab" id="dst-documents" onclick="showDetailSubtab('documents')">Documents</button>
+      <button class="detail-subtab" id="dst-badges" onclick="showDetailSubtab('badges')">Public Badges</button>
+      <button class="detail-subtab" id="dst-audit" onclick="showDetailSubtab('audit')">Audit Log</button>
+    </div>
+    <!-- Detail content panes -->
+    <div id="trustDetailContent" style="padding:24px;min-height:300px"></div>
+  </div>
+</div>
+
+<!-- ===== TRUST ACTION MODAL ===== -->
+<div id="trustActionModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1100;align-items:center;justify-content:center">
+  <div style="background:var(--card);border-radius:16px;padding:28px;width:480px;max-width:92vw;box-shadow:0 8px 40px rgba(0,0,0,0.5)">
+    <h3 id="trustActionTitle" style="margin:0 0 6px;font-size:16px;font-weight:700"></h3>
+    <p id="trustActionSubtitle" style="margin:0 0 20px;font-size:13px;color:var(--muted)"></p>
+
+    <!-- Quick fix reason (shown only for quick_fix action) -->
+    <div id="trustQfReasonWrap" style="display:none;margin-bottom:14px">
+      <label style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:6px">Quick Fix Reason</label>
+      <select id="trustQfReason" style="width:100%;padding:9px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px">
+        <option value="Photo is unclear">Photo is unclear</option>
+        <option value="Missing information">Missing information</option>
+        <option value="Expired document">Expired document</option>
+        <option value="Name does not match">Name does not match</option>
+        <option value="Certification details incomplete">Certification details incomplete</option>
+        <option value="Reference could not be verified">Reference could not be verified</option>
+        <option value="Background permission incomplete">Background permission incomplete</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+
+    <!-- Internal admin note -->
+    <div style="margin-bottom:14px">
+      <label style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:6px">Internal Note <span style="font-weight:400;text-transform:none">(admin only — not visible to caregiver)</span></label>
+      <textarea id="trustAdminNote" placeholder="Internal note…" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;min-height:64px;resize:vertical;box-sizing:border-box"></textarea>
+    </div>
+
+    <!-- Caregiver-facing note -->
+    <div style="margin-bottom:20px">
+      <label style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:6px">Message to Caregiver <span style="font-weight:400;text-transform:none">(shown on their Trust Passport)</span></label>
+      <textarea id="trustCaregiverNote" placeholder="What should the caregiver do next?…" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;min-height:64px;resize:vertical;box-sizing:border-box"></textarea>
+    </div>
+
+    <div style="display:flex;gap:10px">
+      <button onclick="closeTrustActionModal()" style="flex:1;padding:11px;border-radius:8px;border:1px solid var(--border);background:none;color:var(--text);cursor:pointer;font-size:14px;font-weight:600">Cancel</button>
+      <button id="trustActionConfirmBtn" onclick="submitTrustAction()" style="flex:2;padding:11px;border-radius:8px;border:none;color:#fff;cursor:pointer;font-size:14px;font-weight:700"></button>
+    
+    <!-- ===================== PILOT LAUNCH DASHBOARD ===================== -->
+    <div id="tab-pilot" style="display:none">
+      <div style="padding:0 0 32px">
+        <h2 style="font-size:1.5rem;font-weight:700;color:#7C5CFF;margin:0 0 4px">&#x1F680; Carehia Pilot Launch Dashboard</h2>
+        <p style="color:#64748b;margin:0 0 24px;font-size:.95rem">Track launch readiness, marketplace activity, and today's priorities.</p>
+
+        <!-- Launch Readiness Banner -->
+        <div id="pilotReadinessBanner" style="background:linear-gradient(135deg,#7C5CFF,#4A90E2);border-radius:12px;padding:20px 28px;color:#fff;display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;flex-wrap:wrap;gap:12px">
+          <div>
+            <div style="font-size:.8rem;opacity:.85;letter-spacing:.05em;text-transform:uppercase;margin-bottom:4px">Overall Launch Readiness</div>
+            <div id="pilotReadinessPct" style="font-size:2.8rem;font-weight:800;line-height:1">—%</div>
+            <div id="pilotReadinessLabel" style="font-size:.9rem;opacity:.85;margin-top:4px">Calculating…</div>
+          </div>
+          <div id="pilotReadinessNote" style="text-align:right;font-size:.85rem;opacity:.9;max-width:260px">Loading…</div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div id="pilotSummaryGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));gap:14px;margin-bottom:28px">
+          <div class="stat-card" style="text-align:center"><div style="font-size:1.4rem">&#x23F3;</div><div class="stat-val">—</div><div class="stat-label">Loading</div></div>
+        </div>
+
+        <!-- Today's Founder Brief -->
+        <div style="background:#fff;border-radius:12px;border:1px solid #e2e8f0;padding:20px 24px;margin-bottom:24px">
+          <h3 style="font-size:1.05rem;font-weight:700;color:#0f172a;margin:0 0 16px">&#x1F4CB; Today's Founder Brief</h3>
+          <div id="founderBriefGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+            <div style="background:#f8fafc;border-radius:8px;padding:14px 16px">
+              <div style="font-size:.78rem;font-weight:700;color:#7C5CFF;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">&#x1F3AF; Top 3 Priorities</div>
+              <div id="founderPriorities" style="font-size:.9rem;color:#334155;line-height:1.6">Loading…</div>
+            </div>
+            <div style="background:#f8fafc;border-radius:8px;padding:14px 16px">
+              <div style="font-size:.78rem;font-weight:700;color:#F59E0B;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">&#x23F3; Waiting on Jon</div>
+              <div style="font-size:.9rem;color:#334155;line-height:1.6">
+                <div>&#x2022; Approve caregivers in Trust Review tab</div>
+                <div>&#x2022; Review first client booking request</div>
+                <div>&#x2022; Set target pilot city/zip code</div>
+                <div>&#x2022; Verify Stripe webhook is live</div>
+              </div>
+            </div>
+            <div style="background:#f8fafc;border-radius:8px;padding:14px 16px">
+              <div style="font-size:.78rem;font-weight:700;color:#EF4444;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">&#x1F6A7; Blocked Items</div>
+              <div id="founderBlocked" style="font-size:.9rem;color:#334155;line-height:1.6">Loading…</div>
+            </div>
+            <div style="background:#f8fafc;border-radius:8px;padding:14px 16px">
+              <div style="font-size:.78rem;font-weight:700;color:#22C55E;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">&#x1F3C1; Closest to Launch</div>
+              <div id="founderClosest" style="font-size:.9rem;color:#334155;line-height:1.6">Loading…</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Funnels side by side -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px">
+          <div style="background:#fff;border-radius:12px;border:1px solid #e2e8f0;padding:20px 24px">
+            <h3 style="font-size:1.05rem;font-weight:700;color:#0f172a;margin:0 0 16px">&#x1F465; Caregiver Onboarding Funnel</h3>
+            <div id="caregiverFunnelList">Loading…</div>
+          </div>
+          <div style="background:#fff;border-radius:12px;border:1px solid #e2e8f0;padding:20px 24px">
+            <h3 style="font-size:1.05rem;font-weight:700;color:#0f172a;margin:0 0 16px">&#x1F4E8; Care Request Funnel</h3>
+            <div id="requestFunnelList">Loading…</div>
+          </div>
+        </div>
+
+        <!-- Pilot Readiness Checklist -->
+        <div style="background:#fff;border-radius:12px;border:1px solid #e2e8f0;padding:20px 24px;margin-bottom:24px">
+          <h3 style="font-size:1.05rem;font-weight:700;color:#0f172a;margin:0 0 16px">&#x2705; Pilot Readiness Checklist</h3>
+          <div id="pilotChecklist" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div style="color:#64748b">Loading…</div>
+          </div>
+        </div>
+
+        <!-- Launch Blockers -->
+        <div style="background:#fff;border-radius:12px;border:1px solid #e2e8f0;padding:20px 24px;margin-bottom:24px">
+          <h3 style="font-size:1.05rem;font-weight:700;color:#0f172a;margin:0 0 16px">&#x1F6A7; Launch Blockers</h3>
+          <div id="launchBlockers">Loading…</div>
+        </div>
+
+        <!-- Geographic view -->
+        <div style="background:#fff;border-radius:12px;border:1px solid #e2e8f0;padding:20px 24px">
+          <h3 style="font-size:1.05rem;font-weight:700;color:#0f172a;margin:0 0 4px">&#x1F4CD; Geographic Pilot View</h3>
+          <p style="color:#64748b;font-size:.85rem;margin:0 0 16px">Caregivers and requests by area — identify coverage gaps.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+            <div>
+              <div style="font-size:.85rem;font-weight:600;color:#0f172a;margin-bottom:8px">Caregivers by Area</div>
+              <div id="cgByArea" style="font-size:.85rem;color:#334155">Loading…</div>
+            </div>
+            <div>
+              <div style="font-size:.85rem;font-weight:600;color:#0f172a;margin-bottom:8px">Requests by Area</div>
+              <div id="reqByArea" style="font-size:.85rem;color:#334155">Loading…</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <!-- ===================== /PILOT LAUNCH DASHBOARD ===================== -->
+</div>
+  </div>
+</div>
 
 <script>
 const API = 'https://carehia-admin.jjioji.workers.dev';
 let adminToken = localStorage.getItem('carehia_admin_token') || '';
 let adminName = localStorage.getItem('carehia_admin_name') || '';
 let adminEmail = localStorage.getItem('carehia_admin_email') || '';
+
+
+// ===== ADMIN FETCH HELPER (Phase 33) =====
+async function adminFetch(path, options = {}) {
+  try {
+    const url = `${API}${path}`;
+    const headers = { 'Authorization': `Bearer ${adminToken}`, ...(options.headers || {}) };
+    const res = await fetch(url, { ...options, headers });
+    if (res.status === 401 || res.status === 403) {
+      console.warn('Admin access denied:', path);
+      return { _unauthorized: true };
+    }
+    const text = await res.text();
+    if (!text) return { _empty: true };
+    return JSON.parse(text);
+  } catch (e) {
+    console.error('adminFetch error:', path, e);
+    return { _error: String(e) };
+  }
+}
+function adminUnauthorized(containerId) {
+  const el = document.getElementById(containerId);
+  if (el) el.innerHTML = '<div class="scaffold-section"><div class="scaffold-icon">🔐</div><div class="scaffold-title">Admin access required</div><div class="scaffold-desc">Please sign in with an authorized admin account.</div></div>';
+}
+function adminError(containerId, msg) {
+  const el = document.getElementById(containerId);
+  if (el) el.innerHTML = `<div class="scaffold-section"><div class="scaffold-icon">⚠️</div><div class="scaffold-title">Error loading data</div><div class="scaffold-desc">${msg || 'An error occurred. Check the console for details.'}</div></div>`;
+}
+function adminEmpty(containerId, msg) {
+  const el = document.getElementById(containerId);
+  if (el) el.innerHTML = `<div class="scaffold-section"><div class="scaffold-icon">📭</div><div class="scaffold-title">No items found</div><div class="scaffold-desc">${msg || 'Nothing to show here yet.'}</div></div>`;
+}
 
 // ===== AUTH =====
 async function doLogin() {
@@ -470,7 +1179,11 @@ function showApp() {
   app.style.display = 'flex';
   document.getElementById('adminInitial').textContent = (adminName||'A')[0].toUpperCase();
   document.getElementById('adminEmail').textContent = adminEmail;
-  loadOverview();
+  // Also populate settings tab email
+  const se = document.getElementById('settings-email');
+  if (se) se.textContent = adminEmail;
+  // Start on Today tab
+  switchTab('today');
 }
 
 // Auto-login if token saved
@@ -482,18 +1195,416 @@ if (adminToken) {
 }
 
 // ===== TABS =====
-let currentTab = 'overview';
-function switchTab(name, btn) {
-  document.querySelectorAll('.tabnav button').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  ['overview','clients','caregivers','bookings'].forEach(t => {
-    document.getElementById('tab-'+t).style.display = t===name ? 'block' : 'none';
+let currentTab = 'today';
+
+// All tab IDs known to the app (existing + new Phase 32)
+const ALL_TAB_IDS = [
+  'today','requests','overview','clients','caregivers','bookings',
+  'verifications','trust','marketplace','pilot','acq','loc',
+  'schedules','invoices','reviews','subscriptions','settings'
+];
+
+function switchTab(name, _btn) {
+  // Update sidebar active state
+  document.querySelectorAll('.sidebar-item').forEach(b => b.classList.remove('active'));
+  const sidebarItem = document.querySelector(`.sidebar-item[data-tab="${name}"]`);
+  if (sidebarItem) sidebarItem.classList.add('active');
+
+  // Show/hide all panels
+  ALL_TAB_IDS.forEach(t => {
+    const el = document.getElementById('tab-'+t);
+    if (el) el.style.display = (t === name) ? 'block' : 'none';
   });
   currentTab = name;
-  if(name==='clients') loadClients();
-  else if(name==='caregivers') loadCaregivers();
-  else if(name==='bookings') loadBookings();
-  else loadOverview();
+
+  // Close sidebar on mobile after navigation
+  closeSidebar();
+
+  // Load data for tab
+  if (name === 'today')          loadTodayOps();
+  else if (name === 'clients')   loadClients();
+  else if (name === 'caregivers') loadCaregivers();
+  else if (name === 'bookings' || name === 'requests') loadBookings();
+  else if (name === 'verifications') loadVerifications();
+  else if (name === 'trust')     loadTrustQueue();
+  else if (name === 'marketplace') loadMarketplace();
+  else if (name === 'pilot')     loadPilot();
+  else if (name === 'loc')       loadLocationReview();
+  else if (name === 'schedules') loadSchedulesView('needs_review');
+  else if (name === 'acq')       { if (typeof loadAcquisition === 'function') loadAcquisition(); }
+  else if (name === 'overview')  loadOverview();
+  else if (name === 'reviews')   loadReviews();
+  else if (name === 'invoices')  loadInvoices();
+  else if (name === 'subscriptions') loadSubscriptions();
+}
+
+// ===== PHASE 33: FILTER TAB HELPER =====
+function setFilterTabActive(tabsContainerId, clickedBtn) {
+  if (!clickedBtn) return;
+  const container = document.getElementById(tabsContainerId);
+  if (container) container.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+  clickedBtn.classList.add('active');
+}
+
+// ===== PHASE 33: LOAD REQUESTS =====
+async function loadRequests(filter, btn) {
+  const f = filter || 'all';
+  if (btn) setFilterTabActive('requestFilterTabs', btn);
+  const cols = 8;
+  document.getElementById('requestsBody').innerHTML = `<tr class="loading-row"><td colspan="${cols}">⏳ Loading…</td></tr>`;
+  try {
+    const d = await adminFetch(`/admin-requests?token=${adminToken}&filter=${f}`);
+    if (d._unauthorized) { doLogout(); return; }
+    if (d._error) { document.getElementById('requestsBody').innerHTML = `<tr class="loading-row"><td colspan="${cols}">⚠️ ${esc(d._error)}</td></tr>`; return; }
+    const rows = d.requests || [];
+    const fc = d.filterCounts || {};
+    document.getElementById('requestCount').textContent = `${rows.length} shown`;
+    // Update filter tab labels with counts
+    const tabsEl = document.getElementById('requestFilterTabs');
+    if (tabsEl) {
+      const labelMap = { all:'All', unfilled:'⚠️ Unfilled', new:'New', accepted:'Accepted', scheduled:'Scheduled', completed:'Completed', cancelled:'Cancelled' };
+      tabsEl.querySelectorAll('.filter-tab').forEach(btn => {
+        const fval = btn.getAttribute('onclick')?.match(/loadRequests\('(\w+)'/)?.[1];
+        if (fval && fc[fval] !== undefined) btn.textContent = `${labelMap[fval]||fval} (${fc[fval]})`;
+      });
+    }
+    const STATUS_LABEL = {
+      pending:'⏳ Pending', caregiver_accepted:'✅ Accepted', confirmed:'📋 Confirmed',
+      scheduled:'📅 Scheduled', in_progress:'🟡 In Progress', completed:'✅ Completed',
+      cancelled:'❌ Cancelled', expired:'⏰ Expired', rejected:'✗ Rejected',
+    };
+    document.getElementById('requestsBody').innerHTML = rows.map(r => `
+      <tr data-search="${esc((r.client_email||'').toLowerCase())} ${esc((r.care_needs||'').toLowerCase())}">
+        <td style="font-weight:600;color:var(--muted);font-size:11px;">${r.is_urgent ? '🔴 ' : ''}#${r.id}</td>
+        <td style="font-size:12px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(r.client_email||'')}">${esc(r.client_email||'—')}</td>
+        <td style="font-size:12px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(r.care_needs||'')}">${esc(r.care_needs||'—')}</td>
+        <td class="hide-mobile" style="font-size:12px;">${esc(r.caregiver_name||'—')}</td>
+        <td class="hide-mobile" style="font-size:12px;color:var(--muted);">${r.preferred_date || '—'}${r.preferred_time ? ' ' + r.preferred_time : ''}</td>
+        <td><span class="badge ${r.status==='completed'?'badge-green':r.status==='pending'?'badge-yellow':r.status==='cancelled'||r.status==='expired'?'':'badge-blue'}" style="font-size:10px;">${STATUS_LABEL[r.status]||r.status}</span></td>
+        <td class="hide-mobile" style="font-size:11px;color:var(--muted);">${r.is_unlocked ? '🔓 Unlocked' : '🔒 Locked'}</td>
+        <td style="font-size:11px;color:var(--muted);">${fmtDate(r.created_at)}</td>
+      </tr>
+    `).join('') || `<tr class="loading-row"><td colspan="${cols}">No requests found.</td></tr>`;
+  } catch(e) { document.getElementById('requestsBody').innerHTML = `<tr class="loading-row"><td colspan="8">⚠️ Error: ${e.message}</td></tr>`; }
+}
+
+// ===== PHASE 33: LOAD REVIEWS =====
+async function loadReviews(filter, btn) {
+  const f = filter || 'all';
+  if (btn) setFilterTabActive('reviewFilterTabs', btn);
+  document.getElementById('reviewsBody').innerHTML = '<tr class="loading-row"><td colspan="7">⏳ Loading…</td></tr>';
+  try {
+    const d = await adminFetch(`/admin-reviews?token=${adminToken}&filter=${f}`);
+    if (d._unauthorized) { doLogout(); return; }
+    if (d._error) { document.getElementById('reviewsBody').innerHTML = `<tr class="loading-row"><td colspan="7">⚠️ ${esc(d._error)}</td></tr>`; return; }
+    const rows = d.reviews || [];
+    const counts = d.counts || {};
+    document.getElementById('reviewCount').textContent = rows.length;
+    const summEl = document.getElementById('reviewSummary');
+    if (summEl && counts.total > 0) {
+      summEl.innerHTML = `Total: ${counts.total} | Visible: ${counts.visible} | Hidden: ${counts.hidden} | Low Rating: ${counts.low_rating}`;
+    }
+    const stars = (r) => {
+      const n = parseFloat(r) || 0;
+      const full = Math.round(n);
+      return '★'.repeat(full) + '☆'.repeat(5-full);
+    };
+    document.getElementById('reviewsBody').innerHTML = rows.map(r => `
+      <tr data-search="${esc((r.caregiver_name||'').toLowerCase())} ${esc((r.review_text||'').toLowerCase())}">
+        <td style="color:var(--muted);font-size:11px">#${r.id}</td>
+        <td style="font-weight:500;font-size:13px">${esc(r.caregiver_name||'Caregiver #'+r.caregiver_id)}</td>
+        <td class="hide-mobile" style="font-size:12px;color:var(--muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(r.review_text||'')}">${esc(r.review_text||'—')}</td>
+        <td style="color:var(--warning);font-weight:600;font-size:13px;" title="${r.rating}/5">${stars(r.rating)} <span style="font-size:11px;color:var(--muted);">${parseFloat(r.rating||0).toFixed(1)}</span></td>
+        <td>${r.is_visible ? '<span class="badge badge-green" style="font-size:10px;">Visible</span>' : '<span class="badge" style="font-size:10px;background:var(--danger)/15;color:var(--danger);">Hidden</span>'}</td>
+        <td class="hide-mobile">${r.is_repeat_client ? '<span class="badge badge-blue" style="font-size:10px;">Repeat</span>' : '<span style="color:var(--muted);font-size:11px;">—</span>'}</td>
+        <td style="color:var(--muted);font-size:11px">${fmtDate(r.created_at)}</td>
+      </tr>
+    `).join('') || '<tr class="loading-row"><td colspan="7">No reviews found.</td></tr>';
+  } catch(e) { document.getElementById('reviewsBody').innerHTML = `<tr class="loading-row"><td colspan="7">⚠️ Error: ${e.message}</td></tr>`; }
+}
+
+// ===== PHASE 33: LOAD INVOICES =====
+async function loadInvoices(filter, btn) {
+  const f = filter || 'all';
+  if (btn) setFilterTabActive('invoiceFilterTabs', btn);
+  document.getElementById('invoicesBody').innerHTML = '<tr class="loading-row"><td colspan="7">⏳ Loading…</td></tr>';
+  try {
+    const d = await adminFetch(`/admin-invoices?token=${adminToken}&filter=${f}`);
+    if (d._unauthorized) { doLogout(); return; }
+    if (d._error) { document.getElementById('invoicesBody').innerHTML = `<tr class="loading-row"><td colspan="7">⚠️ ${esc(d._error)}</td></tr>`; return; }
+    const rows = d.invoices || [];
+    const counts = d.counts || {};
+    document.getElementById('invoiceCount').textContent = rows.length;
+    // Summary bar
+    const summEl = document.getElementById('invoiceSummaryBar');
+    if (summEl) {
+      summEl.innerHTML = [
+        counts.draft > 0 ? `<span style="background:var(--border);border-radius:6px;padding:3px 10px;font-size:12px;">Draft: ${counts.draft}</span>` : '',
+        counts.sent > 0 ? `<span style="background:#dbeafe;color:#1d4ed8;border-radius:6px;padding:3px 10px;font-size:12px;">Sent: ${counts.sent}</span>` : '',
+        counts.overdue > 0 ? `<span style="background:#fee2e2;color:#dc2626;border-radius:6px;padding:3px 10px;font-size:12px;">⚠️ Overdue: ${counts.overdue}</span>` : '',
+        counts.paid > 0 ? `<span style="background:#dcfce7;color:#16a34a;border-radius:6px;padding:3px 10px;font-size:12px;">Paid: ${counts.paid}</span>` : '',
+        counts.total_paid > 0 ? `<span style="font-weight:600;color:var(--success);font-size:12px;">Total paid: $${Number(counts.total_paid||0).toFixed(2)}</span>` : '',
+      ].filter(Boolean).join(' ');
+    }
+    const STATUS_STYLE = { draft:'', sent:'badge-blue', paid:'badge-green', overdue:'badge-danger' };
+    document.getElementById('invoicesBody').innerHTML = rows.map(inv => {
+      const isOverdue = inv.status === 'sent' && new Date(inv.created_at) < new Date(Date.now() - 14*86400000);
+      const displayStatus = isOverdue ? 'overdue' : inv.status;
+      return `
+      <tr data-search="${esc((inv.caregiver_name||inv.caregiver_email||'').toLowerCase())} ${esc((inv.client_name||'').toLowerCase())}">
+        <td style="color:var(--muted);font-size:11px">#${inv.id}</td>
+        <td style="font-weight:500;font-size:13px">${esc(inv.caregiver_name||inv.caregiver_email||'—')}</td>
+        <td class="hide-mobile" style="font-size:12px;color:var(--muted)">${esc(inv.client_name||'—')}</td>
+        <td style="font-weight:600;color:var(--text)">${inv.total != null ? '$'+Number(inv.total).toFixed(2) : '—'}</td>
+        <td><span class="badge ${isOverdue?'badge-danger':STATUS_STYLE[inv.status]||''}" style="font-size:10px;${isOverdue?'background:#fee2e2;color:#dc2626;':''}">${isOverdue ? '⚠️ Overdue' : inv.status||'—'}</span></td>
+        <td class="hide-mobile" style="font-size:11px;color:var(--muted)">${esc(inv.invoice_number||'—')}</td>
+        <td style="font-size:11px;color:var(--muted)">${fmtDate(inv.created_at)}</td>
+      </tr>`;
+    }).join('') || '<tr class="loading-row"><td colspan="7">No invoices found.</td></tr>';
+  } catch(e) { document.getElementById('invoicesBody').innerHTML = `<tr class="loading-row"><td colspan="7">⚠️ Error: ${e.message}</td></tr>`; }
+}
+
+// ===== PHASE 33: LOAD SUBSCRIPTIONS =====
+async function loadSubscriptions() {
+  document.getElementById('subsBody').innerHTML = '<tr class="loading-row"><td colspan="7">⏳ Loading…</td></tr>';
+  try {
+    const d = await adminFetch(`/admin-subscriptions?token=${adminToken}`);
+    if (d._unauthorized) { doLogout(); return; }
+    if (d._error) { document.getElementById('subsBody').innerHTML = `<tr class="loading-row"><td colspan="7">⚠️ ${esc(d._error)}</td></tr>`; return; }
+    const rows = d.subscriptions || [];
+    document.getElementById('subCount').textContent = rows.length;
+    const summEl = document.getElementById('subSummaryBar');
+    if (summEl) {
+      summEl.innerHTML = `Caregiver plans: ${d.caregiverCount||0} &nbsp;|&nbsp; Client plans: ${d.clientCount||0}`;
+    }
+    if (rows.length === 0) {
+      document.getElementById('subsBody').innerHTML = '<tr class="loading-row"><td colspan="7">No active subscriptions yet. Subscriptions appear here after Stripe webhook events.</td></tr>';
+      return;
+    }
+    const STATUS_STYLE = { active:'badge-green', trialing:'badge-blue', past_due:'badge-danger', cancelled:'', canceled:'' };
+    document.getElementById('subsBody').innerHTML = rows.map(s => {
+      const name = s.caregiver_name || s.client_name || s.name || '—';
+      const email = s.email || '—';
+      return `
+      <tr data-search="${esc((name).toLowerCase())} ${esc(email.toLowerCase())}">
+        <td style="font-weight:500;font-size:13px">${esc(name)}</td>
+        <td><span class="badge ${s.role==='caregiver'?'badge-purple':'badge-blue'}" style="font-size:10px;">${s.role||'—'}</span></td>
+        <td style="font-size:12px;color:var(--muted)">${esc(email)}</td>
+        <td style="font-size:12px;font-weight:500">${esc(s.plan||'—')}</td>
+        <td><span class="badge ${STATUS_STYLE[s.status]||''}" style="font-size:10px;">${s.status||'—'}</span></td>
+        <td class="hide-mobile" style="font-size:11px;color:var(--muted)">${s.current_period_end ? fmtDate(s.current_period_end) : '—'}</td>
+        <td style="font-size:11px;color:var(--muted)">${fmtDate(s.created_at)}</td>
+      </tr>`;
+    }).join('');
+  } catch(e) { document.getElementById('subsBody').innerHTML = `<tr class="loading-row"><td colspan="7">⚠️ Error: ${e.message}</td></tr>`; }
+}
+
+// ===== SIDEBAR TOGGLE (mobile) =====
+function toggleSidebar() {
+  const sb = document.getElementById('adminSidebar');
+  const ov = document.getElementById('sidebarOverlay');
+  sb.classList.toggle('open');
+  ov.classList.toggle('open');
+}
+function closeSidebar() {
+  document.getElementById('adminSidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('open');
+}
+
+// ===== TODAY OPS =====
+async function loadTodayOps() {
+  try {
+    // Phase 33: Load stats + operations aggregator in parallel
+    const [statsData, opsData] = await Promise.all([
+      adminFetch(`/admin-stats?token=${adminToken}`),
+      adminFetch(`/admin-operations?token=${adminToken}`),
+    ]);
+
+    if (statsData._unauthorized || opsData._unauthorized) { doLogout(); return; }
+
+    const d = statsData;
+    const ops = opsData;
+
+    // Populate summary cards
+    const setEl = (id, v) => { const e = document.getElementById(id); if(e) e.textContent = v; };
+    const opsSum = ops.summary || {};
+
+    setEl('ops-open-requests', opsSum.openRequests ?? d.pendingBookings ?? d.totalBookings ?? '—');
+    setEl('ops-caregivers',    d.totalCaregivers ?? '—');
+    setEl('ops-clients',       d.totalClients ?? '—');
+    setEl('ops-bookings',      d.totalBookings ?? '—');
+
+    // Update sidebar badges
+    const updateBadge = (id, count) => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      if (count > 0) { el.textContent = count; el.style.display = ''; }
+      else el.style.display = 'none';
+    };
+    updateBadge('sb-badge-caregivers', d.totalCaregivers ?? 0);
+    updateBadge('sb-badge-clients',    d.totalClients ?? 0);
+
+    // Load trust queue count for badge (from ops summary)
+    const trustCount = (opsSum.caregiversNeedingReview) ?? 0;
+    setEl('ops-trust-reviews', trustCount > 0 ? trustCount : '0');
+    updateBadge('sb-badge-trust', trustCount);
+
+    // Render Needs Attention list from /admin-operations
+    const attentionList = document.getElementById('todayAttentionList');
+    if (attentionList) {
+      const items = ops.needsAttention || [];
+      if (items.length === 0) {
+        attentionList.innerHTML = '<div class="empty-ops"><div class="empty-ops-icon">✅</div><div>All caught up! No items need immediate attention.</div></div>';
+      } else {
+        const PRIORITY_ICON = { critical: '🔴', high: '🟠', medium: '🟡', low: '🔵' };
+        const TYPE_LABEL = { request: 'Request', trust_review: 'Trust', caregiver: 'Caregiver', schedule: 'Schedule', invoice: 'Invoice', review: 'Review', subscription: 'Subscription' };
+        attentionList.innerHTML = items.map(item => `
+          <div class="attention-item priority-${item.priority}" onclick="switchTab('${item.route}')" style="cursor:pointer;">
+            <div class="attention-item-icon">${PRIORITY_ICON[item.priority] || '⚠️'}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-weight:600;font-size:14px;color:var(--text);">${esc(item.title)}</div>
+              ${item.description ? `<div style="font-size:12px;color:var(--muted);margin-top:2px;">${esc(item.description)}</div>` : ''}
+            </div>
+            <div style="font-size:11px;font-weight:600;color:var(--muted);white-space:nowrap;text-transform:uppercase;letter-spacing:.5px;">${TYPE_LABEL[item.type] || item.type} →</div>
+          </div>
+        `).join('');
+      }
+    }
+
+    // Load location flags count
+    try {
+      const lr = await fetch(`${API}/admin-location-review?token=${adminToken}&status=needs_review&limit=100`);
+      if (lr.ok) {
+        const ld = await lr.json();
+        const locCount = Array.isArray(ld.logs) ? ld.logs.length : (Array.isArray(ld) ? ld.length : 0);
+        setEl('ops-location-flags', locCount);
+      }
+    } catch(e) { setEl('ops-location-flags', '—'); }
+
+    // Build attention list
+    buildAttentionList(d);
+
+  } catch(e) {
+    console.error('loadTodayOps error:', e);
+  }
+}
+
+function buildAttentionList(stats) {
+  const el = document.getElementById('todayAttentionList');
+  if (!el) return;
+  const items = [];
+
+  // Check for trust reviews needing attention
+  const trustCount = parseInt(document.getElementById('ops-trust-reviews')?.textContent) || 0;
+  if (trustCount > 0) {
+    items.push({
+      type: 'Trust Review',
+      title: `${trustCount} caregiver module${trustCount>1?'s':''} waiting for review`,
+      meta: 'Trust Passport submissions pending',
+      priority: 'urgent',
+      action: 'Review Now',
+      tab: 'trust'
+    });
+  }
+
+  // Location flags
+  const locCount = parseInt(document.getElementById('ops-location-flags')?.textContent) || 0;
+  if (locCount > 0) {
+    items.push({
+      type: 'Check-In Exception',
+      title: `${locCount} location check-in${locCount>1?'s':''} need review`,
+      meta: 'Manual or GPS exception pending admin approval',
+      priority: 'warning',
+      action: 'Review Check-ins',
+      tab: 'schedules'
+    });
+  }
+
+  if (items.length === 0) {
+    el.innerHTML = `<div class="empty-ops"><div class="empty-ops-icon">✅</div><div>All caught up! No items need immediate attention.</div></div>`;
+    return;
+  }
+
+  el.innerHTML = items.map(item => `
+    <div class="attention-item">
+      <span class="attention-type">${esc(item.type)}</span>
+      <span class="attention-title">${esc(item.title)}</span>
+      <span class="attention-meta">${esc(item.meta)}</span>
+      <button class="attention-action" onclick="switchTab('${item.tab}')">${esc(item.action)} →</button>
+    </div>
+  `).join('');
+}
+
+// ===== SCHEDULES VIEW (wraps location review data) =====
+async function loadSchedulesView(status) {
+  status = status || 'all';
+  const tbody = document.getElementById('sched-rows');
+  const countEl = document.getElementById('sched-needs-review-count');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="9" class="loading-row">Loading…</td></tr>';
+
+  try {
+    const r = await fetch(`${API}/admin-location-review?token=${adminToken}&status=${status}&limit=100`);
+    if (!r.ok) throw new Error(r.status);
+    const d = await r.json();
+    const logs = Array.isArray(d.logs) ? d.logs : (Array.isArray(d) ? d : []);
+
+    if (countEl) countEl.textContent = `${logs.length}`;
+
+    if (!logs.length) {
+      tbody.innerHTML = '<tr><td colspan="9" class="loading-row">No schedule records match this filter.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = logs.map(l => {
+      const statusColors = {
+        'needs_review': '#F59E0B',
+        'confirmed_location': '#22C55E',
+        'manual_pending_review': '#4A90E2',
+        'admin_approved': '#7C5CFF',
+        'flagged': '#EF4444'
+      };
+      const statusColor = statusColors[l.status] || '#8884A8';
+      return `<tr>
+        <td style="font-weight:600">${esc(l.caregiver_name||l.caregiver_email||'—')}</td>
+        <td style="font-size:12px">${esc(l.checkin_time||'—')}</td>
+        <td style="font-size:12px">${esc(l.checkout_time||'—')}</td>
+        <td><span style="color:${statusColor};font-weight:600;font-size:12px">${esc(l.status||'—')}</span></td>
+        <td style="font-size:12px">${l.distance_meters!=null ? Math.round(l.distance_meters)+'m' : '—'}</td>
+        <td style="font-size:12px">${l.accuracy_meters!=null ? '±'+Math.round(l.accuracy_meters)+'m' : '—'}</td>
+        <td style="font-size:12px;color:var(--muted)">${esc(l.manual_reason||'—')}</td>
+        <td style="font-size:12px;color:var(--muted)">${esc(l.admin_review_note||'—')}</td>
+        <td>
+          ${l.status==='needs_review'||l.status==='manual_pending_review' ? `
+            <button onclick="schedApprove(${l.id})" style="margin-right:4px;padding:3px 8px;border-radius:5px;border:none;background:#22C55E;color:#fff;cursor:pointer;font-size:11px;font-weight:700">✓ Approve</button>
+            <button onclick="schedFlag(${l.id})" style="padding:3px 8px;border-radius:5px;border:1px solid rgba(239,68,68,.3);background:rgba(239,68,68,.08);color:#f87171;cursor:pointer;font-size:11px">Flag</button>
+          ` : '<span style="color:var(--muted);font-size:11px">—</span>'}
+        </td>
+      </tr>`;
+    }).join('');
+
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="9" class="loading-row">Error loading schedule data. ${e.message}</td></tr>`;
+  }
+}
+
+async function schedApprove(id) {
+  try {
+    await fetch(`${API}/admin-location-action`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ token: adminToken, log_id: id, action: 'approve', note: 'Admin approved via Schedules tab' })
+    });
+    loadSchedulesView('all');
+  } catch(e) { alert('Action failed: ' + e.message); }
+}
+async function schedFlag(id) {
+  try {
+    await fetch(`${API}/admin-location-action`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ token: adminToken, log_id: id, action: 'flag', note: 'Admin flagged via Schedules tab' })
+    });
+    loadSchedulesView('all');
+  } catch(e) { alert('Action failed: ' + e.message); }
 }
 
 // ===== OVERVIEW =====
@@ -557,46 +1668,65 @@ async function loadOverview() {
 
 // ===== CLIENTS =====
 async function loadClients() {
-  document.getElementById('clientsBody').innerHTML = '<tr class="loading-row"><td colspan="6">⏳ Loading…</td></tr>';
+  document.getElementById('clientsBody').innerHTML = '<tr class="loading-row"><td colspan="8">⏳ Loading…</td></tr>';
   try {
-    const r = await fetch(`${API}/admin-clients?token=${adminToken}`);
-    const d = await r.json();
-    if(d.error) { doLogout(); return; }
+    const d = await adminFetch(`/admin-clients-detail?token=${adminToken}`);
+    if (d._unauthorized) { doLogout(); return; }
+    if (d._error) { document.getElementById('clientsBody').innerHTML = `<tr class="loading-row"><td colspan="8">⚠️ ${esc(d._error)}</td></tr>`; return; }
     const rows = d.clients || [];
     document.getElementById('clientCount').textContent = rows.length;
     document.getElementById('clientsBody').innerHTML = rows.map(c => `
       <tr data-search="${(c.name||'').toLowerCase()} ${(c.email||'').toLowerCase()}">
-        <td style="color:var(--muted);font-size:12px">#${c.id}</td>
+        <td style="color:var(--muted);font-size:11px">#${c.id}</td>
         <td style="font-weight:500">${esc(c.name||'—')}</td>
-        <td style="color:var(--muted)">${esc(c.email||'—')}</td>
+        <td style="color:var(--muted);font-size:12px">${esc(c.email||'—')}</td>
         <td class="hide-mobile">${c.google_id ? '<span class="badge badge-blue">Google</span>' : '<span class="badge badge-purple">Email</span>'}</td>
-        <td class="hide-mobile">${c.is_admin ? '<span class="badge badge-yellow">⭐ Admin</span>' : '<span class="badge badge-green">Client</span>'}</td>
-        <td style="color:var(--muted);font-size:12px">${fmtDate(c.created_at)}</td>
+        <td class="hide-mobile" style="font-weight:600;color:${(c.pending_requests||0)>0?'var(--danger)':'var(--muted)'};font-size:12px">
+          ${c.request_count||0} req ${(c.pending_requests||0)>0?'<span style="color:var(--danger);">('+c.pending_requests+' pending)</span>':''}
+        </td>
+        <td class="hide-mobile" style="font-size:12px;color:var(--muted)">${c.team_count||0} caregiver${(c.team_count||0)===1?'':'s'}</td>
+        <td class="hide-mobile" style="font-size:11px;color:var(--muted)">${c.last_session ? fmtDate(c.last_session) : 'Never'}</td>
+        <td style="color:var(--muted);font-size:11px">${fmtDate(c.created_at)}</td>
       </tr>
-    `).join('') || '<tr class="loading-row"><td colspan="6">No clients yet.</td></tr>';
-  } catch(e) { document.getElementById('clientsBody').innerHTML = '<tr class="loading-row"><td colspan="6">⚠️ Error loading data.</td></tr>'; }
+    `).join('') || '<tr class="loading-row"><td colspan="8">No clients yet.</td></tr>';
+  } catch(e) { document.getElementById('clientsBody').innerHTML = `<tr class="loading-row"><td colspan="8">⚠️ Error: ${e.message}</td></tr>`; }
 }
 
 // ===== CAREGIVERS =====
-async function loadCaregivers() {
-  document.getElementById('caregiversBody').innerHTML = '<tr class="loading-row"><td colspan="6">⏳ Loading…</td></tr>';
+async function loadCaregivers(filter) {
+  const f = filter || document.getElementById('cgFilter')?.value || 'all';
+  const cols = 9;
+  document.getElementById('caregiversBody').innerHTML = `<tr class="loading-row"><td colspan="${cols}">⏳ Loading…</td></tr>`;
   try {
-    const r = await fetch(`${API}/admin-caregivers?token=${adminToken}`);
-    const d = await r.json();
-    if(d.error) { doLogout(); return; }
+    const d = await adminFetch(`/admin-caregivers-detail?token=${adminToken}&filter=${f}`);
+    if (d._unauthorized) { doLogout(); return; }
+    if (d._error) { document.getElementById('caregiversBody').innerHTML = `<tr class="loading-row"><td colspan="${cols}">⚠️ ${esc(d._error)}</td></tr>`; return; }
     const rows = d.caregivers || [];
-    document.getElementById('caregiverCount').textContent = rows.length;
+    document.getElementById('caregiverCount').textContent = `${rows.length} of ${d.total || rows.length}`;
+    const trustBadge = (level) => {
+      const map = { 'Trusted Pro':'badge-yellow','Carehia Verified':'badge-blue','Care Ready':'badge-green','Identity Ready':'badge-purple','Getting Started':'' };
+      return `<span class="badge ${map[level]||''}" style="font-size:10px;">${level}</span>`;
+    };
+    const onlineDot = (is_online) => is_online ? '<span style="color:var(--success);font-weight:700;">● Online</span>' : '<span style="color:var(--muted);font-size:11px;">Offline</span>';
     document.getElementById('caregiversBody').innerHTML = rows.map(c => `
       <tr data-search="${(c.name||'').toLowerCase()} ${(c.email||'').toLowerCase()}">
-        <td style="color:var(--muted);font-size:12px">#${c.id}</td>
-        <td style="font-weight:500">${esc(c.name||'—')}</td>
-        <td style="color:var(--muted)">${esc(c.email||'—')}</td>
-        <td class="hide-mobile" style="color:var(--muted)">${esc(c.city && c.state ? c.city+', '+c.state : c.city||c.state||'—')}</td>
-        <td class="hide-mobile">${c.hourly_rate ? '<span style="color:var(--success);font-weight:600">$'+parseFloat(c.hourly_rate).toFixed(2)+'/hr</span>' : '<span style="color:var(--muted)">—</span>'}</td>
-        <td style="color:var(--muted);font-size:12px">${fmtDate(c.created_at)}</td>
+        <td style="color:var(--muted);font-size:11px">#${c.id}</td>
+        <td style="font-weight:500;white-space:nowrap;">
+          ${esc(c.name||'—')}
+          ${c.profile_complete ? '' : ' <span style="color:var(--danger);font-size:10px;" title="Profile incomplete">⚠</span>'}
+        </td>
+        <td style="color:var(--muted);font-size:12px">${esc(c.email||'—')}</td>
+        <td class="hide-mobile" style="color:var(--muted);font-size:12px">${esc(c.city && c.state ? c.city+', '+c.state : c.city||c.state||'—')}</td>
+        <td class="hide-mobile">${trustBadge(c.trustLevel||'Getting Started')}</td>
+        <td class="hide-mobile">${onlineDot(c.is_online)}</td>
+        <td class="hide-mobile" style="font-size:12px;white-space:nowrap;">
+          ${c.review_count > 0 ? `<span style="color:var(--warning)">★ ${Number(c.avg_rating||0).toFixed(1)}</span> <span style="color:var(--muted)">(${c.review_count})</span>` : '<span style="color:var(--muted)">No reviews</span>'}
+        </td>
+        <td class="hide-mobile" style="font-size:12px;color:var(--muted)">${c.completed_count || 0} visits</td>
+        <td style="color:var(--muted);font-size:11px">${fmtDate(c.created_at)}</td>
       </tr>
-    `).join('') || '<tr class="loading-row"><td colspan="6">No caregivers yet.</td></tr>';
-  } catch(e) { document.getElementById('caregiversBody').innerHTML = '<tr class="loading-row"><td colspan="6">⚠️ Error loading data.</td></tr>'; }
+    `).join('') || `<tr class="loading-row"><td colspan="${cols}">No caregivers found.</td></tr>`;
+  } catch(e) { document.getElementById('caregiversBody').innerHTML = `<tr class="loading-row"><td colspan="9">⚠️ Error: ${e.message}</td></tr>`; }
 }
 
 // ===== BOOKINGS =====
@@ -639,6 +1769,150 @@ function fmtDate(s) {
   if(!s) return '—';
   try { return new Date(s).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}); } catch(e) { return s; }
 }
+// ===== VERIFICATIONS =====
+let verifAllRows = [];
+let pendingVerifAction = null; // { verificationId, action }
+
+async function loadVerifications() {
+  if (!adminToken) return;
+  const status = document.getElementById('verifStatusFilter').value;
+  document.getElementById('verifBody').innerHTML = '<tr class="loading-row"><td colspan="8">⏳ Loading…</td></tr>';
+  try {
+    const r = await fetch(`${API}/admin-verification-queue?token=${adminToken}&status=${status}`);
+    const d = await r.json();
+    verifAllRows = d.verifications || [];
+    // Status badges
+    const counts = d.counts || {};
+    const badgeEl = document.getElementById('verifStatusBadges');
+    badgeEl.innerHTML = Object.entries(counts).map(([s, c]) =>
+      `<span style="padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;background:${s==='approved'?'rgba(34,197,94,0.15)':s==='rejected'?'rgba(239,68,68,0.15)':'rgba(124,92,255,0.15)'};color:${s==='approved'?'#22C55E':s==='rejected'?'#EF4444':'#7C5CFF'}">${s}: ${c}</span>`
+    ).join('');
+    document.getElementById('verifCount').textContent = verifAllRows.length;
+    renderVerifTable(verifAllRows);
+  } catch(e) {
+    document.getElementById('verifBody').innerHTML = `<tr class="loading-row"><td colspan="8">Error: ${e.message}</td></tr>`;
+  }
+}
+
+function renderVerifTable(rows) {
+  const DOC_LABELS = { government_id:'🪪 Gov. ID', background_consent:'🔍 Background Consent', cna_license:'🏥 CNA License', cpr_certificate:'🫀 CPR Certificate', other:'📄 Other' };
+  const STATUS_STYLE = { pending:'background:rgba(245,158,11,0.15);color:#F59E0B', approved:'background:rgba(34,197,94,0.15);color:#22C55E', rejected:'background:rgba(239,68,68,0.15);color:#EF4444' };
+  const tbody = document.getElementById('verifBody');
+  if (!rows.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="8">No records found</td></tr>'; return; }
+  tbody.innerHTML = rows.map(v => `
+    <tr>
+      <td><strong>${v.caregiver_name || '—'}</strong></td>
+      <td style="font-size:12px">${v.caregiver_email || '—'}</td>
+      <td style="font-size:12px">${v.city||''} ${v.state||''}</td>
+      <td>${DOC_LABELS[v.doc_type] || v.doc_type}</td>
+      <td>${v.r2_key ? `<a href="${API.replace('carehia-admin','gotocare-original')}/api/admin-doc-view?adminToken=${adminToken}&r2Key=${encodeURIComponent(v.r2_key)}" target="_blank" style="color:var(--primary);font-size:12px">📎 View</a>` : v.consent_given ? '✅ Consent' : '—'}</td>
+      <td><span style="padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;${STATUS_STYLE[v.status]||''}">${v.status}</span></td>
+      <td style="font-size:12px">${v.submitted_at ? new Date(v.submitted_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—'}</td>
+      <td style="white-space:nowrap">
+        <button onclick="viewVerifDetail(${v.caregiver_id})" style="padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--text);cursor:pointer;font-size:11px;margin-right:4px">Detail</button>
+        ${v.status==='pending' ? `
+          <button onclick="openVerifAction(${v.id},'approve')" style="padding:4px 10px;border-radius:6px;border:none;background:#22C55E;color:#fff;cursor:pointer;font-size:11px;margin-right:4px">✓ Approve</button>
+          <button onclick="openVerifAction(${v.id},'reject')" style="padding:4px 10px;border-radius:6px;border:none;background:#EF4444;color:#fff;cursor:pointer;font-size:11px">✗ Reject</button>
+        ` : '—'}
+      </td>
+    </tr>
+  `).join('');
+}
+
+function filterVerifTable() {
+  const q = document.getElementById('verifSearch').value.toLowerCase();
+  const filtered = q ? verifAllRows.filter(v => (v.caregiver_name||'').toLowerCase().includes(q)||(v.caregiver_email||'').toLowerCase().includes(q)) : verifAllRows;
+  renderVerifTable(filtered);
+}
+
+async function viewVerifDetail(caregiverId) {
+  document.getElementById('verifDetailPanel').style.display = 'block';
+  document.getElementById('verifDetailContent').innerHTML = '⏳ Loading…';
+  try {
+    const r = await fetch(`${API}/admin-verification-detail?token=${adminToken}&caregiverId=${caregiverId}`);
+    const d = await r.json();
+    const cg = d.caregiver || {};
+    const trust = d.trust || {};
+    const verifs = d.verifications || [];
+    const DOC_LABELS = { government_id:'🪪 Gov. ID', background_consent:'🔍 Background Consent', cna_license:'🏥 CNA License', cpr_certificate:'🫀 CPR Certificate', other:'📄 Other' };
+    document.getElementById('verifDetailContent').innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px">
+        <div>
+          <p style="margin:0 0 4px;font-size:13px;color:var(--text-muted)">Name</p>
+          <p style="margin:0;font-weight:600">${cg.name||'—'}</p>
+        </div>
+        <div>
+          <p style="margin:0 0 4px;font-size:13px;color:var(--text-muted)">Email</p>
+          <p style="margin:0;font-size:13px">${cg.email||'—'}</p>
+        </div>
+        <div>
+          <p style="margin:0 0 4px;font-size:13px;color:var(--text-muted)">Location</p>
+          <p style="margin:0;font-size:13px">${cg.city||''} ${cg.state||''}</p>
+        </div>
+        <div>
+          <p style="margin:0 0 4px;font-size:13px;color:var(--text-muted)">Trust Score</p>
+          <p style="margin:0;font-weight:700;color:var(--primary)">${trust.score||0} — ${trust.level||'Basic'}</p>
+        </div>
+      </div>
+      <p style="font-size:13px;font-weight:700;margin-bottom:8px">Verification Submissions</p>
+      ${verifs.length===0 ? '<p style="color:var(--text-muted);font-size:13px">No submissions</p>' :
+        verifs.map(v => `
+          <div style="background:var(--bg);border-radius:10px;padding:12px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+            <div>
+              <span style="font-weight:600;font-size:13px">${DOC_LABELS[v.doc_type]||v.doc_type}</span>
+              <span style="margin-left:8px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;background:${v.status==='approved'?'rgba(34,197,94,0.15)':v.status==='rejected'?'rgba(239,68,68,0.15)':'rgba(245,158,11,0.15)'};color:${v.status==='approved'?'#22C55E':v.status==='rejected'?'#EF4444':'#F59E0B'}">${v.status}</span>
+              ${v.r2_key ? `<a href="${API.replace('carehia-admin','gotocare-original')}/api/admin-doc-view?adminToken=${adminToken}&r2Key=${encodeURIComponent(v.r2_key)}" target="_blank" style="margin-left:8px;color:var(--primary);font-size:12px">📎 View Doc</a>` : v.consent_given ? '<span style="margin-left:8px;color:#22C55E;font-size:12px">✅ Consent given</span>' : ''}
+              ${v.rejection_reason ? `<p style="margin:4px 0 0;font-size:12px;color:#EF4444">Rejected: ${v.rejection_reason}</p>` : ''}
+            </div>
+            ${v.status==='pending' ? `<div style="display:flex;gap:6px">
+              <button onclick="openVerifAction(${v.id},'approve')" style="padding:5px 12px;border-radius:6px;border:none;background:#22C55E;color:#fff;cursor:pointer;font-size:12px;font-weight:700">✓ Approve</button>
+              <button onclick="openVerifAction(${v.id},'reject')" style="padding:5px 12px;border-radius:6px;border:none;background:#EF4444;color:#fff;cursor:pointer;font-size:12px;font-weight:700">✗ Reject</button>
+            </div>` : ''}
+          </div>
+        `).join('')
+      }
+    `;
+    document.getElementById('verifDetailPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch(e) {
+    document.getElementById('verifDetailContent').innerHTML = `Error: ${e.message}`;
+  }
+}
+
+function openVerifAction(verificationId, action) {
+  pendingVerifAction = { verificationId, action };
+  document.getElementById('verifActionTitle').textContent = action === 'approve' ? '✅ Approve Verification' : '❌ Reject Verification';
+  const btn = document.getElementById('verifActionConfirmBtn');
+  btn.textContent = action === 'approve' ? 'Confirm Approve' : 'Confirm Reject';
+  btn.style.background = action === 'approve' ? '#22C55E' : '#EF4444';
+  document.getElementById('verifActionNotes').value = '';
+  document.getElementById('verifActionModal').style.display = 'flex';
+}
+
+async function submitVerifAction() {
+  if (!pendingVerifAction) return;
+  const { verificationId, action } = pendingVerifAction;
+  const notes = document.getElementById('verifActionNotes').value.trim();
+  const btn = document.getElementById('verifActionConfirmBtn');
+  btn.textContent = 'Saving…';
+  btn.disabled = true;
+  try {
+    const r = await fetch(`${API}/admin-verification-action?token=${adminToken}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ verificationId, action, notes })
+    });
+    const d = await r.json();
+    if (d.success) {
+      document.getElementById('verifActionModal').style.display = 'none';
+      pendingVerifAction = null;
+      await loadVerifications();
+    } else {
+      alert('Error: ' + (d.error || 'Unknown'));
+    }
+  } catch(e) { alert('Error: ' + e.message); }
+  btn.disabled = false;
+}
+
 function filterTable(tbodyId, inputId) {
   const q = document.getElementById(inputId).value.toLowerCase().trim();
   document.querySelectorAll('#'+tbodyId+' tr').forEach(tr => {
@@ -647,6 +1921,1508 @@ function filterTable(tbodyId, inputId) {
     tr.style.display = !q || hay.includes(q) ? '' : 'none';
   });
 }
+
+// ===== TRUST REVIEW =====
+let trustAllRows = [];
+let currentTrustFilter = 'all';
+let trustDetailData = null;
+let trustDetailSubtab = 'modules';
+let pendingTrustAction = null;
+
+const MODULE_LABELS = {
+  basic_profile: 'Basic Profile',
+  contact_verification: 'Contact Verification',
+  selfie_intro: 'Selfie & Intro',
+  care_experience: 'Care Experience',
+  references: 'References',
+  certifications: 'Certifications & Skills',
+  background_permission: 'Background Check Permission',
+  carehia_review: 'Carehia Review',
+  work_history: 'Work History Trust',
+  manual_proof: 'Manual Proof',
+};
+const MODULE_DESC = {
+  basic_profile: 'Name, photo, hourly rate, location, and bio.',
+  contact_verification: 'Email and/or phone verified.',
+  selfie_intro: 'Clear profile photo and written greeting.',
+  care_experience: 'Care specialties, skills, types of care provided.',
+  references: 'Professional or personal contacts who can vouch.',
+  certifications: 'CPR, First Aid, CNA, or other credentials.',
+  background_permission: 'Authorised a basic background check.',
+  carehia_review: 'Manual review by Carehia team.',
+  work_history: 'Completed visits, ratings, repeat clients.',
+  manual_proof: 'Additional supporting documents uploaded.',
+};
+const ALL_MODULES = ['basic_profile','contact_verification','selfie_intro','care_experience','references','certifications','background_permission','carehia_review','work_history','manual_proof'];
+
+async function loadTrustQueue() {
+  document.getElementById('trustBody').innerHTML = '<tr class="loading-row"><td colspan="8">⏳ Loading…</td></tr>';
+  try {
+    const r = await fetch(`${API}/admin-trust-queue?token=${adminToken}&filter=${currentTrustFilter}`);
+    const d = await r.json();
+    if (d.error) { doLogout(); return; }
+    trustAllRows = d.caregivers || [];
+    document.getElementById('trustCount').textContent = trustAllRows.length;
+    // Update filter chip counts
+    const fc = d.filterCounts || {};
+    Object.entries(fc).forEach(([k, v]) => {
+      const el = document.getElementById('tc-'+k);
+      if (el) el.textContent = '('+v+')';
+    });
+    renderTrustTable(trustAllRows);
+  } catch(e) {
+    document.getElementById('trustBody').innerHTML = `<tr class="loading-row"><td colspan="8">⚠️ Error: ${e.message}</td></tr>`;
+  }
+}
+
+function renderTrustTable(rows) {
+  const tbody = document.getElementById('trustBody');
+  if (!rows.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="8">No caregivers found for this filter.</td></tr>'; return; }
+  tbody.innerHTML = rows.map(c => {
+    const levelColor = c.trustScore >= 80 ? '#4ade80' : c.trustScore >= 60 ? '#a78bfa' : c.trustScore >= 40 ? '#60a5fa' : c.trustScore >= 20 ? '#fbbf24' : 'var(--muted)';
+    const statusHtml = [];
+    if (c.submitted_count > 0) statusHtml.push(`<span class="badge badge-blue">${c.submitted_count} pending</span>`);
+    if (c.quick_fix_count > 0) statusHtml.push(`<span class="badge badge-yellow">${c.quick_fix_count} quick fix</span>`);
+    if (c.quick_fix_count === 0 && c.submitted_count === 0 && c.verified_count > 0) statusHtml.push(`<span class="badge badge-green">clean</span>`);
+    if (statusHtml.length === 0) statusHtml.push('<span style="color:var(--muted);font-size:12px">no activity</span>');
+    const bgHtml = c.bg_consent_count > 0
+      ? '<span class="badge badge-blue">Consent given</span>'
+      : '<span style="color:var(--muted);font-size:11px">—</span>';
+    return `
+      <tr data-search="${esc(c.name||'')} ${esc(c.email||'')}">
+        <td>
+          <div style="font-weight:600">${esc(c.name||'—')}</div>
+          <div style="font-size:11px;color:var(--muted)">${esc(c.email||'')}</div>
+        </td>
+        <td class="hide-mobile" style="font-size:12px;color:var(--muted)">${esc((c.city||'')+(c.state?' '+c.state:'') || '—')}</td>
+        <td>
+          <div style="font-weight:700;color:${levelColor};font-size:13px">${c.trustLevel}</div>
+          <div style="font-size:11px;color:var(--muted)">${c.trustScore}/100</div>
+        </td>
+        <td>
+          <div style="font-size:12px"><span style="color:var(--success)">${c.verified_count}</span> verified · <span style="color:var(--muted)">${c.expired_count}</span> expired</div>
+        </td>
+        <td>${statusHtml.join(' ')}</td>
+        <td class="hide-mobile">${bgHtml}</td>
+        <td class="hide-mobile" style="font-size:11px;color:var(--muted)">${c.last_module_update ? fmtDate(c.last_module_update) : '—'}</td>
+        <td>
+          <button onclick="openTrustDetail(${c.id})" style="padding:5px 14px;border-radius:7px;border:1px solid var(--primary);background:rgba(124,92,255,0.1);color:var(--primary);cursor:pointer;font-size:12px;font-weight:700;white-space:nowrap">Review →</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function filterTrustTable() {
+  const q = document.getElementById('trustSearch').value.toLowerCase().trim();
+  const filtered = q ? trustAllRows.filter(c => (c.name||'').toLowerCase().includes(q) || (c.email||'').toLowerCase().includes(q)) : trustAllRows;
+  renderTrustTable(filtered);
+}
+
+function setTrustFilter(filter, btn) {
+  currentTrustFilter = filter;
+  document.querySelectorAll('.trust-chip').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  loadTrustQueue();
+}
+
+async function openTrustDetail(caregiverId) {
+  document.getElementById('trustDetailModal').style.display = 'block';
+  document.getElementById('trustDetailHeader').innerHTML = '⏳ Loading…';
+  document.getElementById('trustDetailSummary').innerHTML = '';
+  document.getElementById('trustDetailContent').innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)">⏳ Loading trust data…</div>';
+  try {
+    const r = await fetch(`${API}/admin-trust-detail?token=${adminToken}&caregiverId=${caregiverId}`);
+    const d = await r.json();
+    if (d.error) { alert('Error: ' + d.error); return; }
+    trustDetailData = { ...d, caregiverId };
+    trustDetailSubtab = 'modules';
+    document.querySelectorAll('.detail-subtab').forEach(b => b.classList.remove('active'));
+    document.getElementById('dst-modules').classList.add('active');
+    renderTrustDetailHeader(trustDetailData);
+    renderTrustDetailSummary(trustDetailData);
+    renderTrustDetailModules(trustDetailData);
+  } catch(e) {
+    document.getElementById('trustDetailContent').innerHTML = `<p style="color:var(--error)">Error: ${e.message}</p>`;
+  }
+}
+
+function closeTrustDetail() {
+  document.getElementById('trustDetailModal').style.display = 'none';
+  trustDetailData = null;
+}
+
+function showDetailSubtab(tab) {
+  trustDetailSubtab = tab;
+  document.querySelectorAll('.detail-subtab').forEach(b => b.classList.remove('active'));
+  document.getElementById('dst-'+tab).classList.add('active');
+  if (!trustDetailData) return;
+  if (tab === 'modules') renderTrustDetailModules(trustDetailData);
+  else if (tab === 'documents') renderTrustDetailDocs(trustDetailData);
+  else if (tab === 'badges') renderTrustDetailBadges(trustDetailData);
+  else if (tab === 'audit') renderTrustDetailAudit(trustDetailData);
+}
+
+function renderTrustDetailHeader(d) {
+  const cg = d.caregiver || {};
+  document.getElementById('trustDetailHeader').innerHTML = `
+    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;flex-shrink:0">${(cg.name||'?')[0].toUpperCase()}</div>
+      <div>
+        <div style="font-size:16px;font-weight:700">${esc(cg.name||'—')}</div>
+        <div style="font-size:13px;color:var(--muted)">${esc(cg.email||'')} · ${esc((cg.city||'')+(cg.state?' '+cg.state:'') || '—')}</div>
+      </div>
+    </div>
+  `;
+}
+
+function renderTrustDetailSummary(d) {
+  const mods = d.moduleReviews || [];
+  const verified = mods.filter(m => m.status === 'verified').length;
+  const qf = mods.filter(m => m.status === 'needs_quick_fix').length;
+  const submitted = mods.filter(m => m.status === 'submitted').length;
+  const badges = (d.publicBadges || []).length;
+  const MODULE_W = { basic_profile:15,contact_verification:10,selfie_intro:10,care_experience:15,references:10,certifications:15,background_permission:10,carehia_review:10,work_history:5 };
+  const score = mods.filter(m => m.status === 'verified').reduce((s, m) => s + (MODULE_W[m.module_type] || 0), 0);
+  const levelColor = score >= 80 ? '#4ade80' : score >= 60 ? '#a78bfa' : score >= 40 ? '#60a5fa' : score >= 20 ? '#fbbf24' : 'var(--muted)';
+  const level = score >= 80 ? 'Trusted Pro' : score >= 60 ? 'Carehia Verified' : score >= 40 ? 'Care Ready' : score >= 20 ? 'Identity Ready' : 'Getting Started';
+  document.getElementById('trustDetailSummary').innerHTML = `
+    <div style="text-align:center;min-width:80px">
+      <div style="font-size:26px;font-weight:800;color:${levelColor}">${score}</div>
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em">Trust Score</div>
+      <div style="font-size:12px;font-weight:700;color:${levelColor};margin-top:2px">${level}</div>
+    </div>
+    <div style="width:1px;background:var(--border);min-height:40px"></div>
+    <div style="text-align:center;min-width:70px">
+      <div style="font-size:22px;font-weight:700;color:var(--success)">${verified}</div>
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em">Verified</div>
+    </div>
+    <div style="text-align:center;min-width:70px">
+      <div style="font-size:22px;font-weight:700;color:#60a5fa">${submitted}</div>
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em">Pending</div>
+    </div>
+    <div style="text-align:center;min-width:70px">
+      <div style="font-size:22px;font-weight:700;color:#fbbf24">${qf}</div>
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em">Quick Fix</div>
+    </div>
+    <div style="text-align:center;min-width:70px">
+      <div style="font-size:22px;font-weight:700;color:#a78bfa">${badges}</div>
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em">Badges</div>
+    </div>
+  `;
+}
+
+function renderTrustDetailModules(d) {
+  const mods = d.moduleReviews || [];
+  const reviewMap = {};
+  mods.forEach(m => { reviewMap[m.module_type] = m; });
+  const cgId = d.caregiverId;
+
+  const html = ALL_MODULES.map(modType => {
+    const rev = reviewMap[modType];
+    const status = rev?.status || 'not_started';
+    const statusBadge = {
+      verified: `<span class="ms-verified">✓ Verified</span>`,
+      submitted: `<span class="ms-submitted">⏳ Submitted</span>`,
+      needs_quick_fix: `<span class="ms-qf">⚠️ Needs Quick Fix</span>`,
+      expired: `<span class="ms-expired">⌛ Expired</span>`,
+      not_applicable: `<span class="ms-na">— N/A</span>`,
+      not_started: `<span class="ms-none">Not Reviewed</span>`,
+    }[status] || `<span class="ms-none">${esc(status)}</span>`;
+
+    const qfHint = rev?.quick_fix_reason ? `<div style="font-size:11px;color:#fbbf24;margin-top:4px">Reason: ${esc(rev.quick_fix_reason)}</div>` : '';
+    const cgNote = rev?.caregiver_note ? `<div style="font-size:11px;color:#60a5fa;margin-top:4px">Caregiver message: ${esc(rev.caregiver_note)}</div>` : '';
+    const adminNote = rev?.admin_note ? `<div style="font-size:11px;color:var(--muted);margin-top:4px">Internal: ${esc(rev.admin_note)}</div>` : '';
+
+    return `
+      <div class="module-card">
+        <div class="module-card-info">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">
+            <span style="font-size:14px;font-weight:700">${esc(MODULE_LABELS[modType]||modType)}</span>
+            ${statusBadge}
+          </div>
+          <div style="font-size:12px;color:var(--muted)">${esc(MODULE_DESC[modType]||'')}</div>
+          ${qfHint}${cgNote}${adminNote}
+          ${rev?.reviewed_by ? `<div style="font-size:11px;color:var(--muted);margin-top:4px">Last reviewed by ${esc(rev.reviewed_by)} · ${fmtDate(rev.reviewed_at)}</div>` : ''}
+        </div>
+        <div class="module-card-actions">
+          <button class="act-verify" onclick="openTrustAction(${cgId},'${modType}','verified')">✓ Verify</button>
+          <button class="act-qf" onclick="openTrustAction(${cgId},'${modType}','quick_fix_requested')">⚠️ Quick Fix</button>
+          <button class="act-expire" onclick="openTrustAction(${cgId},'${modType}','expired')">⌛ Expire</button>
+          <button class="act-note" onclick="openTrustAction(${cgId},'${modType}','note_added')">✎ Note</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('trustDetailContent').innerHTML = `
+    <div style="margin-bottom:12px;font-size:13px;color:var(--muted)">Click an action button to review each module. All actions are logged.</div>
+    ${html}
+  `;
+}
+
+function renderTrustDetailDocs(d) {
+  const docs = d.verifications || [];
+  const DOC_LABELS = { government_id:'🪪 Gov. ID', background_consent:'🔍 Background Consent', cna_license:'🏥 CNA License', cpr_certificate:'🫀 CPR Certificate', other:'📄 Other' };
+  if (!docs.length) {
+    document.getElementById('trustDetailContent').innerHTML = '<p style="color:var(--muted);padding:20px 0">No documents submitted yet.</p>';
+    return;
+  }
+  document.getElementById('trustDetailContent').innerHTML = docs.map(v => `
+    <div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <div>
+        <div style="font-weight:600;font-size:14px">${DOC_LABELS[v.doc_type]||esc(v.doc_type)}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:2px">
+          ${v.consent_given ? '✅ Consent given' : ''}
+          ${v.submitted_at ? ' · Submitted ' + fmtDate(v.submitted_at) : ''}
+          ${v.rejection_reason ? ' · <span style="color:#f87171">'+esc(v.rejection_reason)+'</span>' : ''}
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <span style="padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:${v.status==='approved'?'rgba(34,197,94,0.15)':v.status==='rejected'?'rgba(239,68,68,0.15)':'rgba(245,158,11,0.15)'};color:${v.status==='approved'?'#4ade80':v.status==='rejected'?'#f87171':'#fbbf24'}">${esc(v.status||'pending')}</span>
+        ${v.r2_key ? `<a href="${API.replace('carehia-admin','gotocare-original')}/api/admin-doc-view?adminToken=${adminToken}&r2Key=${encodeURIComponent(v.r2_key)}" target="_blank" style="color:var(--primary);font-size:12px;text-decoration:none">📎 View File</a>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderTrustDetailBadges(d) {
+  const badges = d.publicBadges || [];
+  const BADGE_ICONS = {
+    'Email Verified': '✉️', 'Identity Ready': '🪪', 'References Verified': '👥',
+    'Certification Verified': '📜', 'Background Check Completed': '🔍',
+    'Carehia Verified': '💜', 'Trusted Pro': '⭐',
+  };
+  const allPossible = ['Email Verified','Identity Ready','References Verified','Certification Verified','Background Check Completed','Carehia Verified','Trusted Pro'];
+  const cgId = d.caregiverId;
+  document.getElementById('trustDetailContent').innerHTML = `
+    <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Badges visible on this caregiver's public profile. Granted automatically when admin verifies the corresponding module.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px">
+      ${allPossible.map(b => {
+        const active = badges.includes(b);
+        return `
+          <div style="display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:12px;border:1px solid ${active?'rgba(34,197,94,0.3)':'var(--border)'};background:${active?'rgba(34,197,94,0.08)':'var(--bg)'}">
+            <span style="font-size:18px">${BADGE_ICONS[b]||'🏷️'}</span>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:${active?'#4ade80':'var(--muted)'}">${esc(b)}</div>
+              <div style="font-size:10px;color:var(--muted)">${active?'Active':'Not yet earned'}</div>
+            </div>
+            ${active ? `<button class="act-badge-rm" style="margin-left:8px" onclick="openTrustAction(${cgId},null,'badge_removed','${b}')">Remove</button>` : ''}
+          </div>
+        `;
+      }).join('')}
+    </div>
+    <p style="font-size:12px;color:var(--muted)">To grant a badge, verify the corresponding module in the Modules tab.</p>
+  `;
+}
+
+function renderTrustDetailAudit(d) {
+  const logs = d.auditLogs || [];
+  const ACTION_LABELS = {
+    approved: '✅ Approved',
+    verified: '✅ Verified',
+    quick_fix_requested: '⚠️ Quick Fix Requested',
+    expired: '⌛ Marked Expired',
+    badge_removed: '🗑️ Badge Removed',
+    note_added: '✎ Note Added',
+    status_changed: '🔄 Status Changed',
+    manual_override: '⚙️ Manual Override',
+    submitted: '📋 Marked Submitted',
+    not_applicable: '— Marked N/A',
+  };
+  if (!logs.length) {
+    document.getElementById('trustDetailContent').innerHTML = '<p style="color:var(--muted);padding:20px 0">No admin actions recorded yet.</p>';
+    return;
+  }
+  document.getElementById('trustDetailContent').innerHTML = `
+    <div>
+      ${logs.map(l => `
+        <div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--border);align-items:flex-start">
+          <div style="flex-shrink:0;width:32px;height:32px;border-radius:50%;background:rgba(124,92,255,0.15);display:flex;align-items:center;justify-content:center;font-size:13px">👤</div>
+          <div style="flex:1">
+            <div style="font-size:13px;font-weight:600;margin-bottom:2px">${ACTION_LABELS[l.action]||esc(l.action)}</div>
+            <div style="font-size:12px;color:var(--muted)">
+              ${l.module_type ? `Module: <strong>${esc(MODULE_LABELS[l.module_type]||l.module_type)}</strong> · ` : ''}
+              ${l.previous_status ? `<span style="color:var(--muted)">${esc(l.previous_status)}</span> → <span style="color:var(--primary)">${esc(l.new_status||'')}</span> · ` : ''}
+              By ${esc(l.admin_email||'—')} · ${fmtDate(l.created_at)}
+            </div>
+            ${l.note ? `<div style="font-size:12px;color:var(--muted);margin-top:4px;font-style:italic">"${esc(l.note)}"</div>` : ''}
+          </div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function openTrustAction(caregiverId, moduleType, action, badgeLabel) {
+  pendingTrustAction = { caregiverId, moduleType, action, badgeLabel };
+  const ACTION_TITLES = {
+    verified: '✅ Verify Module',
+    quick_fix_requested: '⚠️ Request Quick Fix',
+    expired: '⌛ Mark as Expired',
+    note_added: '✎ Add Note',
+    badge_removed: '🗑️ Remove Badge',
+    submitted: '📋 Mark as Submitted',
+    not_applicable: '— Mark as Not Applicable',
+    manual_override: '⚙️ Manual Override',
+  };
+  const ACTION_SUBTITLES = {
+    verified: 'This module will be marked as verified and the caregiver will be notified.',
+    quick_fix_requested: 'Choose a reason and optionally add a message for the caregiver.',
+    expired: 'This will mark the module as expired. The caregiver will need to re-submit.',
+    note_added: 'Add an internal admin note and/or a message visible to the caregiver.',
+    badge_removed: badgeLabel ? `Remove the "${badgeLabel}" badge from the caregiver's public profile.` : 'Remove badge.',
+    submitted: 'Mark this module as submitted / awaiting admin review.',
+    not_applicable: 'This module does not apply to this caregiver.',
+    manual_override: 'Override the module status manually.',
+  };
+
+  document.getElementById('trustActionTitle').textContent = ACTION_TITLES[action] || action;
+  document.getElementById('trustActionSubtitle').textContent = (moduleType ? `Module: ${MODULE_LABELS[moduleType]||moduleType} — ` : '') + (ACTION_SUBTITLES[action] || '');
+  document.getElementById('trustQfReasonWrap').style.display = action === 'quick_fix_requested' ? 'block' : 'none';
+  document.getElementById('trustAdminNote').value = '';
+  document.getElementById('trustCaregiverNote').value = '';
+
+  const btn = document.getElementById('trustActionConfirmBtn');
+  const btnColors = { verified:'#22C55E', quick_fix_requested:'#F59E0B', expired:'#EF4444', badge_removed:'#EF4444', note_added:'var(--primary)', submitted:'var(--secondary)', not_applicable:'var(--muted)', manual_override:'var(--primary)' };
+  btn.style.background = btnColors[action] || 'var(--primary)';
+  btn.textContent = ACTION_TITLES[action] || 'Confirm';
+  btn.disabled = false;
+
+  document.getElementById('trustActionModal').style.display = 'flex';
+}
+
+function closeTrustActionModal() {
+  document.getElementById('trustActionModal').style.display = 'none';
+  pendingTrustAction = null;
+}
+
+async function submitTrustAction() {
+  if (!pendingTrustAction) return;
+  const { caregiverId, moduleType, action, badgeLabel } = pendingTrustAction;
+  const note = document.getElementById('trustAdminNote').value.trim();
+  const caregiverNote = document.getElementById('trustCaregiverNote').value.trim();
+  const quickFixReason = action === 'quick_fix_requested' ? document.getElementById('trustQfReason').value : null;
+
+  const btn = document.getElementById('trustActionConfirmBtn');
+  btn.textContent = 'Saving…';
+  btn.disabled = true;
+
+  try {
+    const r = await fetch(`${API}/admin-trust-action?token=${adminToken}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        caregiverId, moduleType, action, note: note || null,
+        caregiverNote: caregiverNote || null,
+        quickFixReason,
+        badgeLabel: badgeLabel || null,
+      })
+    });
+    const d = await r.json();
+    if (d.success) {
+      closeTrustActionModal();
+      // Refresh detail panel
+      await openTrustDetail(caregiverId);
+      // Show correct subtab
+      showDetailSubtab(trustDetailSubtab);
+      // Also refresh queue in background
+      loadTrustQueue();
+    } else {
+      alert('Error: ' + (d.error || 'Unknown error'));
+      btn.disabled = false;
+    }
+  } catch(e) {
+    alert('Network error: ' + e.message);
+    btn.disabled = false;
+  }
+}
+
+// ===== MARKETPLACE CONTROL CENTER =====
+let mktData = null;
+
+async function loadMarketplace() {
+  document.getElementById('mktStatsGrid').innerHTML = '<div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-val">—</div><div class="stat-label">Loading…</div></div>';
+  try {
+    const r = await fetch(`${API}/admin-marketplace?token=${adminToken}`);
+    const d = await r.json();
+    if (d.error) { if (d.error === 'Unauthorized') doLogout(); return; }
+    mktData = d;
+    renderMarketplace(d);
+  } catch(e) { console.error('Marketplace load error:', e); }
+}
+
+function renderMarketplace(d) {
+  const ts = d.todayStatus || {};
+
+  // Section 1: Stat grid
+  document.getElementById('mktStatsGrid').innerHTML = [
+    { icon:'📋', val: ts.totalBookings   || 0, label:'Total Bookings' },
+    { icon:'⏳', val: ts.pendingRequests || 0, label:'Open Requests',    cls: (ts.pendingRequests||0)>0 ? 'red' : '' },
+    { icon:'🚨', val: ts.urgentUnfilled  || 0, label:'Urgent (>2d)',     cls: (ts.urgentUnfilled||0)>0  ? 'red' : '' },
+    { icon:'💜', val: ts.totalCaregivers || 0, label:'Total Caregivers' },
+    { icon:'🟢', val: ts.caregiverOnline || 0, label:'Online Now' },
+    { icon:'⏱️', val: ts.activeTimers    || 0, label:'Active Timers' },
+    { icon:'💰', val: ts.readyToInvoice  || 0, label:'Ready to Invoice', cls: (ts.readyToInvoice||0)>0  ? 'orange' : '' },
+    { icon:'🛡️', val: ts.trustPendingReview||0,label:'Trust Needs Review',cls:(ts.trustPendingReview||0)>0?'blue':'' },
+  ].map(s => `<div class="stat-card${s.cls?' '+s.cls:''}"><div class="stat-icon">${s.icon}</div><div class="stat-val">${s.val}</div><div class="stat-label">${s.label}</div></div>`).join('');
+
+  // Section 2: Request flow
+  const flow = d.requestFlow || [];
+  const FLOW_ORDER = ['pending','matching','dispatched','caregiver_accepted','client_confirming','interview_requested','hire_offer_sent','agreement_signed','confirmed','scheduled','in_progress','completed','invoiced','paid','reviewed','cancelled','expired'];
+  const FLOW_LABELS = { pending:'Pending',matching:'Matching',dispatched:'Dispatched',caregiver_accepted:'Accepted',client_confirming:'Client Confirming',interview_requested:'Interview',hire_offer_sent:'Hire Offer',agreement_signed:'Signed',confirmed:'Confirmed',scheduled:'Scheduled',in_progress:'In Progress',completed:'Completed',invoiced:'Invoiced',paid:'Paid',reviewed:'Reviewed',cancelled:'Cancelled',expired:'Expired' };
+  const flowTotal = flow.reduce((a,r) => a+(r.cnt||0), 0) || 1;
+  document.getElementById('mktRequestFlow').innerHTML = flow.length === 0
+    ? '<p style="color:var(--muted);font-size:13px">No bookings yet</p>'
+    : flow.slice().sort((a,b) => FLOW_ORDER.indexOf(a.status)-FLOW_ORDER.indexOf(b.status)).map(r => {
+        const pct = Math.round((r.cnt/flowTotal)*100);
+        const color = ['pending','matching'].includes(r.status)?'var(--warning)':['completed','reviewed','paid'].includes(r.status)?'var(--success)':['cancelled','expired'].includes(r.status)?'var(--error)':'var(--primary)';
+        return `<div style="margin-bottom:9px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span>${FLOW_LABELS[r.status]||r.status}</span><span style="color:var(--muted)">${r.cnt}</span></div><div style="height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${color};border-radius:3px;min-width:${r.cnt>0?'4px':'0'}"></div></div></div>`;
+      }).join('');
+
+  // Section 4: Caregiver readiness
+  const rd = d.caregiverReadiness || {};
+  const rdTotal = (rd.not_ready||0)+(rd.level2||0)+(rd.level3||0)+(rd.level4||0)+(rd.level5||0)||1;
+  const rdRows = [
+    { label:'Not Ready (Level 1)',       count:rd.not_ready||0, color:'var(--muted)',    note:'No modules verified' },
+    { label:'Identity Ready (Level 2)',  count:rd.level2||0,    color:'var(--secondary)',note:'Basic profile done' },
+    { label:'Care Ready (Level 3)',      count:rd.level3||0,    color:'var(--warning)',  note:'Contact verified' },
+    { label:'Carehia Verified (Level 4)',count:rd.level4||0,    color:'var(--primary)',  note:'Carehia reviewed' },
+    { label:'Trusted Pro (Level 5)',     count:rd.level5||0,    color:'var(--success)',  note:'6+ modules verified' },
+  ];
+  document.getElementById('mktReadiness').innerHTML = rdRows.map(row => {
+    const pct = Math.round((row.count/rdTotal)*100);
+    return `<div style="margin-bottom:11px"><div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px"><span style="color:${row.color};font-weight:600">${row.label}</span><span style="color:var(--muted)">${row.count} (${pct}%)</span></div><div style="height:5px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${row.color};border-radius:3px;min-width:${row.count>0?'4px':'0'}"></div></div><div style="font-size:11px;color:var(--muted);margin-top:2px">${row.note}</div></div>`;
+  }).join('');
+
+  // Section 3: Unfilled requests table
+  const unfilled = d.unfilledRequests || [];
+  document.getElementById('mktUnfilledCount').textContent = unfilled.length;
+  const now = Date.now();
+  document.getElementById('mktUnfilledBody').innerHTML = unfilled.length === 0
+    ? '<tr class="loading-row"><td colspan="7">✅ No unfilled requests</td></tr>'
+    : unfilled.map(b => {
+        const created = new Date((b.created_at||'').replace(' ','T'));
+        const ageH = Math.round((now-created.getTime())/3600000);
+        const ageLabel = ageH<1?'<1h':ageH<24?ageH+'h':Math.floor(ageH/24)+'d';
+        const ageCls = ageH>48?'color:#EF4444;font-weight:700':ageH>12?'color:#F59E0B;font-weight:600':'color:var(--muted)';
+        let needs='—'; try{const a=JSON.parse(b.care_needs||'[]');needs=Array.isArray(a)?a.slice(0,3).join(', '):b.care_needs||'—';}catch{}
+        return `<tr><td style="color:var(--muted);font-size:12px">#${b.id}</td><td style="font-size:12px">${esc(b.client_email||'—')}</td><td style="font-size:12px">${esc(needs)}</td><td style="font-size:12px;color:var(--muted)">${b.preferred_date||'—'}</td><td><span class="badge badge-yellow">${b.status||'pending'}</span></td><td style="font-size:12px;color:var(--muted)">${fmtDate(b.created_at)}</td><td style="font-size:12px;${ageCls}">${ageLabel}</td></tr>`;
+      }).join('');
+
+  // Section 5: Trust Passport review
+  const tr2 = d.trustReview || {};
+  document.getElementById('mktTrustReview').innerHTML = `
+    <div style="display:flex;gap:12px;margin-bottom:14px">
+      <div style="flex:1;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);border-radius:10px;padding:12px;text-align:center">
+        <div style="font-size:26px;font-weight:700;color:#F59E0B">${tr2.submitted||0}</div>
+        <div style="font-size:12px;color:var(--muted)">Awaiting Review</div>
+      </div>
+      <div style="flex:1;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);border-radius:10px;padding:12px;text-align:center">
+        <div style="font-size:26px;font-weight:700;color:#EF4444">${tr2.quickFix||0}</div>
+        <div style="font-size:12px;color:var(--muted)">Quick Fix Needed</div>
+      </div>
+    </div>
+    <button onclick="switchTab('trust',document.getElementById('trust-tab-btn'))" style="width:100%;padding:9px;background:var(--accent);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:13px;font-weight:600;cursor:pointer">Open Trust Review Queue →</button>`;
+
+  // Section 6: Response speed
+  const rs = d.responseSpeed || {};
+  document.getElementById('mktResponseSpeed').innerHTML = `
+    <div style="margin-bottom:16px">
+      <div style="font-size:13px;color:var(--muted);margin-bottom:4px">Caregivers Needing Nudge</div>
+      <div style="font-size:28px;font-weight:700;color:${(rs.nudgeNeeded||0)>0?'#F59E0B':'var(--success)'}">${rs.nudgeNeeded||0}</div>
+      <div style="font-size:11px;color:var(--muted)">Requests >1hr old, caregiver not responded</div>
+    </div>
+    <div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:4px">Requests Stale >2 Days</div>
+      <div style="font-size:28px;font-weight:700;color:${(rs.pendingOver2Days||0)>0?'#EF4444':'var(--success)'}">${rs.pendingOver2Days||0}</div>
+      <div style="font-size:11px;color:var(--muted)">Consider manual matching or outreach</div>
+    </div>`;
+
+  // Section 7: Active work
+  const aw = d.activeWork || {};
+  const timers = aw.activeTimers || [];
+  const visits = aw.todayVisits || [];
+  document.getElementById('mktActiveWork').innerHTML = `
+    <div style="display:flex;gap:10px;margin-bottom:14px">
+      <div style="flex:1;background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.25);border-radius:8px;padding:10px;text-align:center">
+        <div style="font-size:22px;font-weight:700;color:#22C55E">${timers.length}</div>
+        <div style="font-size:11px;color:var(--muted)">Active Timers</div>
+      </div>
+      <div style="flex:1;background:rgba(74,144,226,0.1);border:1px solid rgba(74,144,226,0.25);border-radius:8px;padding:10px;text-align:center">
+        <div style="font-size:22px;font-weight:700;color:#4A90E2">${visits.length}</div>
+        <div style="font-size:11px;color:var(--muted)">Visits Today</div>
+      </div>
+      <div style="flex:1;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);border-radius:8px;padding:10px;text-align:center">
+        <div style="font-size:22px;font-weight:700;color:#F59E0B">${aw.completedNotInvoiced||0}</div>
+        <div style="font-size:11px;color:var(--muted)">Awaiting Invoice</div>
+      </div>
+    </div>
+    ${timers.length>0?'<div style="font-size:11px;font-weight:700;margin-bottom:6px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em">Active Timers</div>'+timers.slice(0,4).map(t=>`<div style="background:var(--bg);border-radius:7px;padding:8px 10px;margin-bottom:5px;display:flex;justify-content:space-between;align-items:center"><span style="font-size:13px;font-weight:500">${esc(t.caregiver_name||t.caregiver_email||'—')}</span><span style="font-size:11px;color:var(--success)">● Active</span></div>`).join(''):'<p style="font-size:13px;color:var(--muted)">No active timers right now.</p>'}`;
+
+  // Section 8: Invoice issues
+  const inv = d.invoiceIssues || {};
+  document.getElementById('mktInvoiceIssues').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:11px;background:var(--bg);border-radius:8px">
+        <div><div style="font-size:13px;font-weight:600">Ready to Send</div><div style="font-size:11px;color:var(--muted)">Completed work, invoice not yet sent</div></div>
+        <div style="font-size:20px;font-weight:700;color:${(inv.readyToSend||0)>0?'#F59E0B':'var(--muted)'}">${inv.readyToSend||0}</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:11px;background:var(--bg);border-radius:8px">
+        <div><div style="font-size:13px;font-weight:600">Sent — Awaiting Payment</div><div style="font-size:11px;color:var(--muted)">Invoice sent, not yet paid</div></div>
+        <div style="font-size:20px;font-weight:700;color:${(inv.sentWaiting||0)>0?'#4A90E2':'var(--muted)'}">${inv.sentWaiting||0}</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:11px;background:var(--bg);border-radius:8px;border-left:3px solid ${(inv.overdueCount||0)>0?'#EF4444':'transparent'}">
+        <div><div style="font-size:13px;font-weight:600">Overdue (&gt;14 days)</div><div style="font-size:11px;color:var(--muted)">Sent >2 weeks ago, still unpaid</div></div>
+        <div style="font-size:20px;font-weight:700;color:${(inv.overdueCount||0)>0?'#EF4444':'var(--muted)'}">${inv.overdueCount||0}</div>
+      </div>
+    </div>`;
+
+  // Section 9: Reviews
+  const revData = d.reviews || {};
+  const renderRev = rv => {
+    const stars = '★'.repeat(Math.min(5,Math.max(0,rv.rating||0)))+'☆'.repeat(Math.max(0,5-(rv.rating||0)));
+    const sc = (rv.rating||0)>=4?'#22C55E':(rv.rating||0)>=3?'#F59E0B':'#EF4444';
+    return `<div style="background:var(--bg);border-radius:8px;padding:10px;margin-bottom:8px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><span style="font-size:13px;font-weight:600">${esc(rv.caregiver_name||'Caregiver #'+rv.caregiver_id)}</span><span style="color:${sc};font-size:13px">${stars} ${rv.rating||'?'}</span></div>${rv.review_text?`<div style="font-size:12px;color:var(--muted)">${esc((rv.review_text||'').substring(0,80))}${(rv.review_text||'').length>80?'…':''}</div>`:''}<div style="font-size:11px;color:var(--muted);margin-top:3px">${fmtDate(rv.created_at)}</div></div>`;
+  };
+  document.getElementById('mktRecentReviews').innerHTML = (revData.recent||[]).length===0?'<p style="color:var(--muted);font-size:13px">No reviews yet</p>':(revData.recent||[]).map(renderRev).join('');
+  document.getElementById('mktLowRatings').innerHTML = (revData.lowRating||[]).length===0?'<p style="color:var(--success);font-size:13px">✅ No low ratings</p>':(revData.lowRating||[]).map(renderRev).join('');
+
+  // Section 10: Top caregivers
+  const top = d.topCaregivers || [];
+  document.getElementById('mktTopCount').textContent = top.length;
+  const getTL = vm => vm>=6?5:vm>=4?4:vm>=2?3:vm>=1?2:1;
+  const TL_NAMES  = {1:'Getting Started',2:'Identity Ready',3:'Care Ready',4:'Carehia Verified',5:'Trusted Pro'};
+  const TL_COLORS = {1:'var(--muted)',2:'var(--secondary)',3:'var(--warning)',4:'var(--primary)',5:'var(--success)'};
+  document.getElementById('mktTopBody').innerHTML = top.length===0
+    ? '<tr class="loading-row"><td colspan="7">No caregivers yet</td></tr>'
+    : top.map(cg => {
+        const tl = getTL(cg.verified_modules||0);
+        let careTypes='—'; try{const a=JSON.parse(cg.care_types||'[]');careTypes=Array.isArray(a)?a.slice(0,2).join(', '):cg.care_types||'—';}catch{}
+        return `<tr><td style="font-weight:600">${esc(cg.name||'—')}</td><td style="font-size:12px;color:var(--muted)">${esc(cg.city&&cg.state?cg.city+', '+cg.state:cg.city||cg.state||'—')}</td><td>${cg.hourly_rate?'<span style="color:var(--success);font-weight:600">$'+parseFloat(cg.hourly_rate).toFixed(0)+'/hr</span>':'<span style="color:var(--muted)">—</span>'}</td><td><span style="background:rgba(124,92,255,0.15);color:var(--primary);padding:2px 8px;border-radius:12px;font-size:12px;font-weight:700">${cg.verified_modules||0} ✓</span></td><td><span style="color:${TL_COLORS[tl]};font-weight:600;font-size:12px">${TL_NAMES[tl]}</span></td><td style="font-size:12px;color:var(--muted)">${esc(careTypes)}</td><td><button onclick="switchTab('trust',document.getElementById('trust-tab-btn'))" style="padding:4px 8px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--text);cursor:pointer;font-size:11px">Trust →</button></td></tr>`;
+      }).join('');
+}
+
+// ===================== PILOT LAUNCH =====================
+let pilotLoaded = false;
+async function loadPilot() {
+  if (pilotLoaded) return;
+  const [s,f,rf,cba,rba] = [
+    'pilotSummaryGrid','caregiverFunnelList','requestFunnelList','cgByArea','reqByArea'
+  ].map(id => document.getElementById(id));
+
+  try {
+    const res = await fetch(`${API}/admin-pilot-launch?token=${adminToken}`);
+    const d = await res.json();
+    if (!d.success) { s.innerHTML='<div style="color:#EF4444">Error loading data</div>'; return; }
+    pilotLoaded = true;
+
+    const { summary, funnel, requestFunnel, caregiversByArea, requestsByArea } = d;
+
+    // ---- Summary Cards ----
+    const cards = [
+      { icon:'&#x1F465;', val: summary.totalCaregivers, label:'Caregivers Onboarded' },
+      { icon:'&#x1F6E1;', val: summary.carehiaVerified, label:'Carehia Verified' },
+      { icon:'&#x1F7E2;', val: summary.onlineCaregivers, label:'Caregivers Online' },
+      { icon:'&#x1F4E8;', val: summary.openRequests,     label:'Open Care Requests' },
+      { icon:'&#x2705;', val: summary.filledRequests,    label:'Filled Requests' },
+      { icon:'&#x1F3E0;', val: summary.completedVisits,  label:'Completed Visits' },
+      { icon:'&#x1F4C4;', val: summary.invoicesCreated,  label:'Invoices Created' },
+      { icon:'&#x2B50;', val: summary.reviewsCollected,  label:'Reviews Collected' },
+      { icon:'&#x1F468;', val: summary.totalClients,     label:'Clients Signed Up' },
+      { icon:'&#x1F91D;', val: summary.totalTeam,        label:'Active Team Hires' },
+    ];
+    s.innerHTML = cards.map(c => `
+      <div class="stat-card" style="text-align:center">
+        <div style="font-size:1.5rem">${c.icon}</div>
+        <div class="stat-val" style="font-size:1.6rem">${c.val ?? '—'}</div>
+        <div class="stat-label">${c.label}</div>
+      </div>`).join('');
+
+    // ---- Checklist ----
+    const checks = [
+      { label:'10+ caregivers onboarded', pass: funnel.signedUp >= 10, val: `${funnel.signedUp}/10` },
+      { label:'5+ Carehia Verified caregivers', pass: funnel.carehiaVerified >= 5, val: `${funnel.carehiaVerified}/5` },
+      { label:'3+ caregivers online', pass: funnel.online >= 3, val: `${funnel.online}/3` },
+      { label:'Test client request submitted', pass: requestFunnel.created > 0, val: requestFunnel.created > 0 ? 'Yes' : 'No' },
+      { label:'Caregiver accepted a request', pass: requestFunnel.confirmed > 0, val: requestFunnel.confirmed > 0 ? 'Yes' : 'No' },
+      { label:'Test visit completed', pass: summary.completedVisits > 0, val: summary.completedVisits > 0 ? 'Yes' : 'No' },
+      { label:'Invoice created', pass: summary.invoicesCreated > 0, val: summary.invoicesCreated > 0 ? 'Yes' : 'No' },
+      { label:'Review collected', pass: summary.reviewsCollected > 0, val: summary.reviewsCollected > 0 ? 'Yes' : 'No' },
+      { label:'Admin can see Marketplace tab', pass: true, val: 'Yes' },
+      { label:'Trust Passport privacy reviewed', pass: true, val: 'Phase 18 done' },
+      { label:'Caregiver notifications tested', pass: summary.totalCaregivers > 0, val: summary.totalCaregivers > 0 ? 'In progress' : 'Not started' },
+      { label:'Client flow tested end-to-end', pass: summary.totalClients > 0, val: summary.totalClients > 0 ? 'In progress' : 'Not started' },
+    ];
+
+    const passCnt = checks.filter(c => c.pass).length;
+    const pct = Math.round((passCnt / checks.length) * 100);
+    document.getElementById('pilotReadinessPct').textContent = pct + '%';
+
+    let readinessLabel, readinessNote;
+    if (pct >= 90) { readinessLabel = '&#x1F7E2; Ready to launch pilot!'; readinessNote = 'All critical gates passed. Schedule your first real client!'; }
+    else if (pct >= 70) { readinessLabel = '&#x1F7E1; Almost there — a few items left'; readinessNote = `${checks.length - passCnt} checklist item${checks.length - passCnt !== 1 ? 's' : ''} remaining`; }
+    else if (pct >= 40) { readinessLabel = '&#x1F7E0; In progress — keep building'; readinessNote = `${passCnt} of ${checks.length} items complete`; }
+    else { readinessLabel = '&#x1F534; Early stage — recruiting caregivers'; readinessNote = `Start by getting 10+ caregivers onboarded and Verified`; }
+
+    document.getElementById('pilotReadinessLabel').innerHTML = readinessLabel;
+    document.getElementById('pilotReadinessNote').innerHTML = readinessNote;
+
+    document.getElementById('pilotChecklist').innerHTML = checks.map(c => {
+      const status = c.pass ? 'Complete' : (c.val !== 'No' && c.val !== 'Not started' ? 'In Progress' : 'Not Started');
+      const color = c.pass ? '#22C55E' : (status === 'In Progress' ? '#F59E0B' : '#94a3b8');
+      const bg = c.pass ? 'rgba(34,197,94,.08)' : (status === 'In Progress' ? 'rgba(245,158,11,.08)' : 'rgba(148,163,184,.08)');
+      return `<div style="background:${bg};border-radius:8px;padding:10px 14px;display:flex;align-items:center;gap:10px">
+        <span style="color:${color};font-size:1rem">${c.pass ? '&#x2705;' : (status==='In Progress' ? '&#x1F7E1;' : '&#x25CB;')}</span>
+        <span style="flex:1;font-size:.88rem;color:#0f172a">${c.label}</span>
+        <span style="font-size:.8rem;color:${color};font-weight:600">${c.val}</span>
+      </div>`;
+    }).join('');
+
+    // ---- Today's Founder Brief ----
+    const priorities = [];
+    if (funnel.signedUp < 10) priorities.push(`Recruit caregivers (${funnel.signedUp}/10 onboarded)`);
+    if (funnel.carehiaVerified < 5) priorities.push(`Get ${5 - funnel.carehiaVerified} more caregivers to Carehia Verified`);
+    if (funnel.online < 3) priorities.push(`Get ${3 - funnel.online} caregivers online in target area`);
+    if (summary.completedVisits === 0) priorities.push('Complete a test visit end-to-end');
+    if (summary.reviewsCollected === 0) priorities.push('Collect first caregiver review');
+    if (summary.invoicesCreated === 0) priorities.push('Create a test invoice');
+    const top3 = priorities.slice(0, 3);
+    document.getElementById('founderPriorities').innerHTML = top3.length
+      ? top3.map((p,i) => `<div style="margin-bottom:6px"><strong>${i+1}.</strong> ${p}</div>`).join('')
+      : '<div style="color:#22C55E">&#x1F389; All top priorities complete! Ready to launch.</div>';
+
+    // Blocked
+    const blocked = [];
+    if (funnel.carehiaVerified === 0) blocked.push('No Carehia Verified caregivers yet — approve in Trust Review tab');
+    if (funnel.online === 0) blocked.push('No caregivers currently online — send nudge or check availability settings');
+    if (requestFunnel.created === 0) blocked.push('No care requests submitted yet — run a test booking from client portal');
+    document.getElementById('founderBlocked').innerHTML = blocked.length
+      ? blocked.map(b => `<div style="margin-bottom:6px;color:#EF4444">&#x2022; ${b}</div>`).join('')
+      : '<div style="color:#22C55E">No blockers! Great shape.</div>';
+
+    // Closest to launch
+    const closest = [];
+    const gap5v = 5 - funnel.carehiaVerified;
+    if (gap5v > 0 && gap5v <= 3) closest.push(`${gap5v} more Carehia Verified to hit goal`);
+    const gap10 = 10 - funnel.signedUp;
+    if (gap10 > 0 && gap10 <= 4) closest.push(`${gap10} more caregivers to hit 10`);
+    if (requestFunnel.created > 0 && requestFunnel.confirmed === 0) closest.push('Caregiver just needs to accept the pending request');
+    if (summary.completedVisits > 0 && summary.invoicesCreated === 0) closest.push('Visit done — just need to send invoice');
+    document.getElementById('founderClosest').innerHTML = closest.length
+      ? closest.map(c => `<div style="margin-bottom:6px">&#x2022; ${c}</div>`).join('')
+      : funnel.signedUp < 3 ? '<div style="color:#64748b">Keep recruiting caregivers to unlock closer signals</div>'
+      : '<div style="color:#22C55E">Looking good — stay the course!</div>';
+
+    // ---- Launch Blockers table ----
+    const blockerData = [
+      { title:'No Carehia Verified caregivers', sev:'Critical', owner:'Jon', due:'Before launch', status: funnel.carehiaVerified >= 5 ? 'Resolved' : 'Open', action:'Approve caregivers in Trust Review tab' },
+      { title:'No caregivers online', sev:'Critical', owner:'Caregivers', due:'Before launch', status: funnel.online >= 3 ? 'Resolved' : 'Open', action:'Encourage caregivers to toggle Online in their portal' },
+      { title:'Zero completed test visits', sev:'High', owner:'Jon', due:'Pre-launch week', status: summary.completedVisits > 0 ? 'Resolved' : 'In Progress', action:'Run end-to-end test: client books, caregiver accepts, visit logged' },
+      { title:'Zero reviews collected', sev:'Medium', owner:'Team', due:'First week of pilot', status: summary.reviewsCollected > 0 ? 'Resolved' : 'Not Started', action:'After first visit, send review request to client' },
+      { title:'Target pilot area undefined', sev:'Medium', owner:'Jon', due:'Before launch', status: caregiversByArea.length > 0 ? 'In Progress' : 'Not Started', action:'Confirm target city and ensure 3+ caregivers available there' },
+    ];
+    document.getElementById('launchBlockers').innerHTML = `
+      <table style="width:100%;border-collapse:collapse;font-size:.88rem">
+        <thead>
+          <tr style="background:#f8fafc;color:#64748b;font-size:.78rem;text-transform:uppercase;letter-spacing:.04em">
+            <th style="padding:8px 12px;text-align:left">Blocker</th>
+            <th style="padding:8px 12px;text-align:left">Severity</th>
+            <th style="padding:8px 12px;text-align:left">Owner</th>
+            <th style="padding:8px 12px;text-align:left">Status</th>
+            <th style="padding:8px 12px;text-align:left">Action Needed</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${blockerData.map(b => {
+            const sevColor = b.sev==='Critical'?'#EF4444':b.sev==='High'?'#F59E0B':b.sev==='Medium'?'#4A90E2':'#94a3b8';
+            const statusColor = b.status==='Resolved'?'#22C55E':b.status==='In Progress'?'#F59E0B':'#94a3b8';
+            return `<tr style="border-bottom:1px solid #f1f5f9">
+              <td style="padding:10px 12px;color:#0f172a;font-weight:500">${b.title}</td>
+              <td style="padding:10px 12px"><span style="color:${sevColor};font-weight:600">${b.sev}</span></td>
+              <td style="padding:10px 12px;color:#64748b">${b.owner}</td>
+              <td style="padding:10px 12px"><span style="color:${statusColor};font-weight:600">${b.status}</span></td>
+              <td style="padding:10px 12px;color:#64748b">${b.action}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>`;
+
+    // ---- Caregiver Funnel ----
+    const funnelSteps = [
+      { label:'Signed Up', val: funnel.signedUp, icon:'&#x1F4DD;' },
+      { label:'Profile Completed', val: funnel.profileCompleted, icon:'&#x1F464;' },
+      { label:'Trust Passport Started', val: funnel.trustStarted, icon:'&#x1F6E1;' },
+      { label:'Identity Ready (Lv2)', val: funnel.identityReady, icon:'&#x1F194;' },
+      { label:'Care Ready (Lv3)', val: funnel.careReady, icon:'&#x1F3E5;' },
+      { label:'Carehia Verified (Lv4)', val: funnel.carehiaVerified, icon:'&#x2714;' },
+      { label:'Trusted Pro (Lv5)', val: funnel.trustedPro, icon:'&#x1F3C6;' },
+      { label:'Online for Requests', val: funnel.online, icon:'&#x1F7E2;' },
+    ];
+    const fMax = funnel.signedUp || 1;
+    f.innerHTML = funnelSteps.map(step => {
+      const pct = Math.round((step.val / fMax) * 100);
+      return `<div style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <span style="font-size:.88rem;color:#0f172a">${step.icon} ${step.label}</span>
+          <span style="font-size:.88rem;font-weight:600;color:#7C5CFF">${step.val} <span style="font-size:.78rem;color:#94a3b8">(${pct}%)</span></span>
+        </div>
+        <div style="background:#f1f5f9;border-radius:20px;height:6px">
+          <div style="background:linear-gradient(90deg,#7C5CFF,#4A90E2);width:${pct}%;height:100%;border-radius:20px;transition:width .3s"></div>
+        </div>
+      </div>`;
+    }).join('');
+
+    // ---- Request Funnel ----
+    const reqSteps = [
+      { label:'Requests Created', val: requestFunnel.created },
+      { label:'Pending / Matching', val: requestFunnel.pending },
+      { label:'Confirmed', val: requestFunnel.confirmed },
+      { label:'Scheduled', val: requestFunnel.scheduled },
+      { label:'Completed', val: requestFunnel.completed },
+      { label:'Invoiced', val: requestFunnel.invoiced },
+      { label:'Reviewed', val: requestFunnel.reviewed },
+    ];
+    const rMax = requestFunnel.created || 1;
+    rf.innerHTML = reqSteps.map(step => {
+      const pct = Math.round((step.val / rMax) * 100);
+      return `<div style="margin-bottom:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <span style="font-size:.88rem;color:#0f172a">${step.label}</span>
+          <span style="font-size:.88rem;font-weight:600;color:#4A90E2">${step.val}</span>
+        </div>
+        <div style="background:#f1f5f9;border-radius:20px;height:6px">
+          <div style="background:linear-gradient(90deg,#4A90E2,#22C55E);width:${pct}%;height:100%;border-radius:20px"></div>
+        </div>
+      </div>`;
+    }).join('');
+
+    // ---- Geographic ----
+    cba.innerHTML = caregiversByArea.length ? caregiversByArea.map(r =>
+      `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f1f5f9">
+        <span>${r.city}${r.state ? ', ' + r.state : ''}</span>
+        <span style="font-weight:600;color:#7C5CFF">${r.cnt}</span>
+      </div>`).join('')
+      : '<div style="color:#94a3b8;font-style:italic">No location data yet — ask caregivers to complete their city/state in profile.</div>';
+
+    rba.innerHTML = requestsByArea.length ? requestsByArea.map(r =>
+      `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f1f5f9">
+        <span>${r.city || 'Unknown'}${r.state ? ', ' + r.state : ''}</span>
+        <span style="font-weight:600;color:#4A90E2">${r.cnt}</span>
+      </div>`).join('')
+      : '<div style="color:#94a3b8;font-style:italic">No requests with matched caregivers yet.</div>';
+
+  } catch(e) {
+    document.getElementById('pilotSummaryGrid').innerHTML = `<div style="color:#EF4444;grid-column:1/-1">Failed to load pilot data: ${e.message}</div>`;
+  }
+}
+// ===================== /PILOT LAUNCH =====================
+
+
+  // ====== ACQUISITION TAB JS (Phase 20) ======
+  async function loadAcquisitionData() {
+    if (!authToken) return;
+    try {
+      const r = await fetch(ADMIN_API + '/admin-acquisition?token=' + authToken);
+      const d = await r.json();
+      if (!d.summary) return;
+      const s = d.summary;
+
+      // Summary cards
+      document.getElementById('acq-total').textContent = s.totalCaregivers;
+      document.getElementById('acq-profile').textContent = s.quickProfileCompleted;
+      document.getElementById('acq-verified').textContent = s.emailVerified;
+      document.getElementById('acq-trust').textContent = s.trustPassportStarted;
+      document.getElementById('acq-care-ready').textContent = s.careReady;
+      document.getElementById('acq-ch-verified').textContent = s.carehiaVerified;
+      document.getElementById('acq-online').textContent = s.onlineNow;
+      document.getElementById('acq-abandoned').textContent = s.abandonedOnboarding;
+
+      // Funnel
+      const funnelEl = document.getElementById('acq-funnel-rows');
+      funnelEl.innerHTML = (d.funnel || []).map(f => `
+        <div style="margin-bottom:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+            <span style="font-size:13px;color:#0F172A;font-weight:500;">${f.label}</span>
+            <span style="font-size:13px;color:#475569;">${f.count} (${f.pct}%)</span>
+          </div>
+          <div style="background:#F1F5F9;border-radius:6px;height:8px;overflow:hidden;">
+            <div style="background:linear-gradient(90deg,#7C5CFF,#4A90E2);height:100%;width:${f.pct}%;border-radius:6px;transition:width .4s;"></div>
+          </div>
+        </div>
+      `).join('');
+
+      // Source attribution
+      const srcEl = document.getElementById('acq-source-rows');
+      const sources = d.sourceCounts || [];
+      if (sources.length === 0) {
+        srcEl.innerHTML = '<div style="color:#94a3b8;font-size:13px;text-align:center;padding:20px 0;">No attribution data yet — data grows as caregivers sign up via invite links.</div>';
+      } else {
+        srcEl.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <thead><tr style="background:#F8FAFC;">
+            <th style="padding:8px 12px;text-align:left;color:#64748b;font-weight:600;">Source</th>
+            <th style="padding:8px 12px;text-align:left;color:#64748b;font-weight:600;">Campaign</th>
+            <th style="padding:8px 12px;text-align:right;color:#64748b;font-weight:600;">Count</th>
+          </tr></thead>
+          <tbody>${sources.map(r => `<tr style="border-top:1px solid #F1F5F9;">
+            <td style="padding:8px 12px;color:#0F172A;">${r.source || '—'}</td>
+            <td style="padding:8px 12px;color:#475569;">${r.campaign || '—'}</td>
+            <td style="padding:8px 12px;text-align:right;font-weight:600;color:#7C5CFF;">${r.cnt}</td>
+          </tr>`).join('')}</tbody>
+        </table>`;
+      }
+
+      // Active invite links
+      const invEl = document.getElementById('invite-list-rows');
+      const invites = d.invites || [];
+      if (invites.length === 0) {
+        invEl.innerHTML = '<div style="color:#94a3b8;font-size:13px;text-align:center;padding:20px 0;">No invite links yet. Create one above.</div>';
+      } else {
+        invEl.innerHTML = invites.filter(i => i.is_active).slice(0,10).map(i => `
+          <div style="border:1px solid #E2E8F0;border-radius:10px;padding:12px 14px;margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+              <div>
+                <div style="font-weight:700;color:#7C5CFF;font-size:13px;font-family:monospace;">${i.code}</div>
+                <div style="font-size:11px;color:#64748b;margin-top:2px;">${i.campaign} · ${i.target_region || 'Any region'}</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:12px;color:#22C55E;font-weight:600;">${i.signups} signups</div>
+                <div style="font-size:11px;color:#94a3b8;">${i.clicks} clicks</div>
+              </div>
+            </div>
+            ${i.note ? `<div style="font-size:11px;color:#64748b;margin-top:6px;font-style:italic;">${i.note}</div>` : ''}
+          </div>
+        `).join('');
+      }
+
+      // Abandoned onboarding
+      const abandoned = d.abandonedOnboarding || [];
+      document.getElementById('abandoned-count-badge').textContent = abandoned.length + ' caregivers';
+      const abEl = document.getElementById('abandoned-rows');
+      if (abandoned.length === 0) {
+        abEl.innerHTML = '<div style="color:#22C55E;font-size:13px;text-align:center;padding:12px 0;">✅ No abandoned onboarding right now.</div>';
+      } else {
+        abEl.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <thead><tr style="background:#FEF3C7;">
+            <th style="padding:8px 12px;text-align:left;color:#92400E;font-weight:600;">Caregiver</th>
+            <th style="padding:8px 12px;text-align:left;color:#92400E;font-weight:600;">Email</th>
+            <th style="padding:8px 12px;text-align:left;color:#92400E;font-weight:600;">Signed Up</th>
+            <th style="padding:8px 12px;text-align:right;color:#92400E;font-weight:600;">Days Ago</th>
+          </tr></thead>
+          <tbody>${abandoned.map(r => `<tr style="border-top:1px solid #FEF3C7;">
+            <td style="padding:8px 12px;color:#0F172A;font-weight:500;">${r.name || '—'}</td>
+            <td style="padding:8px 12px;color:#475569;">${r.email}</td>
+            <td style="padding:8px 12px;color:#64748b;">${(r.signedUp||'').slice(0,10)}</td>
+            <td style="padding:8px 12px;text-align:right;font-weight:600;color:#F59E0B;">${r.daysAgo}d</td>
+          </tr>`).join('')}</tbody>
+        </table>`;
+      }
+
+      // Recent signups
+      const signups = d.recentSignups || [];
+      const sigEl = document.getElementById('recent-signups-rows');
+      if (signups.length === 0) {
+        sigEl.innerHTML = '<div style="color:#94a3b8;font-size:13px;text-align:center;padding:20px 0;">No caregivers yet.</div>';
+      } else {
+        sigEl.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:13px;">
+          <thead><tr style="background:#F8FAFC;">
+            <th style="padding:8px 12px;text-align:left;color:#64748b;font-weight:600;">Name</th>
+            <th style="padding:8px 12px;text-align:left;color:#64748b;font-weight:600;">Email</th>
+            <th style="padding:8px 12px;text-align:left;color:#64748b;font-weight:600;">Joined</th>
+            <th style="padding:8px 12px;text-align:left;color:#64748b;font-weight:600;">Source</th>
+            <th style="padding:8px 12px;text-align:left;color:#64748b;font-weight:600;">Invite/Ref</th>
+          </tr></thead>
+          <tbody>${signups.map(r => `<tr style="border-top:1px solid #F1F5F9;">
+            <td style="padding:8px 12px;color:#0F172A;font-weight:500;">${r.name || '—'}</td>
+            <td style="padding:8px 12px;color:#475569;">${r.email}</td>
+            <td style="padding:8px 12px;color:#64748b;">${(r.signedUp||'').slice(0,10)}</td>
+            <td style="padding:8px 12px;"><span style="background:#EDE9FE;color:#5B21B6;padding:2px 8px;border-radius:8px;font-size:11px;font-weight:600;">${r.source || 'direct'}</span></td>
+            <td style="padding:8px 12px;font-family:monospace;color:#7C5CFF;font-size:12px;">${r.inviteCode || r.refCode || '—'}</td>
+          </tr>`).join('')}</tbody>
+        </table>`;
+      }
+
+    } catch(e) { console.error('Acquisition load error:', e); }
+  }
+
+  async function createInviteLink() {
+    const code = document.getElementById('invite-code-input').value.trim();
+    const campaign = document.getElementById('invite-campaign').value;
+    const region = document.getElementById('invite-region').value.trim();
+    const note = document.getElementById('invite-note').value.trim();
+    if (!code) { alert('Please enter an invite code'); return; }
+    try {
+      const r = await fetch(ADMIN_API + '/admin-create-invite?token=' + authToken, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, campaign, target_region: region || null, note: note || null })
+      });
+      const d = await r.json();
+      const resultEl = document.getElementById('invite-result');
+      resultEl.style.display = 'block';
+      if (d.success) {
+        resultEl.style.background = '#F0FFF4';
+        resultEl.style.borderColor = '#22C55E';
+        resultEl.style.color = '#166534';
+        resultEl.innerHTML = `✅ Created! Share this link:<br><strong>${d.link}</strong><br><br><button onclick="navigator.clipboard.writeText('${d.link}').then(()=>alert('Copied!'))" style="margin-top:8px;padding:6px 14px;background:#7C5CFF;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:12px;">📋 Copy Link</button>`;
+        document.getElementById('invite-code-input').value = '';
+        loadAcquisitionData();
+      } else {
+        resultEl.style.background = '#FFF1F2';
+        resultEl.style.borderColor = '#EF4444';
+        resultEl.style.color = '#991B1B';
+        resultEl.textContent = '❌ ' + (d.error || 'Failed');
+      }
+    } catch(e) { alert('Error: ' + e.message); }
+  }
+
+// ===== PHASE 25: LOCATION REVIEW =====
+async function loadLocationReview(filterStatus = 'all') {
+  const container = document.getElementById('loc-rows');
+  const badge = document.getElementById('loc-needs-review-count');
+  if (!container) return;
+  container.innerHTML = '<div style="color:#94a3b8;font-size:13px;text-align:center;padding:20px 0;">Loading…</div>';
+  try {
+    const r = await fetch(`${ADMIN_API}/admin-location-review?token=${authToken}&status=${filterStatus}&limit=100`);
+    const d = await r.json();
+    if (d.error && d.error === 'Unauthorized') { doLogout(); return; }
+    if (badge) badge.textContent = d.needsReviewCount || 0;
+    const rows = d.reviews || [];
+    if (!rows.length) { container.innerHTML = '<div style="color:#94a3b8;font-size:13px;text-align:center;padding:32px 0;">No location check-ins found.</div>'; return; }
+    const statusColor = s => ({'confirmed_location':'#22C55E','manual_pending_review':'#F59E0B','outside_geofence_review':'#EF4444','gps_unavailable':'#94A3B8','pending':'#94A3B8'}[s]||'#94A3B8');
+    const adminColor = s => ({'needs_review':'#F59E0B','approved':'#22C55E','flagged':'#EF4444','ok':'#22C55E','reviewed':'#94A3B8'}[s]||'#94A3B8');
+    container.innerHTML = rows.map(v => {
+      const checkinDate = v.check_in_at ? new Date(v.check_in_at.replace(' ','T')+'Z').toLocaleString() : '—';
+      const checkoutDate = v.check_out_at ? new Date(v.check_out_at.replace(' ','T')+'Z').toLocaleString() : 'Active';
+      const dist = v.check_in_distance_m != null ? Math.round(v.check_in_distance_m) + 'm' : '—';
+      const acc = v.check_in_accuracy_m != null ? '±' + Math.round(v.check_in_accuracy_m) + 'm' : '—';
+      return `<tr>
+        <td style="font-weight:600;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(v.caregiver_name||v.caregiver_email||'—')}</td>
+        <td style="font-size:12px;color:#475569">${checkinDate}</td>
+        <td style="font-size:12px;color:#475569">${checkoutDate}</td>
+        <td><span style="background:${statusColor(v.check_in_status)}22;color:${statusColor(v.check_in_status)};padding:2px 7px;border-radius:10px;font-size:11px;font-weight:700">${v.check_in_status||'—'}</span></td>
+        <td style="font-size:12px;color:#475569">${dist}</td>
+        <td style="font-size:12px;color:#475569">${acc}</td>
+        <td style="font-size:12px;color:#475569;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(v.check_in_manual_reason||'—')}</td>
+        <td><span style="background:${adminColor(v.admin_status)}22;color:${adminColor(v.admin_status)};padding:2px 7px;border-radius:10px;font-size:11px;font-weight:700">${v.admin_status||'—'}</span></td>
+        <td>
+          ${v.admin_status === 'needs_review' ? `<button onclick="approveLocation(${v.id})" style="padding:3px 8px;border-radius:6px;border:1px solid #22C55E;background:none;color:#15803D;font-size:11px;cursor:pointer;margin-right:4px">✓ Approve</button>
+          <button onclick="flagLocation(${v.id})" style="padding:3px 8px;border-radius:6px;border:1px solid #EF4444;background:none;color:#DC2626;font-size:11px;cursor:pointer">⚑ Flag</button>` : '—'}
+        </td>
+      </tr>`;
+    }).join('');
+  } catch(e) { container.innerHTML = '<div style="color:#EF4444;padding:12px;">Error: '+e.message+'</div>'; }
+}
+
+async function approveLocation(visitId) {
+  try {
+    await fetch(ADMIN_API + '/admin-location-action', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: authToken, visitId, action: 'approve' })
+    });
+    loadLocationReview();
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+async function flagLocation(visitId) {
+  const note = prompt('Reason for flagging (optional):');
+  if (note === null) return;
+  try {
+    await fetch(ADMIN_API + '/admin-location-action', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: authToken, visitId, action: 'flag', internalNote: note || null })
+    });
+    loadLocationReview();
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
 </script>
+
+  <!-- ===================== ACQUISITION TAB (Phase 20) ===================== -->
+  <div id="tab-acq" class="tab-content" style="display:none;">
+    <div style="padding:32px 24px;max-width:1200px;margin:0 auto;">
+      <div style="margin-bottom:28px;">
+        <h2 style="font-size:24px;font-weight:700;color:#0F172A;margin:0 0 6px;">📣 Caregiver Acquisition</h2>
+        <p style="color:#64748b;margin:0;font-size:14px;">Track how caregivers are finding Carehia and where they are in the onboarding funnel.</p>
+      </div>
+
+      <!-- Summary Cards -->
+      <div id="acq-summary-cards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;margin-bottom:32px;">
+        <div style="background:#fff;border-radius:12px;padding:20px 16px;border:1px solid #E2E8F0;">
+          <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Total Caregivers</div>
+          <div id="acq-total" style="font-size:28px;font-weight:700;color:#0F172A;">—</div>
+        </div>
+        <div style="background:#fff;border-radius:12px;padding:20px 16px;border:1px solid #E2E8F0;">
+          <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Quick Profile</div>
+          <div id="acq-profile" style="font-size:28px;font-weight:700;color:#7C5CFF;">—</div>
+        </div>
+        <div style="background:#fff;border-radius:12px;padding:20px 16px;border:1px solid #E2E8F0;">
+          <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Email Verified</div>
+          <div id="acq-verified" style="font-size:28px;font-weight:700;color:#4A90E2;">—</div>
+        </div>
+        <div style="background:#fff;border-radius:12px;padding:20px 16px;border:1px solid #E2E8F0;">
+          <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Trust Passport</div>
+          <div id="acq-trust" style="font-size:28px;font-weight:700;color:#7C5CFF;">—</div>
+        </div>
+        <div style="background:#fff;border-radius:12px;padding:20px 16px;border:1px solid #E2E8F0;">
+          <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Care Ready</div>
+          <div id="acq-care-ready" style="font-size:28px;font-weight:700;color:#22C55E;">—</div>
+        </div>
+        <div style="background:#fff;border-radius:12px;padding:20px 16px;border:1px solid #E2E8F0;">
+          <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Carehia Verified</div>
+          <div id="acq-ch-verified" style="font-size:28px;font-weight:700;color:#22C55E;">—</div>
+        </div>
+        <div style="background:#fff;border-radius:12px;padding:20px 16px;border:1px solid #E2E8F0;">
+          <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Online Now</div>
+          <div id="acq-online" style="font-size:28px;font-weight:700;color:#22C55E;">—</div>
+        </div>
+        <div style="background:#fff;border-radius:12px;padding:20px 16px;border:1px solid #E2E8F0;">
+          <div style="font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;">Abandoned</div>
+          <div id="acq-abandoned" style="font-size:28px;font-weight:700;color:#F59E0B;">—</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px;">
+        <!-- Caregiver Funnel -->
+        <div style="background:#fff;border-radius:16px;padding:24px;border:1px solid #E2E8F0;">
+          <h3 style="font-size:16px;font-weight:700;color:#0F172A;margin:0 0 20px;">👥 Caregiver Onboarding Funnel</h3>
+          <div id="acq-funnel-rows">
+            <div style="color:#94a3b8;font-size:13px;text-align:center;padding:20px 0;">Loading…</div>
+          </div>
+        </div>
+
+        <!-- Source Attribution -->
+        <div style="background:#fff;border-radius:16px;padding:24px;border:1px solid #E2E8F0;">
+          <h3 style="font-size:16px;font-weight:700;color:#0F172A;margin:0 0 20px;">🎯 Acquisition Sources</h3>
+          <div id="acq-source-rows">
+            <div style="color:#94a3b8;font-size:13px;text-align:center;padding:20px 0;">Loading…</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px;">
+        <!-- Invite Link Generator -->
+        <div style="background:#fff;border-radius:16px;padding:24px;border:1px solid #E2E8F0;">
+          <h3 style="font-size:16px;font-weight:700;color:#0F172A;margin:0 0 16px;">🔗 Create Invite Link</h3>
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <input id="invite-code-input" type="text" placeholder="Invite code e.g. CAREHIA-SAC-001" style="padding:10px 14px;border:1px solid #E2E8F0;border-radius:10px;font-size:14px;width:100%;box-sizing:border-box;">
+            <select id="invite-campaign" style="padding:10px 14px;border:1px solid #E2E8F0;border-radius:10px;font-size:14px;">
+              <option value="admin_invite">Admin Invite</option>
+              <option value="caregiver_referral">Caregiver Referral</option>
+              <option value="community_event">Community Event</option>
+              <option value="church_group">Church Group</option>
+              <option value="training_school">Training School</option>
+              <option value="social_media">Social Media</option>
+              <option value="partner_agency">Partner Agency</option>
+            </select>
+            <input id="invite-region" type="text" placeholder="Target region (e.g. Sacramento, CA)" style="padding:10px 14px;border:1px solid #E2E8F0;border-radius:10px;font-size:14px;width:100%;box-sizing:border-box;">
+            <input id="invite-note" type="text" placeholder="Optional note" style="padding:10px 14px;border:1px solid #E2E8F0;border-radius:10px;font-size:14px;width:100%;box-sizing:border-box;">
+            <button onclick="createInviteLink()" style="background:linear-gradient(135deg,#7C5CFF,#4A90E2);color:#fff;border:none;padding:12px;border-radius:10px;font-weight:600;cursor:pointer;font-size:14px;">
+              ✨ Generate Invite Link
+            </button>
+            <div id="invite-result" style="display:none;background:#F0FFF4;border:1px solid #22C55E;border-radius:10px;padding:14px;font-size:13px;word-break:break-all;color:#166534;"></div>
+          </div>
+        </div>
+
+        <!-- Active Invite Links -->
+        <div style="background:#fff;border-radius:16px;padding:24px;border:1px solid #E2E8F0;">
+          <h3 style="font-size:16px;font-weight:700;color:#0F172A;margin:0 0 16px;">📋 Active Invite Links</h3>
+          <div id="invite-list-rows">
+            <div style="color:#94a3b8;font-size:13px;text-align:center;padding:20px 0;">Loading…</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Abandoned Onboarding -->
+      <div style="background:#fff;border-radius:16px;padding:24px;border:1px solid #E2E8F0;margin-bottom:32px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <h3 style="font-size:16px;font-weight:700;color:#0F172A;margin:0;">⚠️ Abandoned Onboarding <span style="font-size:12px;font-weight:400;color:#64748b;">(signed up 7+ days ago, profile incomplete)</span></h3>
+          <span id="abandoned-count-badge" style="background:#FEF3C7;color:#92400E;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;">—</span>
+        </div>
+        <div id="abandoned-rows">
+          <div style="color:#94a3b8;font-size:13px;text-align:center;padding:20px 0;">Loading…</div>
+        </div>
+      </div>
+
+      <!-- Recent Signups -->
+      <div style="background:#fff;border-radius:16px;padding:24px;border:1px solid #E2E8F0;">
+        <h3 style="font-size:16px;font-weight:700;color:#0F172A;margin:0 0 16px;">🌱 Recent Signups (Last 20)</h3>
+        <div id="recent-signups-rows">
+          <div style="color:#94a3b8;font-size:13px;text-align:center;padding:20px 0;">Loading…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== LOCATION REVIEW TAB (Phase 25) ===================== -->
+  <div id="tab-loc" class="tab-content" style="display:none;">
+    <div style="padding:32px 24px;max-width:1200px;margin:0 auto;">
+      <div style="margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div>
+          <h2 style="font-size:24px;font-weight:700;color:#0F172A;margin:0 0 4px;">📍 Location Check-In Review</h2>
+          <p style="color:#64748b;margin:0;font-size:14px;">Review caregiver visit check-ins, manual exceptions, and GPS flags. <strong id="loc-needs-review-count">—</strong> pending review.</p>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button onclick="loadLocationReview('all')" style="padding:7px 14px;border-radius:8px;border:1.5px solid #E2E8F0;background:#fff;color:#475569;font-size:12px;font-weight:600;cursor:pointer">All</button>
+          <button onclick="loadLocationReview('needs_review')" style="padding:7px 14px;border-radius:8px;border:1.5px solid #F59E0B;background:#FFF7ED;color:#92400E;font-size:12px;font-weight:700;cursor:pointer">⚠️ Needs Review</button>
+          <button onclick="loadLocationReview('confirmed_location')" style="padding:7px 14px;border-radius:8px;border:1.5px solid #22C55E;background:#F0FDF4;color:#166534;font-size:12px;font-weight:600;cursor:pointer">✓ Confirmed</button>
+          <button onclick="loadLocationReview('manual_pending_review')" style="padding:7px 14px;border-radius:8px;border:1.5px solid #F59E0B;background:#FFF7ED;color:#92400E;font-size:12px;font-weight:600;cursor:pointer">Manual</button>
+        </div>
+      </div>
+
+      <!-- Privacy note -->
+      <div style="background:#F0F9FF;border:1px solid #BAE6FD;border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:13px;color:#0369A1;">
+        🔒 <strong>Admin only.</strong> GPS coordinates and exact distances visible here are never shown to clients or caregivers.
+        Clients see only a calm status label ("Location confirmed" or "Visit confirmation pending review").
+      </div>
+
+      <div style="background:#fff;border-radius:16px;border:1px solid #E2E8F0;overflow:hidden;">
+        <div style="overflow-x:auto;">
+          <table style="width:100%;border-collapse:collapse;">
+            <thead>
+              <tr style="background:#F8FAFC;border-bottom:1px solid #E2E8F0;">
+                <th style="padding:12px 14px;text-align:left;font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;">Caregiver</th>
+                <th style="padding:12px 14px;text-align:left;font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;">Check-In</th>
+                <th style="padding:12px 14px;text-align:left;font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;">Check-Out</th>
+                <th style="padding:12px 14px;text-align:left;font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;">Status</th>
+                <th style="padding:12px 14px;text-align:left;font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;">Distance</th>
+                <th style="padding:12px 14px;text-align:left;font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;">GPS ±</th>
+                <th style="padding:12px 14px;text-align:left;font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;">Manual Reason</th>
+                <th style="padding:12px 14px;text-align:left;font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;">Review</th>
+                <th style="padding:12px 14px;text-align:left;font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="loc-rows">
+              <tr><td colspan="9" style="padding:40px;text-align:center;color:#94a3b8;font-size:13px;">Click the tab to load location data.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+  <!-- ===================== TODAY / OPERATIONS TAB ===================== -->
+  <div id="tab-today" style="display:none;">
+    <div class="ops-header">
+      <h1>📋 Today's Operations</h1>
+      <p>What needs Carehia attention right now.</p>
+    </div>
+
+    <!-- Summary cards -->
+    <div class="ops-grid" id="todayOpsGrid">
+      <div class="ops-card" onclick="switchTab('requests')">
+        <div class="ops-card-icon">📬</div>
+        <div class="ops-card-val" id="ops-open-requests">—</div>
+        <div class="ops-card-label">Open Requests</div>
+      </div>
+      <div class="ops-card urgent" onclick="switchTab('trust')">
+        <div class="ops-card-icon">🛡️</div>
+        <div class="ops-card-val" id="ops-trust-reviews">—</div>
+        <div class="ops-card-label">Trust Reviews</div>
+      </div>
+      <div class="ops-card" onclick="switchTab('caregivers')">
+        <div class="ops-card-icon">💜</div>
+        <div class="ops-card-val" id="ops-caregivers">—</div>
+        <div class="ops-card-label">Caregivers</div>
+      </div>
+      <div class="ops-card" onclick="switchTab('clients')">
+        <div class="ops-card-icon">👤</div>
+        <div class="ops-card-val" id="ops-clients">—</div>
+        <div class="ops-card-label">Clients</div>
+      </div>
+      <div class="ops-card" onclick="switchTab('bookings')">
+        <div class="ops-card-icon">📅</div>
+        <div class="ops-card-val" id="ops-bookings">—</div>
+        <div class="ops-card-label">Bookings</div>
+      </div>
+      <div class="ops-card" onclick="switchTab('schedules')">
+        <div class="ops-card-icon">📍</div>
+        <div class="ops-card-val" id="ops-location-flags">—</div>
+        <div class="ops-card-label">Location Flags</div>
+      </div>
+    </div>
+
+    <!-- Needs Attention -->
+    <div class="attention-section">
+      <div class="attention-header">⚠️ Needs Attention</div>
+      <div id="todayAttentionList">
+        <div class="empty-ops">
+          <div class="empty-ops-icon">✅</div>
+          <div>Loading operations status…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick links -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:8px;">
+      <button class="btn-refresh" style="text-align:left;padding:14px 18px;border-radius:12px;" onclick="switchTab('trust')">
+        🛡️ Open Trust Review Queue →
+      </button>
+      <button class="btn-refresh" style="text-align:left;padding:14px 18px;border-radius:12px;" onclick="switchTab('verifications')">
+        🔍 Open Verifications Queue →
+      </button>
+      <button class="btn-refresh" style="text-align:left;padding:14px 18px;border-radius:12px;" onclick="switchTab('schedules')">
+        📍 Review Location Check-ins →
+      </button>
+      <button class="btn-refresh" style="text-align:left;padding:14px 18px;border-radius:12px;" onclick="switchTab('bookings')">
+        📅 Review Bookings →
+      </button>
+    </div>
+  </div>
+
+  <!-- ===================== REQUESTS TAB ===================== -->
+  <div id="tab-requests" style="display:none;">
+    <div class="table-wrap">
+      <div class="table-header">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span class="table-title">📬 Care Requests</span>
+          <span class="table-count" id="requestCount">—</span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <input class="search-box" id="requestSearch" placeholder="Search client or care type…" oninput="filterTable('requestsBody','requestSearch')"/>
+          <button class="btn-refresh" onclick="loadRequests()">↻ Refresh</button>
+        </div>
+      </div>
+      <div id="requestFilterTabs" style="display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px;padding:0 4px;">
+        <button class="filter-tab active" onclick="loadRequests('all',this)">All</button>
+        <button class="filter-tab" onclick="loadRequests('unfilled',this)">⚠️ Unfilled</button>
+        <button class="filter-tab" onclick="loadRequests('new',this)">New</button>
+        <button class="filter-tab" onclick="loadRequests('accepted',this)">Accepted</button>
+        <button class="filter-tab" onclick="loadRequests('scheduled',this)">Scheduled</button>
+        <button class="filter-tab" onclick="loadRequests('completed',this)">Completed</button>
+        <button class="filter-tab" onclick="loadRequests('cancelled',this)">Cancelled</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Client</th>
+              <th>Care Needs</th>
+              <th class="hide-mobile">Caregiver</th>
+              <th class="hide-mobile">Date</th>
+              <th>Status</th>
+              <th class="hide-mobile">Unlocked</th>
+              <th>Created</th>
+            </tr>
+          </thead>
+          <tbody id="requestsBody">
+            <tr class="loading-row"><td colspan="8">⏳ Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  <!-- ===================== SCHEDULES TAB ===================== -->
+  <div id="tab-schedules" style="display:none;">
+    <!-- Reuse existing location review UI -->
+    <div style="padding:0;">
+      <div style="margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div>
+          <h2 style="font-size:24px;font-weight:700;margin:0 0 4px;">📍 Schedules &amp; Check-Ins</h2>
+          <p style="color:var(--muted);margin:0;font-size:14px;">Review caregiver visit check-ins, manual exceptions, and GPS flags. <strong id="sched-needs-review-count">—</strong> pending review.</p>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button onclick="loadSchedulesView('all')" style="padding:7px 14px;border-radius:8px;border:1.5px solid var(--border);background:var(--card);color:var(--muted);font-size:12px;font-weight:600;cursor:pointer">All</button>
+          <button onclick="loadSchedulesView('needs_review')" style="padding:7px 14px;border-radius:8px;border:1.5px solid var(--warning);background:rgba(245,158,11,.1);color:var(--warning);font-size:12px;font-weight:700;cursor:pointer">⚠️ Needs Review</button>
+          <button onclick="loadSchedulesView('confirmed_location')" style="padding:7px 14px;border-radius:8px;border:1.5px solid var(--success);background:rgba(34,197,94,.1);color:var(--success);font-size:12px;font-weight:600;cursor:pointer">✓ Confirmed</button>
+          <button onclick="loadSchedulesView('manual_pending_review')" style="padding:7px 14px;border-radius:8px;border:1.5px solid var(--warning);background:rgba(245,158,11,.1);color:var(--warning);font-size:12px;font-weight:600;cursor:pointer">Manual</button>
+        </div>
+      </div>
+      <div style="background:rgba(74,144,226,.08);border:1px solid rgba(74,144,226,.2);border-radius:10px;padding:12px 16px;margin-bottom:20px;font-size:13px;color:var(--secondary);">
+        🔒 <strong>Admin only.</strong> GPS coordinates and exact distances are never shown to clients or caregivers.
+      </div>
+      <div class="table-wrap">
+        <div style="overflow-x:auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>Caregiver</th><th>Check-In</th><th>Check-Out</th>
+                <th>Status</th><th>Distance</th><th>GPS ±</th>
+                <th>Manual Reason</th><th>Review</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="sched-rows">
+              <tr><td colspan="9" class="loading-row">Click to load schedule data.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== INVOICES TAB ===================== -->
+  <div id="tab-invoices" style="display:none;">
+    <div class="table-wrap">
+      <div class="table-header">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span class="table-title">🧾 Invoices</span>
+          <span class="table-count" id="invoiceCount">—</span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <input class="search-box" id="invoiceSearch" placeholder="Search caregiver or client…" oninput="filterTable('invoicesBody','invoiceSearch')"/>
+          <button class="btn-refresh" onclick="loadInvoices()">↻ Refresh</button>
+        </div>
+      </div>
+      <div id="invoiceSummaryBar" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;padding:0 4px;"></div>
+      <div id="invoiceFilterTabs" style="display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px;padding:0 4px;">
+        <button class="filter-tab active" onclick="loadInvoices('all',this)">All</button>
+        <button class="filter-tab" onclick="loadInvoices('draft',this)">Draft</button>
+        <button class="filter-tab" onclick="loadInvoices('sent',this)">Sent</button>
+        <button class="filter-tab" onclick="loadInvoices('overdue',this)">⚠️ Overdue</button>
+        <button class="filter-tab" onclick="loadInvoices('paid',this)">Paid</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Caregiver</th>
+              <th class="hide-mobile">Client</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th class="hide-mobile">Invoice #</th>
+              <th>Created</th>
+            </tr>
+          </thead>
+          <tbody id="invoicesBody">
+            <tr class="loading-row"><td colspan="7">⏳ Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== REVIEWS TAB ===================== -->
+  <div id="tab-reviews" style="display:none;">
+    <div class="table-wrap">
+      <div class="table-header">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span class="table-title">⭐ Reviews</span>
+          <span class="table-count" id="reviewCount">—</span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <input class="search-box" id="reviewSearch" placeholder="Search caregiver…" oninput="filterTable('reviewsBody','reviewSearch')"/>
+          <button class="btn-refresh" onclick="loadReviews()">↻ Refresh</button>
+        </div>
+      </div>
+      <div id="reviewFilterTabs" style="display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px;padding:0 4px;">
+        <button class="filter-tab active" onclick="loadReviews('all',this)">All</button>
+        <button class="filter-tab" onclick="loadReviews('visible',this)">Visible</button>
+        <button class="filter-tab" onclick="loadReviews('hidden',this)">Hidden</button>
+        <button class="filter-tab" onclick="loadReviews('low_rating',this)">⚠️ Low Rating (≤3)</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Caregiver</th>
+              <th class="hide-mobile">Review</th>
+              <th>Rating</th>
+              <th>Visible</th>
+              <th class="hide-mobile">Repeat Client</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="reviewsBody">
+            <tr class="loading-row"><td colspan="7">⏳ Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div id="reviewSummary" style="margin-top:12px;font-size:12px;color:var(--muted);padding:0 4px;"></div>
+    </div>
+  </div>
+
+  <!-- ===================== SUBSCRIPTIONS TAB ===================== -->
+  <div id="tab-subscriptions" style="display:none;">
+    <div class="table-wrap">
+      <div class="table-header">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span class="table-title">💳 Subscriptions</span>
+          <span class="table-count" id="subCount">—</span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <input class="search-box" id="subSearch" placeholder="Search name or email…" oninput="filterTable('subsBody','subSearch')"/>
+          <button class="btn-refresh" onclick="loadSubscriptions()">↻ Refresh</button>
+        </div>
+      </div>
+      <div id="subSummaryBar" style="margin-bottom:12px;font-size:13px;color:var(--muted);padding:0 4px;"></div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Role</th>
+              <th>Email</th>
+              <th>Plan</th>
+              <th>Status</th>
+              <th class="hide-mobile">Renews</th>
+              <th class="hide-mobile">Created</th>
+            </tr>
+          </thead>
+          <tbody id="subsBody">
+            <tr class="loading-row"><td colspan="7">⏳ Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="margin-top:16px;padding:12px 16px;background:var(--sidebar-bg);border-radius:10px;font-size:12px;color:var(--muted);">
+        <strong>Note:</strong> Subscription details sync from Stripe via webhooks. Stripe session secrets are never shown here.
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SETTINGS TAB ===================== -->
+  <div id="tab-settings" style="display:none;">
+    <div class="ops-header">
+      <h1>⚙️ Settings</h1>
+      <p>Admin account and application configuration.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;">
+      <div class="scaffold-section" style="text-align:left;padding:24px;">
+        <div style="font-size:22px;margin-bottom:12px;">👤</div>
+        <div style="font-weight:700;font-size:16px;margin-bottom:6px;">Admin Profile</div>
+        <div style="color:var(--muted);font-size:13px;margin-bottom:16px;">Signed in as:</div>
+        <div style="font-weight:600;" id="settings-email">—</div>
+        <button class="btn-sidebar-logout" style="margin-top:16px;width:auto;padding:8px 20px;" onclick="doLogout()">Sign Out</button>
+      </div>
+      <div class="scaffold-section" style="text-align:left;padding:24px;">
+        <div style="font-size:22px;margin-bottom:12px;">🔧</div>
+        <div style="font-weight:700;font-size:16px;margin-bottom:6px;">App Configuration</div>
+        <div style="color:var(--muted);font-size:13px;">
+          Worker: <strong>carehia-admin.jjioji.workers.dev</strong><br>
+          D1: <strong>gotocare</strong><br>
+          R2: <strong>gotocare</strong><br>
+          Portals: <strong>work.carehia.com</strong> / <strong>app.carehia.com</strong>
+        </div>
+      </div>
+      <div class="scaffold-section" style="text-align:left;padding:24px;">
+        <div style="font-size:22px;margin-bottom:12px;">🔒</div>
+        <div style="font-weight:700;font-size:16px;margin-bottom:6px;">Access Control</div>
+        <div style="color:var(--muted);font-size:13px;">
+          Role: <strong style="color:var(--primary);">super_admin</strong><br>
+          Admin access is validated server-side on every request.<br>
+          Session token stored in localStorage.
+        </div>
+      </div>
+      <div class="scaffold-section" style="text-align:left;padding:24px;">
+        <div style="font-size:22px;margin-bottom:12px;">📞</div>
+        <div style="font-weight:700;font-size:16px;margin-bottom:6px;">Support</div>
+        <div style="color:var(--muted);font-size:13px;">
+          Caregiver support: <strong>support@carehia.com</strong><br>
+          Admin issues: check Cloudflare Worker logs.
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+    </div><!-- /.content -->
+    </main><!-- /.admin-content -->
+  </div><!-- /.admin-body -->
+</div><!-- /#appShell -->
+
 </body>
 </html>
