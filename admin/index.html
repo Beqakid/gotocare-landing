@@ -598,6 +598,12 @@
         <span class="item-icon">⚙️</span> Settings
       </button>
 
+      <div class="sidebar-section-label">Admin</div>
+      <button class="sidebar-item" data-tab="team" onclick="switchTab('team')" id="sidebar-team-btn" style="display:none">
+        <span class="item-icon">👥</span> Team &amp; Access
+        <span class="sidebar-badge" id="sb-badge-team" style="display:none"></span>
+      </button>
+
       <div class="sidebar-footer">
         <button class="btn-sidebar-logout" onclick="doLogout()">Sign Out</button>
       </div>
@@ -1092,6 +1098,36 @@ const API = 'https://carehia-admin.jjioji.workers.dev';
 let adminToken = localStorage.getItem('carehia_admin_token') || '';
 let adminName = localStorage.getItem('carehia_admin_name') || '';
 let adminEmail = localStorage.getItem('carehia_admin_email') || '';
+let currentAdminRole = localStorage.getItem('carehia_admin_role') || 'super_admin';
+let currentAdminPermissions = [];
+
+async function fetchAdminRole() {
+  try {
+    const me = await adminFetch('/admin-me');
+    if (me && me.role) {
+      currentAdminRole = me.role;
+      currentAdminPermissions = me.permissions || [];
+      localStorage.setItem('carehia_admin_role', me.role);
+      applyRoleVisibility();
+    }
+  } catch {}
+}
+
+function applyRoleVisibility() {
+  // Team & Access: super_admin + admin_manager (if future permission granted)
+  const teamBtn = document.getElementById('sidebar-team-btn');
+  if (teamBtn) {
+    const canViewTeam = currentAdminPermissions.includes('*') || currentAdminPermissions.includes('admin.users.view');
+    teamBtn.style.display = canViewTeam ? 'flex' : 'none';
+  }
+  // Update role display in settings tab
+  const roleEl = document.getElementById('settings-role-display');
+  if (roleEl) roleEl.textContent = currentAdminRole.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+}
+
+function hasPerm(perm) {
+  return currentAdminPermissions.includes('*') || currentAdminPermissions.includes(perm);
+}
 
 
 // ===== ADMIN FETCH HELPER (Phase 33) =====
@@ -1185,6 +1221,7 @@ function showApp() {
   if (se) se.textContent = adminEmail;
   // Start on Today tab
   switchTab('today');
+  fetchAdminRole();
 }
 
 // Auto-login if token saved
@@ -1202,7 +1239,7 @@ let currentTab = 'today';
 const ALL_TAB_IDS = [
   'today','requests','overview','clients','caregivers','bookings',
   'verifications','trust','marketplace','pilot','acq','loc',
-  'schedules','invoices','reviews','subscriptions','settings'
+  'schedules','invoices','reviews','subscriptions','settings','team'
 ];
 
 function switchTab(name, _btn) {
@@ -1246,6 +1283,7 @@ function switchTab(name, _btn) {
   else if (name === 'reviews')   loadReviews();
   else if (name === 'invoices')  loadInvoices();
   else if (name === 'subscriptions') loadSubscriptions();
+  else if (name === 'team') loadTeamAccess();
 }
 
 // ===== PHASE 33: FILTER TAB HELPER =====
@@ -3414,7 +3452,7 @@ async function flagLocation(visitId) {
         <div style="font-size:22px;margin-bottom:12px;">🔒</div>
         <div style="font-weight:700;font-size:16px;margin-bottom:6px;">Access Control</div>
         <div style="color:var(--muted);font-size:13px;">
-          Role: <strong style="color:var(--primary);">super_admin</strong><br>
+          Role: <strong style="color:var(--primary);" id="settings-role-display">super_admin</strong><br>
           Admin access is validated server-side on every request.<br>
           Session token stored in localStorage.
         </div>
@@ -3435,6 +3473,425 @@ async function flagLocation(visitId) {
     </main><!-- /.admin-content -->
   </div><!-- /.admin-body -->
 </div><!-- /#appShell -->
+
+
+  <!-- ===================== TEAM & ACCESS TAB (Phase 34) ===================== -->
+  <div id="tab-team" style="display:none;">
+    <div style="padding:32px 24px;max-width:1100px;margin:0 auto;">
+      <div style="margin-bottom:28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+        <div>
+          <h2 style="font-size:24px;font-weight:700;color:var(--text);margin:0 0 4px;">👥 Team &amp; Access</h2>
+          <p style="color:var(--muted);margin:0;font-size:14px;">Manage admin users, roles, and audit activity.</p>
+        </div>
+        <button onclick="openInviteModal()" id="invite-admin-btn" style="background:var(--primary);color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">+ Invite Admin</button>
+      </div>
+
+      <!-- Sub-tabs -->
+      <div style="display:flex;gap:4px;margin-bottom:24px;background:var(--card);border-radius:10px;padding:4px;border:1px solid var(--border);width:fit-content;">
+        <button class="filter-tab active" id="team-tab-users" onclick="showTeamSub('users',this)" style="padding:7px 18px;border-radius:7px;font-size:13px;font-weight:600;">Admin Users</button>
+        <button class="filter-tab" id="team-tab-invites" onclick="showTeamSub('invites',this)" style="padding:7px 18px;border-radius:7px;font-size:13px;font-weight:600;">Pending Invites</button>
+        <button class="filter-tab" id="team-tab-roles" onclick="showTeamSub('roles',this)" style="padding:7px 18px;border-radius:7px;font-size:13px;font-weight:600;">Role Guide</button>
+        <button class="filter-tab" id="team-tab-audit" onclick="showTeamSub('audit',this)" style="padding:7px 18px;border-radius:7px;font-size:13px;font-weight:600;">Audit Logs</button>
+      </div>
+
+      <!-- Admin Users sub-panel -->
+      <div id="team-sub-users">
+        <div id="team-users-list" style="background:var(--card);border-radius:12px;border:1px solid var(--border);overflow:hidden;">
+          <div style="color:var(--muted);padding:32px;text-align:center;font-size:14px;">Loading admin users…</div>
+        </div>
+      </div>
+
+      <!-- Pending Invites sub-panel -->
+      <div id="team-sub-invites" style="display:none;">
+        <div id="team-invites-list" style="background:var(--card);border-radius:12px;border:1px solid var(--border);overflow:hidden;">
+          <div style="color:var(--muted);padding:32px;text-align:center;font-size:14px;">Loading pending invites…</div>
+        </div>
+      </div>
+
+      <!-- Role Guide sub-panel -->
+      <div id="team-sub-roles" style="display:none;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">
+          <div style="background:var(--card);border-radius:12px;border:1px solid var(--border);padding:20px;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="background:#7C5CFF22;color:#7C5CFF;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;">Super Admin</span></div>
+            <p style="color:var(--muted);font-size:13px;margin:0;">Full platform access. Can manage all admin users, trust review, caregivers, clients, finance, and settings.</p>
+          </div>
+          <div style="background:var(--card);border-radius:12px;border:1px solid var(--border);padding:20px;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="background:#4A90E222;color:#4A90E2;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;">Admin Manager</span></div>
+            <p style="color:var(--muted);font-size:13px;margin:0;">Operational admin. View &amp; manage caregivers, clients, requests. Can approve trust items and add notes. Cannot manage admin users.</p>
+          </div>
+          <div style="background:var(--card);border-radius:12px;border:1px solid var(--border);padding:20px;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="background:#22C55E22;color:#22C55E;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;">Verification Reviewer</span></div>
+            <p style="color:var(--muted);font-size:13px;margin:0;">Focused on Trust Passport review. Can view and approve trust modules. Cannot access finance or manage admin users.</p>
+          </div>
+          <div style="background:var(--card);border-radius:12px;border:1px solid var(--border);padding:20px;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="background:#F59E0B22;color:#F59E0B;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;">Support Agent</span></div>
+            <p style="color:var(--muted);font-size:13px;margin:0;">Customer support. View basic caregiver/client profiles and request status. Add support notes. Cannot manage verification or payments.</p>
+          </div>
+          <div style="background:var(--card);border-radius:12px;border:1px solid var(--border);padding:20px;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="background:#EF444422;color:#EF4444;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;">Finance Admin</span></div>
+            <p style="color:var(--muted);font-size:13px;margin:0;">Invoice and payments. View earnings, invoices, payment status. Cannot manage verification or admin users.</p>
+          </div>
+          <div style="background:var(--card);border-radius:12px;border:1px solid var(--border);padding:20px;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="background:#94a3b822;color:#94a3b8;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:700;">Read-Only Auditor</span></div>
+            <p style="color:var(--muted);font-size:13px;margin:0;">Read-only. View selected areas and reports. Cannot edit, approve, delete, or export sensitive data.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Audit Logs sub-panel -->
+      <div id="team-sub-audit" style="display:none;">
+        <div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;">
+          <button class="filter-tab active" onclick="loadAuditLogs('all',this)" style="padding:6px 14px;border-radius:6px;font-size:12px;">All</button>
+          <button class="filter-tab" onclick="loadAuditLogs('admin_users',this)" style="padding:6px 14px;border-radius:6px;font-size:12px;">Admin Users</button>
+          <button class="filter-tab" onclick="loadAuditLogs('trust',this)" style="padding:6px 14px;border-radius:6px;font-size:12px;">Trust Review</button>
+          <button class="filter-tab" onclick="loadAuditLogs('caregivers',this)" style="padding:6px 14px;border-radius:6px;font-size:12px;">Caregivers</button>
+          <button class="filter-tab" onclick="loadAuditLogs('finance',this)" style="padding:6px 14px;border-radius:6px;font-size:12px;">Finance</button>
+        </div>
+        <div id="team-audit-list" style="background:var(--card);border-radius:12px;border:1px solid var(--border);overflow:hidden;">
+          <div style="color:var(--muted);padding:32px;text-align:center;font-size:14px;">Loading audit logs…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== INVITE MODAL ===================== -->
+  <div id="invite-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;display:none;align-items:center;justify-content:center;">
+    <div style="background:var(--card);border-radius:16px;padding:28px;width:100%;max-width:440px;margin:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);">
+      <h3 style="margin:0 0 6px;font-size:18px;font-weight:700;color:var(--text);">Invite Admin User</h3>
+      <p style="color:var(--muted);font-size:13px;margin:0 0 20px;">They'll receive an invite link to set up their account.</p>
+      <div style="margin-bottom:14px;">
+        <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Full Name</label>
+        <input id="invite-name" type="text" placeholder="Jane Smith" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;box-sizing:border-box;">
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Email Address</label>
+        <input id="invite-email" type="email" placeholder="jane@example.com" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;box-sizing:border-box;">
+      </div>
+      <div style="margin-bottom:20px;">
+        <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Role</label>
+        <select id="invite-role" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;box-sizing:border-box;">
+          <option value="admin_manager">Admin Manager</option>
+          <option value="verification_reviewer">Verification Reviewer</option>
+          <option value="support_agent">Support Agent</option>
+          <option value="finance_admin">Finance Admin</option>
+          <option value="read_only_auditor">Read-Only Auditor</option>
+          <option value="super_admin">Super Admin</option>
+        </select>
+      </div>
+      <div id="invite-modal-error" style="display:none;background:#FEF2F2;color:#EF4444;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:14px;"></div>
+      <div id="invite-modal-link" style="display:none;background:#F0FDF4;color:#15803D;padding:12px 14px;border-radius:8px;font-size:12px;margin-bottom:14px;word-break:break-all;"></div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <button onclick="closeInviteModal()" style="padding:10px 18px;border:1px solid var(--border);border-radius:8px;background:none;color:var(--text);font-size:14px;cursor:pointer;">Cancel</button>
+        <button id="invite-submit-btn" onclick="submitInvite()" style="padding:10px 20px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">Send Invite</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== ROLE CHANGE MODAL ===================== -->
+  <div id="role-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;align-items:center;justify-content:center;">
+    <div style="background:var(--card);border-radius:16px;padding:28px;width:100%;max-width:400px;margin:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);">
+      <h3 style="margin:0 0 6px;font-size:18px;font-weight:700;color:var(--text);">Change Admin Role</h3>
+      <p style="color:var(--muted);font-size:13px;margin:0 0 4px;">This will update what this admin can access inside Carehia.</p>
+      <p id="role-modal-target" style="font-size:13px;font-weight:600;color:var(--text);margin:0 0 18px;"></p>
+      <div style="margin-bottom:20px;">
+        <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">New Role</label>
+        <select id="role-modal-select" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;box-sizing:border-box;">
+          <option value="admin_manager">Admin Manager</option>
+          <option value="verification_reviewer">Verification Reviewer</option>
+          <option value="support_agent">Support Agent</option>
+          <option value="finance_admin">Finance Admin</option>
+          <option value="read_only_auditor">Read-Only Auditor</option>
+          <option value="super_admin">Super Admin</option>
+        </select>
+      </div>
+      <div id="role-modal-error" style="display:none;background:#FEF2F2;color:#EF4444;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:14px;"></div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <button onclick="closeRoleModal()" style="padding:10px 18px;border:1px solid var(--border);border-radius:8px;background:none;color:var(--text);font-size:14px;cursor:pointer;">Cancel</button>
+        <button id="role-modal-confirm" onclick="submitRoleChange()" style="padding:10px 20px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">Confirm Change</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SUSPEND MODAL ===================== -->
+  <div id="suspend-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;align-items:center;justify-content:center;">
+    <div style="background:var(--card);border-radius:16px;padding:28px;width:100%;max-width:400px;margin:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);">
+      <h3 style="margin:0 0 6px;font-size:18px;font-weight:700;color:var(--text);" id="suspend-modal-title">Suspend Admin Access?</h3>
+      <p id="suspend-modal-desc" style="color:var(--muted);font-size:13px;margin:0 0 16px;">This user will no longer be able to access the Carehia Admin Dashboard.</p>
+      <div id="suspend-reason-wrap" style="margin-bottom:18px;">
+        <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Reason (optional)</label>
+        <input id="suspend-reason" type="text" placeholder="e.g. Left organisation" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;box-sizing:border-box;">
+      </div>
+      <div id="suspend-modal-error" style="display:none;background:#FEF2F2;color:#EF4444;padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:14px;"></div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <button onclick="closeSuspendModal()" style="padding:10px 18px;border:1px solid var(--border);border-radius:8px;background:none;color:var(--text);font-size:14px;cursor:pointer;">Cancel</button>
+        <button id="suspend-modal-confirm" onclick="submitSuspend()" style="padding:10px 20px;background:#EF4444;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">Suspend</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+// ====== PHASE 34: TEAM & ACCESS ======
+const ROLE_LABELS = {
+  super_admin: { label:'Super Admin', color:'#7C5CFF', bg:'#7C5CFF22' },
+  admin_manager: { label:'Admin Manager', color:'#4A90E2', bg:'#4A90E222' },
+  verification_reviewer: { label:'Verification Reviewer', color:'#22C55E', bg:'#22C55E22' },
+  support_agent: { label:'Support Agent', color:'#F59E0B', bg:'#F59E0B22' },
+  finance_admin: { label:'Finance Admin', color:'#EF4444', bg:'#EF444422' },
+  read_only_auditor: { label:'Read-Only Auditor', color:'#94a3b8', bg:'#94a3b822' }
+};
+const STATUS_LABELS = {
+  active: { label:'Active', color:'#22C55E', bg:'#22C55E22' },
+  invited: { label:'Invited', color:'#F59E0B', bg:'#F59E0B22' },
+  suspended: { label:'Suspended', color:'#EF4444', bg:'#EF444422' },
+  revoked: { label:'Revoked', color:'#94a3b8', bg:'#94a3b822' },
+  pending: { label:'Pending', color:'#F59E0B', bg:'#F59E0B22' },
+  expired: { label:'Expired', color:'#94a3b8', bg:'#94a3b822' }
+};
+
+function roleBadge(role) {
+  const r = ROLE_LABELS[role] || { label: role, color:'#94a3b8', bg:'#94a3b822' };
+  return `<span style="background:${r.bg};color:${r.color};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;">${esc(r.label)}</span>`;
+}
+function statusBadge(status) {
+  const s = STATUS_LABELS[status] || { label: status, color:'#94a3b8', bg:'#94a3b822' };
+  return `<span style="background:${s.bg};color:${s.color};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;">${esc(s.label)}</span>`;
+}
+
+function showTeamSub(sub, btn) {
+  ['users','invites','roles','audit'].forEach(s => {
+    const el = document.getElementById('team-sub-'+s);
+    if (el) el.style.display = (s === sub) ? '' : 'none';
+  });
+  const container = btn.closest('div');
+  if (container) container.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (sub === 'audit' && document.getElementById('team-audit-list').querySelector('div')?.textContent?.includes('Loading')) {
+    loadAuditLogs('all');
+  }
+}
+
+async function loadTeamAccess() {
+  const el = document.getElementById('team-users-list');
+  const el2 = document.getElementById('team-invites-list');
+  if (!el) return;
+  el.innerHTML = '<div style="color:var(--muted);padding:32px;text-align:center;font-size:14px;">Loading…</div>';
+  const data = await adminFetch('/admin-team');
+  if (data._unauthorized || data._error || data.error) {
+    el.innerHTML = `<div style="color:var(--muted);padding:32px;text-align:center;font-size:14px;">Unable to load: ${esc(data.error||'Access denied')}</div>`;
+    return;
+  }
+  const users = data.users || [];
+  const invites = data.invites || [];
+
+  // Badge count for pending invites
+  const badge = document.getElementById('sb-badge-team');
+  if (badge && invites.length) { badge.textContent = invites.length; badge.style.display = ''; }
+
+  // Render users table
+  if (!users.length) {
+    el.innerHTML = '<div style="color:var(--muted);padding:32px;text-align:center;font-size:14px;">No admin users yet.</div>';
+  } else {
+    el.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <thead><tr style="background:var(--sidebar-bg);">
+        <th style="padding:12px 16px;text-align:left;font-weight:600;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.05em;">Name / Email</th>
+        <th style="padding:12px 16px;text-align:left;font-weight:600;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.05em;">Role</th>
+        <th style="padding:12px 16px;text-align:left;font-weight:600;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.05em;">Status</th>
+        <th style="padding:12px 16px;text-align:left;font-weight:600;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.05em;">Last Login</th>
+        <th style="padding:12px 16px;text-align:left;font-weight:600;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.05em;">Actions</th>
+      </tr></thead>
+      <tbody>${users.map((u,i) => `
+        <tr style="border-top:1px solid var(--border);${i%2?'background:var(--sidebar-bg)':''}" data-email="${esc(u.email)}">
+          <td style="padding:14px 16px;">
+            <div style="font-weight:600;color:var(--text);">${esc(u.name||'—')}</div>
+            <div style="color:var(--muted);font-size:12px;margin-top:2px;">${esc(u.email)}</div>
+          </td>
+          <td style="padding:14px 16px;">${roleBadge(u.role)}</td>
+          <td style="padding:14px 16px;">${statusBadge(u.status)}</td>
+          <td style="padding:14px 16px;color:var(--muted);font-size:12px;">${u.last_login_at ? new Date(u.last_login_at.replace(' ','T')+'Z').toLocaleDateString() : '—'}</td>
+          <td style="padding:14px 16px;">
+            ${hasPerm('admin.users.update_role') ? `<button onclick="openRoleModal('${esc(u.email)}','${esc(u.name||'')}','${u.role}')" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:none;color:var(--text);font-size:12px;cursor:pointer;margin-right:6px;">Change Role</button>` : ''}
+            ${hasPerm('admin.users.suspend') && u.status === 'active' && u.email !== adminEmail ? `<button onclick="openSuspendModal('${esc(u.email)}','${esc(u.name||'')}','suspend')" style="padding:5px 10px;border:1px solid #EF444440;border-radius:6px;background:none;color:#EF4444;font-size:12px;cursor:pointer;">Suspend</button>` : ''}
+            ${hasPerm('admin.users.suspend') && u.status === 'suspended' ? `<button onclick="openSuspendModal('${esc(u.email)}','${esc(u.name||'')}','reactivate')" style="padding:5px 10px;border:1px solid #22C55E40;border-radius:6px;background:none;color:#22C55E;font-size:12px;cursor:pointer;">Reactivate</button>` : ''}
+          </td>
+        </tr>`).join('')}
+      </tbody></table>`;
+  }
+
+  // Render pending invites
+  if (!el2) return;
+  if (!invites.length) {
+    el2.innerHTML = '<div style="color:var(--muted);padding:32px;text-align:center;font-size:14px;">No pending invites.</div>';
+  } else {
+    el2.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <thead><tr style="background:var(--sidebar-bg);">
+        <th style="padding:12px 16px;text-align:left;font-weight:600;color:var(--muted);font-size:11px;text-transform:uppercase;">Name / Email</th>
+        <th style="padding:12px 16px;text-align:left;font-weight:600;color:var(--muted);font-size:11px;text-transform:uppercase;">Role</th>
+        <th style="padding:12px 16px;text-align:left;font-weight:600;color:var(--muted);font-size:11px;text-transform:uppercase;">Status</th>
+        <th style="padding:12px 16px;text-align:left;font-weight:600;color:var(--muted);font-size:11px;text-transform:uppercase;">Expires</th>
+        <th style="padding:12px 16px;text-align:left;font-weight:600;color:var(--muted);font-size:11px;text-transform:uppercase;">Actions</th>
+      </tr></thead>
+      <tbody>${invites.map((inv,i) => `
+        <tr style="border-top:1px solid var(--border);${i%2?'background:var(--sidebar-bg)':''}">
+          <td style="padding:14px 16px;">
+            <div style="font-weight:600;color:var(--text);">${esc(inv.name||'—')}</div>
+            <div style="color:var(--muted);font-size:12px;margin-top:2px;">${esc(inv.email)}</div>
+          </td>
+          <td style="padding:14px 16px;">${roleBadge(inv.role)}</td>
+          <td style="padding:14px 16px;">${statusBadge(inv.status)}</td>
+          <td style="padding:14px 16px;color:var(--muted);font-size:12px;">${inv.expires_at ? new Date(inv.expires_at).toLocaleDateString() : '—'}</td>
+          <td style="padding:14px 16px;">
+            ${hasPerm('admin.users.invite') ? `<button onclick="revokeInvite(${inv.id})" style="padding:5px 10px;border:1px solid #EF444440;border-radius:6px;background:none;color:#EF4444;font-size:12px;cursor:pointer;">Revoke</button>` : ''}
+          </td>
+        </tr>`).join('')}
+      </tbody></table>`;
+  }
+}
+
+// Audit logs
+async function loadAuditLogs(filter, btn) {
+  const el = document.getElementById('team-audit-list');
+  if (!el) return;
+  // Update filter button active state
+  const container = btn?.closest('div');
+  if (container) { container.querySelectorAll('.filter-tab').forEach(b=>b.classList.remove('active')); if(btn) btn.classList.add('active'); }
+  el.innerHTML = '<div style="color:var(--muted);padding:32px;text-align:center;font-size:14px;">Loading…</div>';
+  const data = await adminFetch(`/admin-audit-logs?filter=${filter||'all'}&limit=150`);
+  if (data.error || data._error) { el.innerHTML = `<div style="color:var(--muted);padding:32px;text-align:center;">${esc(data.error||'Error')}</div>`; return; }
+  const logs = data.logs || [];
+  if (!logs.length) { el.innerHTML = '<div style="color:var(--muted);padding:32px;text-align:center;font-size:14px;">No audit logs found.</div>'; return; }
+  el.innerHTML = `<table style="width:100%;border-collapse:collapse;font-size:12px;">
+    <thead><tr style="background:var(--sidebar-bg);">
+      <th style="padding:10px 14px;text-align:left;font-weight:600;color:var(--muted);font-size:10px;text-transform:uppercase;">Time</th>
+      <th style="padding:10px 14px;text-align:left;font-weight:600;color:var(--muted);font-size:10px;text-transform:uppercase;">Actor</th>
+      <th style="padding:10px 14px;text-align:left;font-weight:600;color:var(--muted);font-size:10px;text-transform:uppercase;">Action</th>
+      <th style="padding:10px 14px;text-align:left;font-weight:600;color:var(--muted);font-size:10px;text-transform:uppercase;">Target</th>
+      <th style="padding:10px 14px;text-align:left;font-weight:600;color:var(--muted);font-size:10px;text-transform:uppercase;">Reason</th>
+    </tr></thead>
+    <tbody>${logs.map((log,i) => `
+      <tr style="border-top:1px solid var(--border);${i%2?'background:var(--sidebar-bg)':''}">
+        <td style="padding:10px 14px;color:var(--muted);white-space:nowrap;">${log.created_at ? log.created_at.slice(0,16).replace('T',' ') : '—'}</td>
+        <td style="padding:10px 14px;">
+          <div style="color:var(--text);font-weight:500;">${esc(log.actor_email||'—')}</div>
+          <div style="color:var(--muted);font-size:11px;">${roleBadge(log.actor_role||'')}</div>
+        </td>
+        <td style="padding:10px 14px;"><code style="background:var(--sidebar-bg);padding:2px 6px;border-radius:4px;font-size:11px;color:var(--primary);">${esc(log.action||'—')}</code></td>
+        <td style="padding:10px 14px;color:var(--muted);">${log.target_id ? esc(String(log.target_id)) : '—'}</td>
+        <td style="padding:10px 14px;color:var(--muted);">${esc(log.reason||'—')}</td>
+      </tr>`).join('')}
+    </tbody></table>`;
+}
+
+// Invite modal
+function openInviteModal() {
+  const m = document.getElementById('invite-modal');
+  if (m) { m.style.display='flex'; document.getElementById('invite-name').value=''; document.getElementById('invite-email').value=''; document.getElementById('invite-modal-error').style.display='none'; document.getElementById('invite-modal-link').style.display='none'; document.getElementById('invite-submit-btn').disabled=false; document.getElementById('invite-submit-btn').textContent='Send Invite'; }
+}
+function closeInviteModal() {
+  const m = document.getElementById('invite-modal');
+  if (m) m.style.display='none';
+}
+async function submitInvite() {
+  const name = document.getElementById('invite-name').value.trim();
+  const email = document.getElementById('invite-email').value.trim();
+  const role = document.getElementById('invite-role').value;
+  const errEl = document.getElementById('invite-modal-error');
+  const linkEl = document.getElementById('invite-modal-link');
+  const btn = document.getElementById('invite-submit-btn');
+  errEl.style.display='none'; linkEl.style.display='none';
+  if (!name || !email) { errEl.textContent='Name and email are required.'; errEl.style.display='block'; return; }
+  btn.disabled=true; btn.textContent='Sending…';
+  const res = await adminFetch('/admin-invite', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name, email, role }) });
+  btn.disabled=false; btn.textContent='Send Invite';
+  if (res.error) { errEl.textContent=res.error; errEl.style.display='block'; return; }
+  if (res.emailSent) {
+    linkEl.innerHTML = `<strong>Invite sent!</strong> Email delivered to ${esc(email)}.`;
+  } else {
+    linkEl.innerHTML = `<strong>Email not sent</strong> (email service may not be configured). Copy this invite link and send it manually:<br><br><a href="${esc(res.inviteLink)}" target="_blank" style="color:#15803D;">${esc(res.inviteLink)}</a>`;
+  }
+  linkEl.style.display='block';
+  btn.textContent='Done';
+  loadTeamAccess();
+}
+
+// Role change modal
+let _roleModalTarget = '';
+function openRoleModal(email, name, currentRole) {
+  _roleModalTarget = email;
+  const m = document.getElementById('role-modal');
+  document.getElementById('role-modal-target').textContent = `Changing role for ${name || email} (currently ${currentRole.replace(/_/g,' ')})`;
+  document.getElementById('role-modal-select').value = currentRole;
+  document.getElementById('role-modal-error').style.display='none';
+  if (m) m.style.display='flex';
+}
+function closeRoleModal() {
+  const m = document.getElementById('role-modal');
+  if (m) m.style.display='none';
+}
+async function submitRoleChange() {
+  const newRole = document.getElementById('role-modal-select').value;
+  const errEl = document.getElementById('role-modal-error');
+  const btn = document.getElementById('role-modal-confirm');
+  errEl.style.display='none'; btn.disabled=true; btn.textContent='Saving…';
+  const res = await adminFetch('/admin-user-role', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ targetEmail: _roleModalTarget, newRole }) });
+  btn.disabled=false; btn.textContent='Confirm Change';
+  if (res.error) { errEl.textContent=res.error; errEl.style.display='block'; return; }
+  closeRoleModal();
+  loadTeamAccess();
+}
+
+// Suspend / reactivate modal
+let _suspendTarget = '';
+let _suspendAction = 'suspend';
+function openSuspendModal(email, name, action) {
+  _suspendTarget = email; _suspendAction = action;
+  const m = document.getElementById('suspend-modal');
+  const title = document.getElementById('suspend-modal-title');
+  const desc = document.getElementById('suspend-modal-desc');
+  const reasonWrap = document.getElementById('suspend-reason-wrap');
+  const confirmBtn = document.getElementById('suspend-modal-confirm');
+  document.getElementById('suspend-modal-error').style.display='none';
+  document.getElementById('suspend-reason').value='';
+  if (action === 'reactivate') {
+    title.textContent = 'Reactivate Admin Access?';
+    desc.textContent = `${name || email} will be able to log in to the Admin Dashboard again.`;
+    reasonWrap.style.display='none';
+    confirmBtn.textContent='Reactivate'; confirmBtn.style.background='#22C55E';
+  } else {
+    title.textContent = 'Suspend Admin Access?';
+    desc.textContent = 'This user will no longer be able to access the Carehia Admin Dashboard.';
+    reasonWrap.style.display='';
+    confirmBtn.textContent='Suspend'; confirmBtn.style.background='#EF4444';
+  }
+  if (m) m.style.display='flex';
+}
+function closeSuspendModal() {
+  const m = document.getElementById('suspend-modal');
+  if (m) m.style.display='none';
+}
+async function submitSuspend() {
+  const errEl = document.getElementById('suspend-modal-error');
+  const btn = document.getElementById('suspend-modal-confirm');
+  errEl.style.display='none'; btn.disabled=true; btn.textContent='Saving…';
+  let res;
+  if (_suspendAction === 'reactivate') {
+    res = await adminFetch('/admin-user-reactivate', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ targetEmail: _suspendTarget }) });
+  } else {
+    const reason = document.getElementById('suspend-reason').value.trim();
+    res = await adminFetch('/admin-user-suspend', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ targetEmail: _suspendTarget, reason: reason||null }) });
+  }
+  btn.disabled=false;
+  if (res.error) { errEl.textContent=res.error; errEl.style.display='block'; return; }
+  closeSuspendModal();
+  loadTeamAccess();
+}
+
+async function revokeInvite(inviteId) {
+  if (!confirm('Revoke this invite? The invite link will no longer work.')) return;
+  const res = await adminFetch('/admin-invite-revoke', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ inviteId }) });
+  if (res.error) { alert(res.error); return; }
+  loadTeamAccess();
+}
+</script>
 
 </body>
 </html>

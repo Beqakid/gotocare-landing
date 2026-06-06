@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accept Admin Invite — Carehia</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; margin: 0; padding: 0; background: #F0F4FF; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .card { background: #fff; border-radius: 20px; padding: 40px 36px; width: 100%; max-width: 420px; margin: 24px; box-shadow: 0 4px 32px rgba(124,92,255,.10); }
+    .logo { font-size: 22px; font-weight: 800; color: #7C5CFF; margin-bottom: 28px; }
+    h1 { font-size: 22px; font-weight: 700; color: #0F172A; margin: 0 0 6px; }
+    p { color: #64748b; font-size: 14px; margin: 0 0 20px; }
+    .invite-info { background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 10px; padding: 16px; margin-bottom: 22px; }
+    .invite-info .label { font-size: 11px; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 2px; }
+    .invite-info .value { font-size: 14px; font-weight: 600; color: #0F172A; margin-bottom: 10px; }
+    .role-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; background: #7C5CFF22; color: #7C5CFF; }
+    label { font-size: 13px; font-weight: 600; color: #0F172A; display: block; margin-bottom: 5px; }
+    input[type="password"] { width: 100%; padding: 12px 14px; border: 1.5px solid #E2E8F0; border-radius: 10px; font-size: 15px; color: #0F172A; background: #F8FAFC; margin-bottom: 14px; transition: border .2s; }
+    input[type="password"]:focus { outline: none; border-color: #7C5CFF; background: #fff; }
+    .hint { font-size: 12px; color: #94a3b8; margin-top: -10px; margin-bottom: 18px; }
+    .btn { width: 100%; padding: 13px; background: #7C5CFF; color: #fff; border: none; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; transition: opacity .2s; }
+    .btn:hover { opacity: .9; }
+    .btn:disabled { opacity: .6; cursor: not-allowed; }
+    .error { background: #FEF2F2; color: #EF4444; padding: 12px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 14px; display: none; }
+    .success { background: #F0FDF4; color: #15803D; padding: 16px; border-radius: 10px; font-size: 14px; text-align: center; }
+    .success a { color: #7C5CFF; font-weight: 700; text-decoration: none; }
+    .loading { text-align: center; color: #94a3b8; padding: 40px 0; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">Carehia</div>
+
+    <!-- Loading state -->
+    <div id="state-loading" class="loading">Verifying your invite link…</div>
+
+    <!-- Error state -->
+    <div id="state-error" style="display:none;">
+      <h1>Invalid Invite</h1>
+      <p id="state-error-msg">This invite link is invalid, expired, or has already been used.</p>
+    </div>
+
+    <!-- Set password form -->
+    <div id="state-form" style="display:none;">
+      <h1>Accept Invite</h1>
+      <p>Set a password to activate your Carehia Admin account.</p>
+
+      <div class="invite-info">
+        <div class="label">Invited as</div>
+        <div class="value" id="info-name">—</div>
+        <div class="label">Email</div>
+        <div class="value" id="info-email">—</div>
+        <div class="label">Role</div>
+        <div><span class="role-badge" id="info-role">—</span></div>
+      </div>
+
+      <label for="pw1">Create Password</label>
+      <input type="password" id="pw1" placeholder="At least 8 characters">
+
+      <label for="pw2">Confirm Password</label>
+      <input type="password" id="pw2" placeholder="Re-enter password">
+      <div class="hint">Min 8 characters. Use a strong, unique password.</div>
+
+      <div class="error" id="form-error"></div>
+      <button class="btn" id="submit-btn" onclick="submitAccept()">Activate Account</button>
+    </div>
+
+    <!-- Success state -->
+    <div id="state-success" style="display:none;">
+      <div class="success">
+        <div style="font-size:36px;margin-bottom:12px;">🎉</div>
+        <strong>Account activated!</strong>
+        <p style="margin:10px 0 16px;color:#15803D;">You can now sign in to the Carehia Admin Dashboard.</p>
+        <a href="https://carehia.com/admin/" class="btn" style="display:inline-block;text-decoration:none;padding:12px 28px;width:auto;">Go to Admin Dashboard &rarr;</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API = 'https://carehia-admin.jjioji.workers.dev';
+    const params = new URLSearchParams(location.search);
+    const rawToken = params.get('t') || '';
+    const ROLE_LABELS = {
+      super_admin: 'Super Admin', admin_manager: 'Admin Manager',
+      verification_reviewer: 'Verification Reviewer', support_agent: 'Support Agent',
+      finance_admin: 'Finance Admin', read_only_auditor: 'Read-Only Auditor'
+    };
+
+    async function verifyInvite() {
+      if (!rawToken) { showError('No invite token found in the link. Please check the URL and try again.'); return; }
+      try {
+        const res = await fetch(`${API}/admin-invite-verify?t=${encodeURIComponent(rawToken)}`);
+        const data = await res.json();
+        if (!data.valid) { showError(data.error || 'Invalid invite link.'); return; }
+        document.getElementById('info-name').textContent = data.name || '—';
+        document.getElementById('info-email').textContent = data.email || '—';
+        document.getElementById('info-role').textContent = ROLE_LABELS[data.role] || data.role || '—';
+        document.getElementById('state-loading').style.display = 'none';
+        document.getElementById('state-form').style.display = '';
+      } catch (e) {
+        showError('Could not verify invite. Please try again or contact your administrator.');
+      }
+    }
+
+    function showError(msg) {
+      document.getElementById('state-loading').style.display = 'none';
+      document.getElementById('state-error-msg').textContent = msg;
+      document.getElementById('state-error').style.display = '';
+    }
+
+    async function submitAccept() {
+      const pw1 = document.getElementById('pw1').value;
+      const pw2 = document.getElementById('pw2').value;
+      const errEl = document.getElementById('form-error');
+      const btn = document.getElementById('submit-btn');
+      errEl.style.display = 'none';
+
+      if (!pw1 || pw1.length < 8) { errEl.textContent = 'Password must be at least 8 characters.'; errEl.style.display = ''; return; }
+      if (pw1 !== pw2) { errEl.textContent = 'Passwords do not match.'; errEl.style.display = ''; return; }
+
+      btn.disabled = true; btn.textContent = 'Activating…';
+      try {
+        const res = await fetch(`${API}/admin-invite-accept`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rawToken, password: pw1 })
+        });
+        const data = await res.json();
+        if (data.error) { errEl.textContent = data.error; errEl.style.display = ''; btn.disabled = false; btn.textContent = 'Activate Account'; return; }
+        document.getElementById('state-form').style.display = 'none';
+        document.getElementById('state-success').style.display = '';
+      } catch (e) {
+        errEl.textContent = 'Something went wrong. Please try again.';
+        errEl.style.display = ''; btn.disabled = false; btn.textContent = 'Activate Account';
+      }
+    }
+
+    verifyInvite();
+  </script>
+</body>
+</html>
