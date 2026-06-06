@@ -1095,7 +1095,7 @@ let adminEmail = localStorage.getItem('carehia_admin_email') || '';
 
 
 // ===== ADMIN FETCH HELPER (Phase 33) =====
-async async function adminFetch(path, options = {}) {
+async function adminFetch(path, options = {}) {
   try {
     const sep = path.includes('?') ? '&' : '?';
     const url = `${API}${path}${sep}token=${encodeURIComponent(adminToken)}`;
