@@ -1225,7 +1225,8 @@ function switchTab(name, _btn) {
   if (name === 'today')          loadTodayOps();
   else if (name === 'clients')   loadClients();
   else if (name === 'caregivers') loadCaregivers();
-  else if (name === 'bookings' || name === 'requests') loadBookings();
+  else if (name === 'bookings') loadBookings();
+  else if (name === 'requests') loadRequests();
   else if (name === 'verifications') loadVerifications();
   else if (name === 'trust')     loadTrustQueue();
   else if (name === 'marketplace') loadMarketplace();
