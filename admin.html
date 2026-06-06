@@ -406,7 +406,27 @@
   .ops-card.urgent { border-color:rgba(239,68,68,.4); }
   .ops-card.urgent .ops-card-val { color:var(--error); }
   .attention-section { margin-bottom:28px; }
-  .attention-header { font-size:16px; font-weight:700; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+  .filter-tab {
+  padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 500;
+  border: 1px solid var(--border); background: var(--card); color: var(--muted);
+  cursor: pointer; transition: all .15s; white-space: nowrap;
+}
+.filter-tab:hover { background: var(--sidebar-bg); color: var(--text); }
+.filter-tab.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.attention-item {
+  display: flex; align-items: flex-start; gap: 12px; padding: 12px 16px;
+  border-radius: 10px; background: var(--card); border: 1px solid var(--border);
+  margin-bottom: 8px; transition: background .15s;
+}
+.attention-item:hover { background: var(--sidebar-bg); }
+.attention-item-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.attention-item.priority-critical { border-left: 3px solid #dc2626; }
+.attention-item.priority-high { border-left: 3px solid #f97316; }
+.attention-item.priority-medium { border-left: 3px solid #eab308; }
+.attention-item.priority-low { border-left: 3px solid #60a5fa; }
+.badge-danger { background: #fee2e2; color: #dc2626; }
+
+.attention-header { font-size:16px; font-weight:700; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
   .attention-item {
     background:var(--card);
     border:1px solid var(--border);
@@ -623,12 +643,14 @@
                 <th>Name</th>
                 <th>Email</th>
                 <th class="hide-mobile">Auth</th>
-                <th class="hide-mobile">Admin</th>
+                <th class="hide-mobile">Requests</th>
+                <th class="hide-mobile">Team</th>
+                <th class="hide-mobile">Last Active</th>
                 <th>Joined</th>
               </tr>
             </thead>
             <tbody id="clientsBody">
-              <tr class="loading-row"><td colspan="6">⏳ Loading…</td></tr>
+              <tr class="loading-row"><td colspan="8">⏳ Loading…</td></tr>
             </tbody>
           </table>
         </div>
@@ -643,7 +665,15 @@
             <span class="table-title">Caregivers</span>
             <span class="table-count" id="caregiverCount">—</span>
           </div>
-          <div style="display:flex;gap:10px;align-items:center;">
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+            <select id="cgFilter" onchange="loadCaregivers(this.value)" style="height:36px;border-radius:8px;border:1px solid var(--border);padding:0 10px;font-size:13px;background:var(--card);color:var(--text);">
+              <option value="all">All</option>
+              <option value="new">New (7d)</option>
+              <option value="online">Online</option>
+              <option value="incomplete">Profile Incomplete</option>
+              <option value="needs_review">Needs Trust Review</option>
+              <option value="verified">Verified (3+ modules)</option>
+            </select>
             <input class="search-box" id="caregiverSearch" placeholder="Search name or email…" oninput="filterTable('caregiversBody','caregiverSearch')"/>
             <button class="btn-refresh" onclick="loadCaregivers()">↻ Refresh</button>
           </div>
@@ -656,12 +686,15 @@
                 <th>Name</th>
                 <th>Email</th>
                 <th class="hide-mobile">Location</th>
-                <th class="hide-mobile">Rate/hr</th>
+                <th class="hide-mobile">Trust Level</th>
+                <th class="hide-mobile">Status</th>
+                <th class="hide-mobile">Rating</th>
+                <th class="hide-mobile">Visits</th>
                 <th>Joined</th>
               </tr>
             </thead>
             <tbody id="caregiversBody">
-              <tr class="loading-row"><td colspan="6">⏳ Loading…</td></tr>
+              <tr class="loading-row"><td colspan="9">⏳ Loading…</td></tr>
             </tbody>
           </table>
         </div>
@@ -1060,6 +1093,38 @@ let adminToken = localStorage.getItem('carehia_admin_token') || '';
 let adminName = localStorage.getItem('carehia_admin_name') || '';
 let adminEmail = localStorage.getItem('carehia_admin_email') || '';
 
+
+// ===== ADMIN FETCH HELPER (Phase 33) =====
+async function adminFetch(path, options = {}) {
+  try {
+    const url = `${API}${path}`;
+    const headers = { 'Authorization': `Bearer ${adminToken}`, ...(options.headers || {}) };
+    const res = await fetch(url, { ...options, headers });
+    if (res.status === 401 || res.status === 403) {
+      console.warn('Admin access denied:', path);
+      return { _unauthorized: true };
+    }
+    const text = await res.text();
+    if (!text) return { _empty: true };
+    return JSON.parse(text);
+  } catch (e) {
+    console.error('adminFetch error:', path, e);
+    return { _error: String(e) };
+  }
+}
+function adminUnauthorized(containerId) {
+  const el = document.getElementById(containerId);
+  if (el) el.innerHTML = '<div class="scaffold-section"><div class="scaffold-icon">🔐</div><div class="scaffold-title">Admin access required</div><div class="scaffold-desc">Please sign in with an authorized admin account.</div></div>';
+}
+function adminError(containerId, msg) {
+  const el = document.getElementById(containerId);
+  if (el) el.innerHTML = `<div class="scaffold-section"><div class="scaffold-icon">⚠️</div><div class="scaffold-title">Error loading data</div><div class="scaffold-desc">${msg || 'An error occurred. Check the console for details.'}</div></div>`;
+}
+function adminEmpty(containerId, msg) {
+  const el = document.getElementById(containerId);
+  if (el) el.innerHTML = `<div class="scaffold-section"><div class="scaffold-icon">📭</div><div class="scaffold-title">No items found</div><div class="scaffold-desc">${msg || 'Nothing to show here yet.'}</div></div>`;
+}
+
 // ===== AUTH =====
 async function doLogin() {
   const email = document.getElementById('loginEmail').value.trim();
@@ -1168,6 +1233,170 @@ function switchTab(name, _btn) {
   else if (name === 'schedules') loadSchedulesView('needs_review');
   else if (name === 'acq')       { if (typeof loadAcquisition === 'function') loadAcquisition(); }
   else if (name === 'overview')  loadOverview();
+  else if (name === 'reviews')   loadReviews();
+  else if (name === 'invoices')  loadInvoices();
+  else if (name === 'subscriptions') loadSubscriptions();
+}
+
+// ===== PHASE 33: FILTER TAB HELPER =====
+function setFilterTabActive(tabsContainerId, clickedBtn) {
+  if (!clickedBtn) return;
+  const container = document.getElementById(tabsContainerId);
+  if (container) container.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+  clickedBtn.classList.add('active');
+}
+
+// ===== PHASE 33: LOAD REQUESTS =====
+async function loadRequests(filter, btn) {
+  const f = filter || 'all';
+  if (btn) setFilterTabActive('requestFilterTabs', btn);
+  const cols = 8;
+  document.getElementById('requestsBody').innerHTML = `<tr class="loading-row"><td colspan="${cols}">⏳ Loading…</td></tr>`;
+  try {
+    const d = await adminFetch(`/admin-requests?token=${adminToken}&filter=${f}`);
+    if (d._unauthorized) { doLogout(); return; }
+    if (d._error) { document.getElementById('requestsBody').innerHTML = `<tr class="loading-row"><td colspan="${cols}">⚠️ ${esc(d._error)}</td></tr>`; return; }
+    const rows = d.requests || [];
+    const fc = d.filterCounts || {};
+    document.getElementById('requestCount').textContent = `${rows.length} shown`;
+    // Update filter tab labels with counts
+    const tabsEl = document.getElementById('requestFilterTabs');
+    if (tabsEl) {
+      const labelMap = { all:'All', unfilled:'⚠️ Unfilled', new:'New', accepted:'Accepted', scheduled:'Scheduled', completed:'Completed', cancelled:'Cancelled' };
+      tabsEl.querySelectorAll('.filter-tab').forEach(btn => {
+        const fval = btn.getAttribute('onclick')?.match(/loadRequests\('(\w+)'/)?.[1];
+        if (fval && fc[fval] !== undefined) btn.textContent = `${labelMap[fval]||fval} (${fc[fval]})`;
+      });
+    }
+    const STATUS_LABEL = {
+      pending:'⏳ Pending', caregiver_accepted:'✅ Accepted', confirmed:'📋 Confirmed',
+      scheduled:'📅 Scheduled', in_progress:'🟡 In Progress', completed:'✅ Completed',
+      cancelled:'❌ Cancelled', expired:'⏰ Expired', rejected:'✗ Rejected',
+    };
+    document.getElementById('requestsBody').innerHTML = rows.map(r => `
+      <tr data-search="${esc((r.client_email||'').toLowerCase())} ${esc((r.care_needs||'').toLowerCase())}">
+        <td style="font-weight:600;color:var(--muted);font-size:11px;">${r.is_urgent ? '🔴 ' : ''}#${r.id}</td>
+        <td style="font-size:12px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(r.client_email||'')}">${esc(r.client_email||'—')}</td>
+        <td style="font-size:12px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(r.care_needs||'')}">${esc(r.care_needs||'—')}</td>
+        <td class="hide-mobile" style="font-size:12px;">${esc(r.caregiver_name||'—')}</td>
+        <td class="hide-mobile" style="font-size:12px;color:var(--muted);">${r.preferred_date || '—'}${r.preferred_time ? ' ' + r.preferred_time : ''}</td>
+        <td><span class="badge ${r.status==='completed'?'badge-green':r.status==='pending'?'badge-yellow':r.status==='cancelled'||r.status==='expired'?'':'badge-blue'}" style="font-size:10px;">${STATUS_LABEL[r.status]||r.status}</span></td>
+        <td class="hide-mobile" style="font-size:11px;color:var(--muted);">${r.is_unlocked ? '🔓 Unlocked' : '🔒 Locked'}</td>
+        <td style="font-size:11px;color:var(--muted);">${fmtDate(r.created_at)}</td>
+      </tr>
+    `).join('') || `<tr class="loading-row"><td colspan="${cols}">No requests found.</td></tr>`;
+  } catch(e) { document.getElementById('requestsBody').innerHTML = `<tr class="loading-row"><td colspan="8">⚠️ Error: ${e.message}</td></tr>`; }
+}
+
+// ===== PHASE 33: LOAD REVIEWS =====
+async function loadReviews(filter, btn) {
+  const f = filter || 'all';
+  if (btn) setFilterTabActive('reviewFilterTabs', btn);
+  document.getElementById('reviewsBody').innerHTML = '<tr class="loading-row"><td colspan="7">⏳ Loading…</td></tr>';
+  try {
+    const d = await adminFetch(`/admin-reviews?token=${adminToken}&filter=${f}`);
+    if (d._unauthorized) { doLogout(); return; }
+    if (d._error) { document.getElementById('reviewsBody').innerHTML = `<tr class="loading-row"><td colspan="7">⚠️ ${esc(d._error)}</td></tr>`; return; }
+    const rows = d.reviews || [];
+    const counts = d.counts || {};
+    document.getElementById('reviewCount').textContent = rows.length;
+    const summEl = document.getElementById('reviewSummary');
+    if (summEl && counts.total > 0) {
+      summEl.innerHTML = `Total: ${counts.total} | Visible: ${counts.visible} | Hidden: ${counts.hidden} | Low Rating: ${counts.low_rating}`;
+    }
+    const stars = (r) => {
+      const n = parseFloat(r) || 0;
+      const full = Math.round(n);
+      return '★'.repeat(full) + '☆'.repeat(5-full);
+    };
+    document.getElementById('reviewsBody').innerHTML = rows.map(r => `
+      <tr data-search="${esc((r.caregiver_name||'').toLowerCase())} ${esc((r.review_text||'').toLowerCase())}">
+        <td style="color:var(--muted);font-size:11px">#${r.id}</td>
+        <td style="font-weight:500;font-size:13px">${esc(r.caregiver_name||'Caregiver #'+r.caregiver_id)}</td>
+        <td class="hide-mobile" style="font-size:12px;color:var(--muted);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(r.review_text||'')}">${esc(r.review_text||'—')}</td>
+        <td style="color:var(--warning);font-weight:600;font-size:13px;" title="${r.rating}/5">${stars(r.rating)} <span style="font-size:11px;color:var(--muted);">${parseFloat(r.rating||0).toFixed(1)}</span></td>
+        <td>${r.is_visible ? '<span class="badge badge-green" style="font-size:10px;">Visible</span>' : '<span class="badge" style="font-size:10px;background:var(--danger)/15;color:var(--danger);">Hidden</span>'}</td>
+        <td class="hide-mobile">${r.is_repeat_client ? '<span class="badge badge-blue" style="font-size:10px;">Repeat</span>' : '<span style="color:var(--muted);font-size:11px;">—</span>'}</td>
+        <td style="color:var(--muted);font-size:11px">${fmtDate(r.created_at)}</td>
+      </tr>
+    `).join('') || '<tr class="loading-row"><td colspan="7">No reviews found.</td></tr>';
+  } catch(e) { document.getElementById('reviewsBody').innerHTML = `<tr class="loading-row"><td colspan="7">⚠️ Error: ${e.message}</td></tr>`; }
+}
+
+// ===== PHASE 33: LOAD INVOICES =====
+async function loadInvoices(filter, btn) {
+  const f = filter || 'all';
+  if (btn) setFilterTabActive('invoiceFilterTabs', btn);
+  document.getElementById('invoicesBody').innerHTML = '<tr class="loading-row"><td colspan="7">⏳ Loading…</td></tr>';
+  try {
+    const d = await adminFetch(`/admin-invoices?token=${adminToken}&filter=${f}`);
+    if (d._unauthorized) { doLogout(); return; }
+    if (d._error) { document.getElementById('invoicesBody').innerHTML = `<tr class="loading-row"><td colspan="7">⚠️ ${esc(d._error)}</td></tr>`; return; }
+    const rows = d.invoices || [];
+    const counts = d.counts || {};
+    document.getElementById('invoiceCount').textContent = rows.length;
+    // Summary bar
+    const summEl = document.getElementById('invoiceSummaryBar');
+    if (summEl) {
+      summEl.innerHTML = [
+        counts.draft > 0 ? `<span style="background:var(--border);border-radius:6px;padding:3px 10px;font-size:12px;">Draft: ${counts.draft}</span>` : '',
+        counts.sent > 0 ? `<span style="background:#dbeafe;color:#1d4ed8;border-radius:6px;padding:3px 10px;font-size:12px;">Sent: ${counts.sent}</span>` : '',
+        counts.overdue > 0 ? `<span style="background:#fee2e2;color:#dc2626;border-radius:6px;padding:3px 10px;font-size:12px;">⚠️ Overdue: ${counts.overdue}</span>` : '',
+        counts.paid > 0 ? `<span style="background:#dcfce7;color:#16a34a;border-radius:6px;padding:3px 10px;font-size:12px;">Paid: ${counts.paid}</span>` : '',
+        counts.total_paid > 0 ? `<span style="font-weight:600;color:var(--success);font-size:12px;">Total paid: $${Number(counts.total_paid||0).toFixed(2)}</span>` : '',
+      ].filter(Boolean).join(' ');
+    }
+    const STATUS_STYLE = { draft:'', sent:'badge-blue', paid:'badge-green', overdue:'badge-danger' };
+    document.getElementById('invoicesBody').innerHTML = rows.map(inv => {
+      const isOverdue = inv.status === 'sent' && new Date(inv.created_at) < new Date(Date.now() - 14*86400000);
+      const displayStatus = isOverdue ? 'overdue' : inv.status;
+      return `
+      <tr data-search="${esc((inv.caregiver_name||inv.caregiver_email||'').toLowerCase())} ${esc((inv.client_name||'').toLowerCase())}">
+        <td style="color:var(--muted);font-size:11px">#${inv.id}</td>
+        <td style="font-weight:500;font-size:13px">${esc(inv.caregiver_name||inv.caregiver_email||'—')}</td>
+        <td class="hide-mobile" style="font-size:12px;color:var(--muted)">${esc(inv.client_name||'—')}</td>
+        <td style="font-weight:600;color:var(--text)">${inv.total != null ? '$'+Number(inv.total).toFixed(2) : '—'}</td>
+        <td><span class="badge ${isOverdue?'badge-danger':STATUS_STYLE[inv.status]||''}" style="font-size:10px;${isOverdue?'background:#fee2e2;color:#dc2626;':''}">${isOverdue ? '⚠️ Overdue' : inv.status||'—'}</span></td>
+        <td class="hide-mobile" style="font-size:11px;color:var(--muted)">${esc(inv.invoice_number||'—')}</td>
+        <td style="font-size:11px;color:var(--muted)">${fmtDate(inv.created_at)}</td>
+      </tr>`;
+    }).join('') || '<tr class="loading-row"><td colspan="7">No invoices found.</td></tr>';
+  } catch(e) { document.getElementById('invoicesBody').innerHTML = `<tr class="loading-row"><td colspan="7">⚠️ Error: ${e.message}</td></tr>`; }
+}
+
+// ===== PHASE 33: LOAD SUBSCRIPTIONS =====
+async function loadSubscriptions() {
+  document.getElementById('subsBody').innerHTML = '<tr class="loading-row"><td colspan="7">⏳ Loading…</td></tr>';
+  try {
+    const d = await adminFetch(`/admin-subscriptions?token=${adminToken}`);
+    if (d._unauthorized) { doLogout(); return; }
+    if (d._error) { document.getElementById('subsBody').innerHTML = `<tr class="loading-row"><td colspan="7">⚠️ ${esc(d._error)}</td></tr>`; return; }
+    const rows = d.subscriptions || [];
+    document.getElementById('subCount').textContent = rows.length;
+    const summEl = document.getElementById('subSummaryBar');
+    if (summEl) {
+      summEl.innerHTML = `Caregiver plans: ${d.caregiverCount||0} &nbsp;|&nbsp; Client plans: ${d.clientCount||0}`;
+    }
+    if (rows.length === 0) {
+      document.getElementById('subsBody').innerHTML = '<tr class="loading-row"><td colspan="7">No active subscriptions yet. Subscriptions appear here after Stripe webhook events.</td></tr>';
+      return;
+    }
+    const STATUS_STYLE = { active:'badge-green', trialing:'badge-blue', past_due:'badge-danger', cancelled:'', canceled:'' };
+    document.getElementById('subsBody').innerHTML = rows.map(s => {
+      const name = s.caregiver_name || s.client_name || s.name || '—';
+      const email = s.email || '—';
+      return `
+      <tr data-search="${esc((name).toLowerCase())} ${esc(email.toLowerCase())}">
+        <td style="font-weight:500;font-size:13px">${esc(name)}</td>
+        <td><span class="badge ${s.role==='caregiver'?'badge-purple':'badge-blue'}" style="font-size:10px;">${s.role||'—'}</span></td>
+        <td style="font-size:12px;color:var(--muted)">${esc(email)}</td>
+        <td style="font-size:12px;font-weight:500">${esc(s.plan||'—')}</td>
+        <td><span class="badge ${STATUS_STYLE[s.status]||''}" style="font-size:10px;">${s.status||'—'}</span></td>
+        <td class="hide-mobile" style="font-size:11px;color:var(--muted)">${s.current_period_end ? fmtDate(s.current_period_end) : '—'}</td>
+        <td style="font-size:11px;color:var(--muted)">${fmtDate(s.created_at)}</td>
+      </tr>`;
+    }).join('');
+  } catch(e) { document.getElementById('subsBody').innerHTML = `<tr class="loading-row"><td colspan="7">⚠️ Error: ${e.message}</td></tr>`; }
 }
 
 // ===== SIDEBAR TOGGLE (mobile) =====
@@ -1185,15 +1414,22 @@ function closeSidebar() {
 // ===== TODAY OPS =====
 async function loadTodayOps() {
   try {
-    // Reuse existing admin-stats for summary counts
-    const r = await fetch(`${API}/admin-stats?token=${adminToken}`);
-    if (!r.ok) return;
-    const d = await r.json();
-    if (d.error) { doLogout(); return; }
+    // Phase 33: Load stats + operations aggregator in parallel
+    const [statsData, opsData] = await Promise.all([
+      adminFetch(`/admin-stats?token=${adminToken}`),
+      adminFetch(`/admin-operations?token=${adminToken}`),
+    ]);
+
+    if (statsData._unauthorized || opsData._unauthorized) { doLogout(); return; }
+
+    const d = statsData;
+    const ops = opsData;
 
     // Populate summary cards
     const setEl = (id, v) => { const e = document.getElementById(id); if(e) e.textContent = v; };
-    setEl('ops-open-requests', d.totalBookings ?? '—');
+    const opsSum = ops.summary || {};
+
+    setEl('ops-open-requests', opsSum.openRequests ?? d.pendingBookings ?? d.totalBookings ?? '—');
     setEl('ops-caregivers',    d.totalCaregivers ?? '—');
     setEl('ops-clients',       d.totalClients ?? '—');
     setEl('ops-bookings',      d.totalBookings ?? '—');
@@ -1208,16 +1444,32 @@ async function loadTodayOps() {
     updateBadge('sb-badge-caregivers', d.totalCaregivers ?? 0);
     updateBadge('sb-badge-clients',    d.totalClients ?? 0);
 
-    // Load trust queue count for badge
-    try {
-      const tr = await fetch(`${API}/admin-trust-queue?token=${adminToken}&filter=needs_review`);
-      if (tr.ok) {
-        const td = await tr.json();
-        const trustCount = Array.isArray(td) ? td.length : (td.queue?.length ?? 0);
-        setEl('ops-trust-reviews', trustCount);
-        updateBadge('sb-badge-trust', trustCount);
+    // Load trust queue count for badge (from ops summary)
+    const trustCount = (opsSum.caregiversNeedingReview) ?? 0;
+    setEl('ops-trust-reviews', trustCount > 0 ? trustCount : '0');
+    updateBadge('sb-badge-trust', trustCount);
+
+    // Render Needs Attention list from /admin-operations
+    const attentionList = document.getElementById('todayAttentionList');
+    if (attentionList) {
+      const items = ops.needsAttention || [];
+      if (items.length === 0) {
+        attentionList.innerHTML = '<div class="empty-ops"><div class="empty-ops-icon">✅</div><div>All caught up! No items need immediate attention.</div></div>';
+      } else {
+        const PRIORITY_ICON = { critical: '🔴', high: '🟠', medium: '🟡', low: '🔵' };
+        const TYPE_LABEL = { request: 'Request', trust_review: 'Trust', caregiver: 'Caregiver', schedule: 'Schedule', invoice: 'Invoice', review: 'Review', subscription: 'Subscription' };
+        attentionList.innerHTML = items.map(item => `
+          <div class="attention-item priority-${item.priority}" onclick="switchTab('${item.route}')" style="cursor:pointer;">
+            <div class="attention-item-icon">${PRIORITY_ICON[item.priority] || '⚠️'}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-weight:600;font-size:14px;color:var(--text);">${esc(item.title)}</div>
+              ${item.description ? `<div style="font-size:12px;color:var(--muted);margin-top:2px;">${esc(item.description)}</div>` : ''}
+            </div>
+            <div style="font-size:11px;font-weight:600;color:var(--muted);white-space:nowrap;text-transform:uppercase;letter-spacing:.5px;">${TYPE_LABEL[item.type] || item.type} →</div>
+          </div>
+        `).join('');
       }
-    } catch(e) { setEl('ops-trust-reviews', '—'); }
+    }
 
     // Load location flags count
     try {
@@ -1416,46 +1668,65 @@ async function loadOverview() {
 
 // ===== CLIENTS =====
 async function loadClients() {
-  document.getElementById('clientsBody').innerHTML = '<tr class="loading-row"><td colspan="6">⏳ Loading…</td></tr>';
+  document.getElementById('clientsBody').innerHTML = '<tr class="loading-row"><td colspan="8">⏳ Loading…</td></tr>';
   try {
-    const r = await fetch(`${API}/admin-clients?token=${adminToken}`);
-    const d = await r.json();
-    if(d.error) { doLogout(); return; }
+    const d = await adminFetch(`/admin-clients-detail?token=${adminToken}`);
+    if (d._unauthorized) { doLogout(); return; }
+    if (d._error) { document.getElementById('clientsBody').innerHTML = `<tr class="loading-row"><td colspan="8">⚠️ ${esc(d._error)}</td></tr>`; return; }
     const rows = d.clients || [];
     document.getElementById('clientCount').textContent = rows.length;
     document.getElementById('clientsBody').innerHTML = rows.map(c => `
       <tr data-search="${(c.name||'').toLowerCase()} ${(c.email||'').toLowerCase()}">
-        <td style="color:var(--muted);font-size:12px">#${c.id}</td>
+        <td style="color:var(--muted);font-size:11px">#${c.id}</td>
         <td style="font-weight:500">${esc(c.name||'—')}</td>
-        <td style="color:var(--muted)">${esc(c.email||'—')}</td>
+        <td style="color:var(--muted);font-size:12px">${esc(c.email||'—')}</td>
         <td class="hide-mobile">${c.google_id ? '<span class="badge badge-blue">Google</span>' : '<span class="badge badge-purple">Email</span>'}</td>
-        <td class="hide-mobile">${c.is_admin ? '<span class="badge badge-yellow">⭐ Admin</span>' : '<span class="badge badge-green">Client</span>'}</td>
-        <td style="color:var(--muted);font-size:12px">${fmtDate(c.created_at)}</td>
+        <td class="hide-mobile" style="font-weight:600;color:${(c.pending_requests||0)>0?'var(--danger)':'var(--muted)'};font-size:12px">
+          ${c.request_count||0} req ${(c.pending_requests||0)>0?'<span style="color:var(--danger);">('+c.pending_requests+' pending)</span>':''}
+        </td>
+        <td class="hide-mobile" style="font-size:12px;color:var(--muted)">${c.team_count||0} caregiver${(c.team_count||0)===1?'':'s'}</td>
+        <td class="hide-mobile" style="font-size:11px;color:var(--muted)">${c.last_session ? fmtDate(c.last_session) : 'Never'}</td>
+        <td style="color:var(--muted);font-size:11px">${fmtDate(c.created_at)}</td>
       </tr>
-    `).join('') || '<tr class="loading-row"><td colspan="6">No clients yet.</td></tr>';
-  } catch(e) { document.getElementById('clientsBody').innerHTML = '<tr class="loading-row"><td colspan="6">⚠️ Error loading data.</td></tr>'; }
+    `).join('') || '<tr class="loading-row"><td colspan="8">No clients yet.</td></tr>';
+  } catch(e) { document.getElementById('clientsBody').innerHTML = `<tr class="loading-row"><td colspan="8">⚠️ Error: ${e.message}</td></tr>`; }
 }
 
 // ===== CAREGIVERS =====
-async function loadCaregivers() {
-  document.getElementById('caregiversBody').innerHTML = '<tr class="loading-row"><td colspan="6">⏳ Loading…</td></tr>';
+async function loadCaregivers(filter) {
+  const f = filter || document.getElementById('cgFilter')?.value || 'all';
+  const cols = 9;
+  document.getElementById('caregiversBody').innerHTML = `<tr class="loading-row"><td colspan="${cols}">⏳ Loading…</td></tr>`;
   try {
-    const r = await fetch(`${API}/admin-caregivers?token=${adminToken}`);
-    const d = await r.json();
-    if(d.error) { doLogout(); return; }
+    const d = await adminFetch(`/admin-caregivers-detail?token=${adminToken}&filter=${f}`);
+    if (d._unauthorized) { doLogout(); return; }
+    if (d._error) { document.getElementById('caregiversBody').innerHTML = `<tr class="loading-row"><td colspan="${cols}">⚠️ ${esc(d._error)}</td></tr>`; return; }
     const rows = d.caregivers || [];
-    document.getElementById('caregiverCount').textContent = rows.length;
+    document.getElementById('caregiverCount').textContent = `${rows.length} of ${d.total || rows.length}`;
+    const trustBadge = (level) => {
+      const map = { 'Trusted Pro':'badge-yellow','Carehia Verified':'badge-blue','Care Ready':'badge-green','Identity Ready':'badge-purple','Getting Started':'' };
+      return `<span class="badge ${map[level]||''}" style="font-size:10px;">${level}</span>`;
+    };
+    const onlineDot = (is_online) => is_online ? '<span style="color:var(--success);font-weight:700;">● Online</span>' : '<span style="color:var(--muted);font-size:11px;">Offline</span>';
     document.getElementById('caregiversBody').innerHTML = rows.map(c => `
       <tr data-search="${(c.name||'').toLowerCase()} ${(c.email||'').toLowerCase()}">
-        <td style="color:var(--muted);font-size:12px">#${c.id}</td>
-        <td style="font-weight:500">${esc(c.name||'—')}</td>
-        <td style="color:var(--muted)">${esc(c.email||'—')}</td>
-        <td class="hide-mobile" style="color:var(--muted)">${esc(c.city && c.state ? c.city+', '+c.state : c.city||c.state||'—')}</td>
-        <td class="hide-mobile">${c.hourly_rate ? '<span style="color:var(--success);font-weight:600">$'+parseFloat(c.hourly_rate).toFixed(2)+'/hr</span>' : '<span style="color:var(--muted)">—</span>'}</td>
-        <td style="color:var(--muted);font-size:12px">${fmtDate(c.created_at)}</td>
+        <td style="color:var(--muted);font-size:11px">#${c.id}</td>
+        <td style="font-weight:500;white-space:nowrap;">
+          ${esc(c.name||'—')}
+          ${c.profile_complete ? '' : ' <span style="color:var(--danger);font-size:10px;" title="Profile incomplete">⚠</span>'}
+        </td>
+        <td style="color:var(--muted);font-size:12px">${esc(c.email||'—')}</td>
+        <td class="hide-mobile" style="color:var(--muted);font-size:12px">${esc(c.city && c.state ? c.city+', '+c.state : c.city||c.state||'—')}</td>
+        <td class="hide-mobile">${trustBadge(c.trustLevel||'Getting Started')}</td>
+        <td class="hide-mobile">${onlineDot(c.is_online)}</td>
+        <td class="hide-mobile" style="font-size:12px;white-space:nowrap;">
+          ${c.review_count > 0 ? `<span style="color:var(--warning)">★ ${Number(c.avg_rating||0).toFixed(1)}</span> <span style="color:var(--muted)">(${c.review_count})</span>` : '<span style="color:var(--muted)">No reviews</span>'}
+        </td>
+        <td class="hide-mobile" style="font-size:12px;color:var(--muted)">${c.completed_count || 0} visits</td>
+        <td style="color:var(--muted);font-size:11px">${fmtDate(c.created_at)}</td>
       </tr>
-    `).join('') || '<tr class="loading-row"><td colspan="6">No caregivers yet.</td></tr>';
-  } catch(e) { document.getElementById('caregiversBody').innerHTML = '<tr class="loading-row"><td colspan="6">⚠️ Error loading data.</td></tr>'; }
+    `).join('') || `<tr class="loading-row"><td colspan="${cols}">No caregivers found.</td></tr>`;
+  } catch(e) { document.getElementById('caregiversBody').innerHTML = `<tr class="loading-row"><td colspan="9">⚠️ Error: ${e.message}</td></tr>`; }
 }
 
 // ===== BOOKINGS =====
@@ -2904,22 +3175,46 @@ async function flagLocation(visitId) {
 
   <!-- ===================== REQUESTS TAB ===================== -->
   <div id="tab-requests" style="display:none;">
-    <div class="ops-header">
-      <h1>📬 Care Requests</h1>
-      <p>Manage the full care request lifecycle.</p>
-    </div>
-    <div class="scaffold-section">
-      <div class="scaffold-icon">📬</div>
-      <div class="scaffold-title">Requests Board</div>
-      <div class="scaffold-desc">
-        This section will show all care requests across statuses: Draft → Submitted → Matching → Dispatched → Accepted → Scheduled → Completed.<br><br>
-        For now, use the <strong>Bookings</strong> tab in the Other section for booking data.<br><br>
-        <em style="color:var(--muted);font-size:12px;">TODO: Connect <code>GET /api/admin/requests</code> endpoint with full lifecycle status filtering.</em>
+    <div class="table-wrap">
+      <div class="table-header">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span class="table-title">📬 Care Requests</span>
+          <span class="table-count" id="requestCount">—</span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <input class="search-box" id="requestSearch" placeholder="Search client or care type…" oninput="filterTable('requestsBody','requestSearch')"/>
+          <button class="btn-refresh" onclick="loadRequests()">↻ Refresh</button>
+        </div>
       </div>
-      <button class="btn-refresh" style="margin-top:20px;" onclick="switchTab('bookings')">View Bookings →</button>
+      <div id="requestFilterTabs" style="display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px;padding:0 4px;">
+        <button class="filter-tab active" onclick="loadRequests('all',this)">All</button>
+        <button class="filter-tab" onclick="loadRequests('unfilled',this)">⚠️ Unfilled</button>
+        <button class="filter-tab" onclick="loadRequests('new',this)">New</button>
+        <button class="filter-tab" onclick="loadRequests('accepted',this)">Accepted</button>
+        <button class="filter-tab" onclick="loadRequests('scheduled',this)">Scheduled</button>
+        <button class="filter-tab" onclick="loadRequests('completed',this)">Completed</button>
+        <button class="filter-tab" onclick="loadRequests('cancelled',this)">Cancelled</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Client</th>
+              <th>Care Needs</th>
+              <th class="hide-mobile">Caregiver</th>
+              <th class="hide-mobile">Date</th>
+              <th>Status</th>
+              <th class="hide-mobile">Unlocked</th>
+              <th>Created</th>
+            </tr>
+          </thead>
+          <tbody id="requestsBody">
+            <tr class="loading-row"><td colspan="8">⏳ Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
-  </div>
-
   <!-- ===================== SCHEDULES TAB ===================== -->
   <div id="tab-schedules" style="display:none;">
     <!-- Reuse existing location review UI -->
@@ -2960,51 +3255,121 @@ async function flagLocation(visitId) {
 
   <!-- ===================== INVOICES TAB ===================== -->
   <div id="tab-invoices" style="display:none;">
-    <div class="ops-header">
-      <h1>🧾 Invoices</h1>
-      <p>Monitor invoice and payment issues across caregivers.</p>
-    </div>
-    <div class="scaffold-section">
-      <div class="scaffold-icon">🧾</div>
-      <div class="scaffold-title">Invoice Monitor</div>
-      <div class="scaffold-desc">
-        This section will show: invoices created, sent, paid, overdue, and send failures.<br><br>
-        Caregiver invoice data is stored in <code>caregiver_personal_invoices</code> (D1).<br><br>
-        <em style="color:var(--muted);font-size:12px;">TODO: Connect <code>GET /admin-invoices</code> endpoint on <code>carehia-admin</code> worker.</em>
+    <div class="table-wrap">
+      <div class="table-header">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span class="table-title">🧾 Invoices</span>
+          <span class="table-count" id="invoiceCount">—</span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <input class="search-box" id="invoiceSearch" placeholder="Search caregiver or client…" oninput="filterTable('invoicesBody','invoiceSearch')"/>
+          <button class="btn-refresh" onclick="loadInvoices()">↻ Refresh</button>
+        </div>
+      </div>
+      <div id="invoiceSummaryBar" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;padding:0 4px;"></div>
+      <div id="invoiceFilterTabs" style="display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px;padding:0 4px;">
+        <button class="filter-tab active" onclick="loadInvoices('all',this)">All</button>
+        <button class="filter-tab" onclick="loadInvoices('draft',this)">Draft</button>
+        <button class="filter-tab" onclick="loadInvoices('sent',this)">Sent</button>
+        <button class="filter-tab" onclick="loadInvoices('overdue',this)">⚠️ Overdue</button>
+        <button class="filter-tab" onclick="loadInvoices('paid',this)">Paid</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Caregiver</th>
+              <th class="hide-mobile">Client</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th class="hide-mobile">Invoice #</th>
+              <th>Created</th>
+            </tr>
+          </thead>
+          <tbody id="invoicesBody">
+            <tr class="loading-row"><td colspan="7">⏳ Loading…</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
 
   <!-- ===================== REVIEWS TAB ===================== -->
   <div id="tab-reviews" style="display:none;">
-    <div class="ops-header">
-      <h1>⭐ Reviews</h1>
-      <p>Moderate caregiver reviews and references.</p>
-    </div>
-    <div class="scaffold-section">
-      <div class="scaffold-icon">⭐</div>
-      <div class="scaffold-title">Review Moderation Queue</div>
-      <div class="scaffold-desc">
-        This section will show caregiver reviews pending approval, flagged reviews, and reference checks.<br><br>
-        Review data is in <code>caregiver_reviews</code> and <code>caregiver_review_tags</code> (D1).<br><br>
-        <em style="color:var(--muted);font-size:12px;">TODO: Connect <code>GET /admin-reviews</code> and <code>POST /admin-reviews/:id/approve</code> endpoints.</em>
+    <div class="table-wrap">
+      <div class="table-header">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span class="table-title">⭐ Reviews</span>
+          <span class="table-count" id="reviewCount">—</span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <input class="search-box" id="reviewSearch" placeholder="Search caregiver…" oninput="filterTable('reviewsBody','reviewSearch')"/>
+          <button class="btn-refresh" onclick="loadReviews()">↻ Refresh</button>
+        </div>
       </div>
+      <div id="reviewFilterTabs" style="display:flex;gap:6px;flex-wrap:wrap;margin:0 0 12px;padding:0 4px;">
+        <button class="filter-tab active" onclick="loadReviews('all',this)">All</button>
+        <button class="filter-tab" onclick="loadReviews('visible',this)">Visible</button>
+        <button class="filter-tab" onclick="loadReviews('hidden',this)">Hidden</button>
+        <button class="filter-tab" onclick="loadReviews('low_rating',this)">⚠️ Low Rating (≤3)</button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Caregiver</th>
+              <th class="hide-mobile">Review</th>
+              <th>Rating</th>
+              <th>Visible</th>
+              <th class="hide-mobile">Repeat Client</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="reviewsBody">
+            <tr class="loading-row"><td colspan="7">⏳ Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div id="reviewSummary" style="margin-top:12px;font-size:12px;color:var(--muted);padding:0 4px;"></div>
     </div>
   </div>
 
   <!-- ===================== SUBSCRIPTIONS TAB ===================== -->
   <div id="tab-subscriptions" style="display:none;">
-    <div class="ops-header">
-      <h1>💳 Subscriptions</h1>
-      <p>Monitor caregiver and client subscription status.</p>
-    </div>
-    <div class="scaffold-section">
-      <div class="scaffold-icon">💳</div>
-      <div class="scaffold-title">Subscription Monitor</div>
-      <div class="scaffold-desc">
-        This section will show active, trialing, past-due, and cancelled subscriptions for both caregivers and clients.<br><br>
-        Data sources: <code>caregiver_subscriptions</code>, <code>client_subscriptions</code> (D1) + Stripe metadata.<br><br>
-        <em style="color:var(--muted);font-size:12px;">TODO: Connect <code>GET /admin-subscriptions</code> endpoint on <code>carehia-admin</code> worker.</em>
+    <div class="table-wrap">
+      <div class="table-header">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span class="table-title">💳 Subscriptions</span>
+          <span class="table-count" id="subCount">—</span>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+          <input class="search-box" id="subSearch" placeholder="Search name or email…" oninput="filterTable('subsBody','subSearch')"/>
+          <button class="btn-refresh" onclick="loadSubscriptions()">↻ Refresh</button>
+        </div>
+      </div>
+      <div id="subSummaryBar" style="margin-bottom:12px;font-size:13px;color:var(--muted);padding:0 4px;"></div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Role</th>
+              <th>Email</th>
+              <th>Plan</th>
+              <th>Status</th>
+              <th class="hide-mobile">Renews</th>
+              <th class="hide-mobile">Created</th>
+            </tr>
+          </thead>
+          <tbody id="subsBody">
+            <tr class="loading-row"><td colspan="7">⏳ Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="margin-top:16px;padding:12px 16px;background:var(--sidebar-bg);border-radius:10px;font-size:12px;color:var(--muted);">
+        <strong>Note:</strong> Subscription details sync from Stripe via webhooks. Stripe session secrets are never shown here.
       </div>
     </div>
   </div>
