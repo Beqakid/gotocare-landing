@@ -1310,18 +1310,22 @@ async function loadIncidents(filter, btn) {
     const urgencyColor = { low:'#22C55E', medium:'#F59E0B', high:'#F97316', emergency:'#EF4444' };
     const statusColor = { new:'#7C5CFF', triage:'#F59E0B', investigating:'#4A90E2', waiting_on_user:'#F97316', action_taken:'#22C55E', closed:'#94A3B8', escalated:'#EF4444' };
     if (!rows.length) { tbody.innerHTML = '<tr class="loading-row"><td colspan="8">No incidents found.</td></tr>'; return; }
-    tbody.innerHTML = rows.map(i => `
-      <tr>
-        <td style="font-weight:600;color:var(--primary)">#${i.id}</td>
+    tbody.innerHTML = rows.map(i => {
+      const uKey = (i.urgency||'medium').toLowerCase();
+      const uColor = urgencyColor[uKey]||'#94A3B8';
+      const isEmergency = uKey === 'emergency';
+      return `
+      <tr style="${isEmergency?'border-left:3px solid #EF4444;background:#EF444408;':''}">
+        <td style="font-weight:600;color:var(--primary)">${isEmergency?'🚨 ':''}#${i.id}</td>
         <td style="font-size:12px">${esc(i.reporter_type||'guest')}</td>
         <td style="font-size:12px">${esc(i.reporter_name||i.reporter_email||'—')}</td>
         <td style="font-size:12px">${esc(i.category?.replace(/_/g,' ')||'—')}</td>
-        <td><span style="background:${urgencyColor[i.urgency]||'#94A3B8'}20;color:${urgencyColor[i.urgency]||'#94A3B8'};padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700">${esc(i.urgency||'medium')}</span></td>
+        <td><span style="background:${uColor}20;color:${uColor};padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700">${esc(i.urgency||'medium')}</span></td>
         <td><span style="background:${statusColor[i.status]||'#94A3B8'}20;color:${statusColor[i.status]||'#94A3B8'};padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700">${esc(i.status||'new')}</span></td>
         <td style="font-size:11px;color:var(--muted)">${esc(i.created_at?.substring(0,10)||'—')}</td>
         <td><button onclick="openIncidentDetail(${i.id})" style="padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--text);cursor:pointer;font-size:11px">View →</button></td>
       </tr>
-    `).join('');
+    `;}).join('');
   } catch(e) { tbody.innerHTML = `<tr class="loading-row"><td colspan="8">⚠️ ${esc(String(e))}</td></tr>`; }
 }
 
@@ -1343,7 +1347,7 @@ async function openIncidentDetail(id) {
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
         <div><label style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase">Reporter</label><p style="font-size:13px;margin-top:2px">${esc(inc.reporter_name||inc.reporter_email||inc.reporter_type||'Anonymous')}</p></div>
         <div><label style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase">Category</label><p style="font-size:13px;margin-top:2px">${esc((inc.category||'').replace(/_/g,' '))}</p></div>
-        <div><label style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase">Urgency</label><p style="font-size:13px;margin-top:2px;font-weight:700;color:${inc.urgency==='emergency'?'var(--error)':inc.urgency==='high'?'#F97316':'var(--warning)'}">${esc(inc.urgency||'medium')}</p></div>
+        <div><label style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase">Urgency</label><p style="font-size:13px;margin-top:2px;font-weight:700;color:${inc.urgency?.toLowerCase()==='emergency'?'var(--error)':inc.urgency?.toLowerCase()==='high'?'#F97316':'var(--warning)'}">${esc(inc.urgency||'medium')}</p></div>
         <div><label style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase">Status</label><p style="font-size:13px;margin-top:2px">${esc(inc.status||'new')}</p></div>
         ${inc.related_caregiver_id?`<div><label style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase">Caregiver ID</label><p style="font-size:13px;margin-top:2px">#${esc(String(inc.related_caregiver_id))}</p></div>`:''}
         ${inc.related_booking_id?`<div><label style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase">Booking ID</label><p style="font-size:13px;margin-top:2px">#${esc(String(inc.related_booking_id))}</p></div>`:''}
@@ -1360,8 +1364,10 @@ async function openIncidentDetail(id) {
         </div>
       </div>
       <div style="margin-bottom:16px">
-        <label style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;display:block;margin-bottom:6px">Internal Notes</label>
+        <label style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;display:block;margin-bottom:4px">Internal Notes <span style="font-weight:400;font-size:10px">(admin only)</span></label>
         <textarea id="incidentInternalNotes" rows="3" style="width:100%;border:1px solid var(--border);border-radius:8px;padding:10px;font-size:13px;font-family:inherit;background:#fff;color:var(--text)">${esc(inc.internal_notes||'')}</textarea>
+        <label style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;display:block;margin:10px 0 4px">User-Facing Note <span style="font-weight:400;font-size:10px">(visible to reporter)</span></label>
+        <textarea id="incidentUserNote" rows="2" placeholder="Optional message to reporter..." style="width:100%;border:1px solid var(--border);border-radius:8px;padding:10px;font-size:13px;font-family:inherit;background:#fff;color:var(--text)">${esc(inc.user_facing_note||'')}</textarea>
         <label style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;display:block;margin:8px 0 4px">Assign to Admin</label>
         <input type="text" id="incidentAssign" value="${esc(inc.assigned_admin||'')}" placeholder="Admin email" style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;background:#fff;color:var(--text)"/>
         <button onclick="saveIncidentNotes(${inc.id})" style="margin-top:8px;padding:8px 16px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">Save Notes</button>
@@ -1388,9 +1394,10 @@ async function saveIncidentNotes(id) {
   const notes = document.getElementById('incidentInternalNotes')?.value || '';
   const assigned = document.getElementById('incidentAssign')?.value || '';
   try {
+    const userNote = document.getElementById('incidentUserNote')?.value || '';
     await fetch(`${BACKEND}/admin-incident-action?token=${adminToken}`, {
       method: 'POST', headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ id, internal_notes: notes, assigned_admin: assigned })
+      body: JSON.stringify({ id, internal_notes: notes, user_facing_note: userNote, assigned_admin: assigned })
     });
     const btn = event.target;
     btn.textContent = '✓ Saved'; btn.style.background = '#22C55E';
