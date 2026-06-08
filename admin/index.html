@@ -597,6 +597,10 @@
       <button class="sidebar-item" data-tab="incidents" onclick="switchTab('incidents')" id="incidents-tab-btn">
         <span>🚨</span><span class="sidebar-label">Incidents</span>
       </button>
+      <button class="sidebar-item" data-tab="plogs" onclick="switchTab('plogs')" id="plogs-tab-btn">
+        <span class="item-icon">📝</span> Product Logs
+        <span class="sidebar-badge" id="sb-badge-plogs" style="display:none"></span>
+      </button>
       <button class="sidebar-item" data-tab="settings" onclick="switchTab('settings')">
         <span class="item-icon">⚙️</span> Settings
       </button>
@@ -1123,6 +1127,12 @@ function applyRoleVisibility() {
     const canViewTeam = currentAdminPermissions.includes('*') || currentAdminPermissions.includes('admin.users.view');
     teamBtn.style.display = canViewTeam ? 'flex' : 'none';
   }
+  // Product Logs: visible to super_admin, admin_manager, read_only_auditor
+  const plogsBtn = document.getElementById('plogs-tab-btn');
+  if (plogsBtn) {
+    const canViewPlogs = currentAdminPermissions.includes('*') || ['admin_manager','read_only_auditor'].includes(currentAdminRole);
+    plogsBtn.style.display = canViewPlogs ? '' : 'none';
+  }
   // Update role display in settings tab
   const roleEl = document.getElementById('settings-role-display');
   if (roleEl) roleEl.textContent = currentAdminRole.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
@@ -1242,7 +1252,7 @@ let currentTab = 'today';
 const ALL_TAB_IDS = [
   'today','requests','overview','clients','caregivers','bookings',
   'verifications','trust','marketplace','pilot','acq','loc',
-  'schedules','invoices','reviews','subscriptions','incidents','settings','team'
+  'schedules','invoices','reviews','subscriptions','incidents','settings','team','plogs'
 ];
 
 function switchTab(name, _btn) {
@@ -1288,6 +1298,7 @@ function switchTab(name, _btn) {
   else if (name === 'subscriptions') loadSubscriptions();
   else if (name === 'team') loadTeamAccess();
   else if (name === 'incidents') loadIncidents();
+  else if (name === 'plogs') loadProductLogs();
 }
 
 
@@ -4057,6 +4068,682 @@ async function revokeInvite(inviteId) {
     <div id="incidentDetailBody"></div>
   </div>
 </div>
+
+
+<!-- ===================== PRODUCT LOGS TAB (Phase 17) ===================== -->
+<div id="tab-plogs" style="display:none;">
+  <div style="padding:32px 24px;max-width:1200px;margin:0 auto;">
+    <!-- Header -->
+    <div style="margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+      <div>
+        <h2 style="font-size:24px;font-weight:700;color:var(--text);margin:0 0 4px;">📝 Product Logs</h2>
+        <p style="color:var(--muted);margin:0;font-size:14px;">Track bugs, fixes, features, QA notes, and release history.</p>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button onclick="openPLForm()" id="pl-add-btn" style="background:var(--primary);color:#fff;border:none;padding:10px 20px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">+ Add Log Item</button>
+      </div>
+    </div>
+
+    <!-- Summary badges -->
+    <div id="pl-summary" style="display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;">
+    </div>
+
+    <!-- View toggles -->
+    <div style="display:flex;gap:4px;margin-bottom:16px;background:var(--card);border-radius:10px;padding:4px;border:1px solid var(--border);width:fit-content;">
+      <button class="filter-tab active" id="pl-view-all" onclick="plSwitchView('all',this)" style="padding:7px 16px;border-radius:7px;font-size:13px;font-weight:600;">All Logs</button>
+      <button class="filter-tab" id="pl-view-known" onclick="plSwitchView('known_issues',this)" style="padding:7px 16px;border-radius:7px;font-size:13px;font-weight:600;">Known Issues</button>
+      <button class="filter-tab" id="pl-view-releases" onclick="plSwitchView('releases',this)" style="padding:7px 16px;border-radius:7px;font-size:13px;font-weight:600;">Release Notes</button>
+    </div>
+
+    <!-- Filters -->
+    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center;">
+      <select id="pl-filter-type" onchange="loadProductLogs()" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:13px;">
+        <option value="">All Types</option>
+        <option value="Bug">Bug</option>
+        <option value="Fix">Fix</option>
+        <option value="Feature Change">Feature Change</option>
+        <option value="UX Feedback">UX Feedback</option>
+        <option value="Security">Security</option>
+        <option value="Trust & Safety">Trust & Safety</option>
+        <option value="QA Note">QA Note</option>
+        <option value="Known Issue">Known Issue</option>
+        <option value="Release">Release</option>
+      </select>
+      <select id="pl-filter-status" onchange="loadProductLogs()" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:13px;">
+        <option value="">All Statuses</option>
+        <option value="New">New</option>
+        <option value="In Review">In Review</option>
+        <option value="In Progress">In Progress</option>
+        <option value="Fixed">Fixed</option>
+        <option value="Needs Retest">Needs Retest</option>
+        <option value="Verified">Verified</option>
+        <option value="Deferred">Deferred</option>
+        <option value="Closed">Closed</option>
+      </select>
+      <select id="pl-filter-priority" onchange="loadProductLogs()" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:13px;">
+        <option value="">All Priorities</option>
+        <option value="Critical">Critical</option>
+        <option value="High">High</option>
+        <option value="Medium">Medium</option>
+        <option value="Low">Low</option>
+      </select>
+      <select id="pl-filter-area" onchange="loadProductLogs()" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:13px;">
+        <option value="">All Areas</option>
+        <option value="Caregiver App">Caregiver App</option>
+        <option value="Client App">Client App</option>
+        <option value="Admin Dashboard">Admin Dashboard</option>
+        <option value="Backend/API">Backend/API</option>
+        <option value="Trust Passport">Trust Passport</option>
+        <option value="Trust & Safety">Trust & Safety</option>
+        <option value="Requests/Work">Requests/Work</option>
+        <option value="Money/Invoices">Money/Invoices</option>
+        <option value="Profile">Profile</option>
+        <option value="Styling/CSS">Styling/CSS</option>
+        <option value="Dispatch/Matching">Dispatch/Matching</option>
+        <option value="Reviews">Reviews</option>
+        <option value="Travel Radius">Travel Radius</option>
+        <option value="Documents/Manual Proof">Documents/Manual Proof</option>
+        <option value="Authentication">Authentication</option>
+        <option value="Other">Other</option>
+      </select>
+      <input id="pl-filter-search" type="text" placeholder="Search title/description..." onkeyup="plDebounceSearch()" style="padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--card);color:var(--text);font-size:13px;min-width:180px;">
+      <button onclick="plClearFilters()" style="padding:8px 14px;border:1px solid var(--border);border-radius:8px;background:none;color:var(--muted);font-size:12px;cursor:pointer;font-weight:600;">Clear</button>
+    </div>
+
+    <!-- Log table -->
+    <div style="background:var(--card);border-radius:12px;border:1px solid var(--border);overflow:hidden;">
+      <div style="overflow-x:auto;">
+        <table class="data-table" style="width:100%;">
+          <thead><tr>
+            <th style="width:40px">#</th>
+            <th>Title</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Priority</th>
+            <th>Area</th>
+            <th>Phase</th>
+            <th>Assigned</th>
+            <th>Updated</th>
+            <th style="width:60px">Action</th>
+          </tr></thead>
+          <tbody id="pl-table-body">
+            <tr><td colspan="10" style="color:var(--muted);text-align:center;padding:32px;">Loading product logs...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== PRODUCT LOG FORM MODAL ===================== -->
+<div id="pl-form-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;">
+  <div style="background:var(--card);border-radius:16px;padding:28px;width:100%;max-width:680px;margin:40px auto;box-shadow:0 20px 60px rgba(0,0,0,.3);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <h3 id="pl-form-title" style="font-size:18px;font-weight:700;color:var(--text);margin:0;">Add Log Item</h3>
+      <button onclick="closePLForm()" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text);">✕ Close</button>
+    </div>
+
+    <!-- Templates row -->
+    <div style="display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;">
+      <button onclick="plApplyTemplate('bug')" style="padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid var(--error);color:var(--error);background:rgba(239,68,68,0.08);cursor:pointer;">Bug Template</button>
+      <button onclick="plApplyTemplate('ux')" style="padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid var(--secondary);color:var(--secondary);background:rgba(74,144,226,0.08);cursor:pointer;">UX Feedback</button>
+      <button onclick="plApplyTemplate('release')" style="padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;border:1px solid var(--success);color:var(--success);background:rgba(34,197,94,0.08);cursor:pointer;">Release Note</button>
+    </div>
+
+    <div id="pl-form-error" style="display:none;background:rgba(239,68,68,0.12);color:var(--error);padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:16px;font-weight:600;"></div>
+
+    <!-- Required fields -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+      <div style="grid-column:1/-1;">
+        <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Title *</label>
+        <input id="pl-f-title" type="text" placeholder="Short descriptive title" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;box-sizing:border-box;">
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Type *</label>
+        <select id="pl-f-type" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;box-sizing:border-box;">
+          <option value="Bug">Bug</option>
+          <option value="Fix">Fix</option>
+          <option value="Feature Change">Feature Change</option>
+          <option value="UX Feedback">UX Feedback</option>
+          <option value="Security">Security</option>
+          <option value="Trust & Safety">Trust & Safety</option>
+          <option value="QA Note">QA Note</option>
+          <option value="Known Issue">Known Issue</option>
+          <option value="Release">Release</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Priority *</label>
+        <select id="pl-f-priority" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;box-sizing:border-box;">
+          <option value="Low">Low</option>
+          <option value="Medium" selected>Medium</option>
+          <option value="High">High</option>
+          <option value="Critical">Critical</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Status *</label>
+        <select id="pl-f-status" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;box-sizing:border-box;">
+          <option value="New" selected>New</option>
+          <option value="In Review">In Review</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Fixed">Fixed</option>
+          <option value="Needs Retest">Needs Retest</option>
+          <option value="Verified">Verified</option>
+          <option value="Deferred">Deferred</option>
+          <option value="Closed">Closed</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">App Area *</label>
+        <select id="pl-f-area" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;box-sizing:border-box;">
+          <option value="Caregiver App">Caregiver App</option>
+          <option value="Client App">Client App</option>
+          <option value="Admin Dashboard">Admin Dashboard</option>
+          <option value="Backend/API">Backend/API</option>
+          <option value="Trust Passport">Trust Passport</option>
+          <option value="Trust & Safety">Trust & Safety</option>
+          <option value="Requests/Work">Requests/Work</option>
+          <option value="Money/Invoices">Money/Invoices</option>
+          <option value="Profile">Profile</option>
+          <option value="Styling/CSS">Styling/CSS</option>
+          <option value="Dispatch/Matching">Dispatch/Matching</option>
+          <option value="Reviews">Reviews</option>
+          <option value="Travel Radius">Travel Radius</option>
+          <option value="Documents/Manual Proof">Documents/Manual Proof</option>
+          <option value="Authentication">Authentication</option>
+          <option value="Other" selected>Other</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Optional fields (collapsible) -->
+    <div style="margin-bottom:14px;">
+      <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Description</label>
+      <textarea id="pl-f-desc" rows="3" placeholder="Detailed description of the issue or change" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;box-sizing:border-box;resize:vertical;font-family:inherit;"></textarea>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+      <div>
+        <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Reported By</label>
+        <input id="pl-f-reportedby" type="text" placeholder="Name or email" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;box-sizing:border-box;">
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Assigned To</label>
+        <input id="pl-f-assignedto" type="text" placeholder="Name or email" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;box-sizing:border-box;">
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Phase</label>
+        <input id="pl-f-phase" type="text" placeholder="e.g. 16B, 17" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;box-sizing:border-box;">
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Related Incident ID</label>
+        <input id="pl-f-incidentid" type="text" placeholder="Incident #" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;box-sizing:border-box;">
+      </div>
+    </div>
+
+    <!-- Bug-specific fields -->
+    <div id="pl-bug-fields" style="margin-bottom:14px;">
+      <div style="margin-bottom:12px;">
+        <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Steps to Reproduce</label>
+        <textarea id="pl-f-steps" rows="3" placeholder="1. Go to...  2. Click...  3. See error..." style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;box-sizing:border-box;resize:vertical;font-family:inherit;"></textarea>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div>
+          <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Expected Behavior</label>
+          <textarea id="pl-f-expected" rows="2" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;box-sizing:border-box;resize:vertical;font-family:inherit;"></textarea>
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Actual Behavior</label>
+          <textarea id="pl-f-actual" rows="2" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;box-sizing:border-box;resize:vertical;font-family:inherit;"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fix/QA fields -->
+    <div id="pl-fix-fields" style="margin-bottom:14px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+        <div>
+          <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">GitHub PR</label>
+          <input id="pl-f-pr" type="text" placeholder="PR URL or #" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;box-sizing:border-box;">
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Commit Hash</label>
+          <input id="pl-f-commit" type="text" placeholder="e.g. abc123" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;box-sizing:border-box;">
+        </div>
+      </div>
+      <div style="margin-bottom:12px;">
+        <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Fix Summary</label>
+        <textarea id="pl-f-fixsummary" rows="2" placeholder="What was done to fix this" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;box-sizing:border-box;resize:vertical;font-family:inherit;"></textarea>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div>
+          <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Test Notes</label>
+          <textarea id="pl-f-testnotes" rows="2" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;box-sizing:border-box;resize:vertical;font-family:inherit;"></textarea>
+        </div>
+        <div>
+          <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">QA Result</label>
+          <textarea id="pl-f-qaresult" rows="2" placeholder="Pass / Fail / Needs Retest" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;box-sizing:border-box;resize:vertical;font-family:inherit;"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tags -->
+    <div style="margin-bottom:20px;">
+      <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Tags (comma-separated)</label>
+      <input id="pl-f-tags" type="text" placeholder="e.g. regression, mobile, urgent" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;box-sizing:border-box;">
+    </div>
+
+    <input type="hidden" id="pl-f-id" value="">
+
+    <div style="display:flex;gap:10px;justify-content:flex-end;">
+      <button onclick="closePLForm()" style="padding:10px 20px;border:1px solid var(--border);border-radius:8px;background:none;color:var(--text);font-size:14px;cursor:pointer;font-weight:600;">Cancel</button>
+      <button onclick="submitPLForm()" id="pl-submit-btn" style="padding:10px 24px;border:none;border-radius:8px;background:var(--primary);color:#fff;font-size:14px;cursor:pointer;font-weight:600;">Save Log Item</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== PRODUCT LOG DETAIL MODAL ===================== -->
+<div id="pl-detail-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1001;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto;">
+  <div style="background:var(--card);border-radius:16px;padding:28px;width:100%;max-width:720px;margin:40px auto;box-shadow:0 20px 60px rgba(0,0,0,.3);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;position:sticky;top:0;background:var(--card);padding-bottom:12px;border-bottom:1px solid var(--border);">
+      <h3 style="font-size:18px;font-weight:700;color:var(--text);margin:0;">Log Detail</h3>
+      <div style="display:flex;gap:8px;">
+        <button onclick="editPLFromDetail()" id="pl-detail-edit-btn" style="background:var(--accent);border:1px solid var(--border);border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--primary);">Edit</button>
+        <button onclick="closePLDetail()" style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:6px 14px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text);">✕ Close</button>
+      </div>
+    </div>
+    <div id="pl-detail-body" style="font-size:14px;"></div>
+  </div>
+</div>
+
+
+<script>
+// ===== PHASE 17: PRODUCT LOGS =====
+let plCurrentView = 'all';
+let plSearchTimer = null;
+let plDetailData = null;
+
+const PL_TYPE_COLORS = {
+  'Bug': { bg: 'rgba(239,68,68,0.12)', color: '#EF4444' },
+  'Fix': { bg: 'rgba(34,197,94,0.12)', color: '#22C55E' },
+  'Feature Change': { bg: 'rgba(124,92,255,0.12)', color: '#7C5CFF' },
+  'UX Feedback': { bg: 'rgba(74,144,226,0.12)', color: '#4A90E2' },
+  'Security': { bg: 'rgba(245,158,11,0.12)', color: '#F59E0B' },
+  'Trust & Safety': { bg: 'rgba(249,115,22,0.12)', color: '#F97316' },
+  'QA Note': { bg: 'rgba(168,85,247,0.12)', color: '#A855F7' },
+  'Known Issue': { bg: 'rgba(239,68,68,0.08)', color: '#DC2626' },
+  'Release': { bg: 'rgba(34,197,94,0.08)', color: '#16A34A' },
+};
+const PL_STATUS_COLORS = {
+  'New': { bg: 'rgba(124,92,255,0.12)', color: '#7C5CFF' },
+  'In Review': { bg: 'rgba(74,144,226,0.12)', color: '#4A90E2' },
+  'In Progress': { bg: 'rgba(245,158,11,0.12)', color: '#F59E0B' },
+  'Fixed': { bg: 'rgba(34,197,94,0.12)', color: '#22C55E' },
+  'Needs Retest': { bg: 'rgba(249,115,22,0.12)', color: '#F97316' },
+  'Verified': { bg: 'rgba(34,197,94,0.15)', color: '#16A34A' },
+  'Deferred': { bg: 'rgba(148,163,184,0.12)', color: '#94A3B8' },
+  'Closed': { bg: 'rgba(100,116,139,0.12)', color: '#64748B' },
+};
+const PL_PRIORITY_COLORS = {
+  'Critical': { bg: 'rgba(239,68,68,0.15)', color: '#EF4444', border: '#EF4444' },
+  'High': { bg: 'rgba(249,115,22,0.12)', color: '#F97316', border: '#F97316' },
+  'Medium': { bg: 'rgba(245,158,11,0.08)', color: '#F59E0B', border: 'transparent' },
+  'Low': { bg: 'rgba(148,163,184,0.08)', color: '#94A3B8', border: 'transparent' },
+};
+
+function plBadge(text, colors) {
+  const c = colors || { bg: 'rgba(124,92,255,0.08)', color: 'var(--muted)' };
+  return `<span style="display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700;background:${c.bg};color:${c.color};white-space:nowrap;${c.border ? 'border:1px solid '+c.border+';' : ''}">${esc(text)}</span>`;
+}
+
+function plFmtDate(d) {
+  if (!d) return '';
+  try { const dt = new Date(d.replace(' ','T')+'Z'); return dt.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}); } catch { return d; }
+}
+
+function plFmtDateTime(d) {
+  if (!d) return '';
+  try { const dt = new Date(d.replace(' ','T')+'Z'); return dt.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) + ' ' + dt.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'}); } catch { return d; }
+}
+
+function plSwitchView(view, btn) {
+  plCurrentView = view;
+  document.querySelectorAll('#tab-plogs .filter-tab').forEach(b => {
+    if (b.id && b.id.startsWith('pl-view-')) b.classList.remove('active');
+  });
+  if (btn) btn.classList.add('active');
+  loadProductLogs();
+}
+
+function plDebounceSearch() {
+  clearTimeout(plSearchTimer);
+  plSearchTimer = setTimeout(() => loadProductLogs(), 400);
+}
+
+function plClearFilters() {
+  document.getElementById('pl-filter-type').value = '';
+  document.getElementById('pl-filter-status').value = '';
+  document.getElementById('pl-filter-priority').value = '';
+  document.getElementById('pl-filter-area').value = '';
+  document.getElementById('pl-filter-search').value = '';
+  loadProductLogs();
+}
+
+async function loadProductLogs() {
+  // RBAC: hide Add/Edit for read_only_auditor
+  const canEditPL = currentAdminPermissions.includes('*') || ['admin_manager','verification_reviewer','support_agent','finance_admin'].includes(currentAdminRole);
+  const addBtn = document.getElementById('pl-add-btn');
+  if (addBtn) addBtn.style.display = canEditPL ? '' : 'none';
+  const tbody = document.getElementById('pl-table-body');
+  tbody.innerHTML = '<tr><td colspan="10" style="color:var(--muted);text-align:center;padding:32px;">Loading...</td></tr>';
+
+  const params = new URLSearchParams({ token: adminToken });
+  const type = document.getElementById('pl-filter-type').value;
+  const status = document.getElementById('pl-filter-status').value;
+  const priority = document.getElementById('pl-filter-priority').value;
+  const area = document.getElementById('pl-filter-area').value;
+  const search = document.getElementById('pl-filter-search').value.trim();
+  if (type) params.set('type', type);
+  if (status) params.set('status', status);
+  if (priority) params.set('priority', priority);
+  if (area) params.set('appArea', area);
+  if (search) params.set('search', search);
+  if (plCurrentView !== 'all') params.set('view', plCurrentView);
+
+  try {
+    const d = await adminFetch(`/admin-product-logs?${params}`);
+    if (d.error) { tbody.innerHTML = `<tr><td colspan="10" style="color:var(--error);text-align:center;padding:32px;">${esc(d.error)}</td></tr>`; return; }
+
+    // Update summary badges
+    const c = d.counts || {};
+    document.getElementById('pl-summary').innerHTML = `
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 16px;display:flex;align-items:center;gap:8px;">
+        <span style="font-size:20px;font-weight:800;color:var(--text);">${c.total||0}</span><span style="color:var(--muted);font-size:12px;">Total</span>
+      </div>
+      ${c.new_count ? `<div style="background:rgba(124,92,255,0.08);border:1px solid rgba(124,92,255,0.2);border-radius:10px;padding:10px 16px;display:flex;align-items:center;gap:8px;">
+        <span style="font-size:20px;font-weight:800;color:var(--primary);">${c.new_count}</span><span style="color:var(--primary);font-size:12px;">New</span>
+      </div>` : ''}
+      ${c.critical_count ? `<div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:10px 16px;display:flex;align-items:center;gap:8px;">
+        <span style="font-size:20px;font-weight:800;color:var(--error);">${c.critical_count}</span><span style="color:var(--error);font-size:12px;">Critical</span>
+      </div>` : ''}
+      ${c.retest_count ? `<div style="background:rgba(249,115,22,0.08);border:1px solid rgba(249,115,22,0.2);border-radius:10px;padding:10px 16px;display:flex;align-items:center;gap:8px;">
+        <span style="font-size:20px;font-weight:800;color:#F97316;">${c.retest_count}</span><span style="color:#F97316;font-size:12px;">Needs Retest</span>
+      </div>` : ''}
+      ${c.known_issues_count ? `<div style="background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.15);border-radius:10px;padding:10px 16px;display:flex;align-items:center;gap:8px;">
+        <span style="font-size:20px;font-weight:800;color:#DC2626;">${c.known_issues_count}</span><span style="color:#DC2626;font-size:12px;">Known Issues</span>
+      </div>` : ''}
+    `;
+
+    const logs = d.logs || [];
+    if (!logs.length) {
+      tbody.innerHTML = `<tr><td colspan="10" style="color:var(--muted);text-align:center;padding:40px;">
+        <div style="font-size:32px;margin-bottom:8px;">📝</div>
+        <div style="font-size:14px;font-weight:600;">No product logs found</div>
+        <div style="font-size:12px;margin-top:4px;">Add your first log item to start tracking.</div>
+      </td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = logs.map(l => {
+      const tc = PL_TYPE_COLORS[l.type] || {};
+      const sc = PL_STATUS_COLORS[l.status] || {};
+      const pc = PL_PRIORITY_COLORS[l.priority] || {};
+      return `<tr style="cursor:pointer;${l.priority === 'Critical' ? 'background:rgba(239,68,68,0.04);' : ''}" onclick="openPLDetail(${l.id})">
+        <td style="color:var(--muted);font-size:12px;">${l.id}</td>
+        <td style="font-weight:600;max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(l.title)}</td>
+        <td>${plBadge(l.type, tc)}</td>
+        <td>${plBadge(l.status, sc)}</td>
+        <td>${plBadge(l.priority, pc)}</td>
+        <td style="font-size:12px;color:var(--muted);white-space:nowrap;">${esc(l.app_area||'')}</td>
+        <td style="font-size:12px;color:var(--muted);">${esc(l.phase||'')}</td>
+        <td style="font-size:12px;color:var(--muted);max-width:100px;overflow:hidden;text-overflow:ellipsis;">${esc(l.assigned_to||'')}</td>
+        <td style="font-size:11px;color:var(--muted);white-space:nowrap;">${plFmtDate(l.updated_at)}</td>
+        <td><button onclick="event.stopPropagation();openPLDetail(${l.id})" style="padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--text);cursor:pointer;font-size:11px;">View</button></td>
+      </tr>`;
+    }).join('');
+  } catch (e) {
+    tbody.innerHTML = `<tr><td colspan="10" style="color:var(--error);text-align:center;padding:32px;">Error loading product logs</td></tr>`;
+  }
+}
+
+async function openPLDetail(id) {
+  const modal = document.getElementById('pl-detail-modal');
+  const body = document.getElementById('pl-detail-body');
+  body.innerHTML = '<div style="color:var(--muted);text-align:center;padding:24px;">Loading...</div>';
+  modal.style.display = 'flex';
+
+  const d = await adminFetch(`/admin-product-log-detail?token=${adminToken}&id=${id}`);
+  if (d.error) { body.innerHTML = `<div style="color:var(--error);text-align:center;padding:24px;">${esc(d.error)}</div>`; return; }
+  plDetailData = d.log;
+  const canEditInDetail = currentAdminPermissions.includes('*') || !['read_only_auditor'].includes(currentAdminRole);
+  const editBtnEl = document.getElementById('pl-detail-edit-btn');
+  if (editBtnEl) editBtnEl.style.display = canEditInDetail ? '' : 'none';
+  const l = d.log;
+
+  const tc = PL_TYPE_COLORS[l.type] || {};
+  const sc = PL_STATUS_COLORS[l.status] || {};
+  const pc = PL_PRIORITY_COLORS[l.priority] || {};
+
+  let tags = [];
+  try { tags = JSON.parse(l.tags_json || '[]'); } catch { if (l.tags_json) tags = l.tags_json.split(',').map(t=>t.trim()); }
+
+  const field = (label, val) => val ? `<div style="margin-bottom:14px;"><div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:3px;">${label}</div><div style="color:var(--text);font-size:14px;white-space:pre-wrap;">${esc(val)}</div></div>` : '';
+
+  body.innerHTML = `
+    <div style="margin-bottom:16px;">
+      <h2 style="font-size:20px;font-weight:800;color:var(--text);margin:0 0 10px;">${esc(l.title)}</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        ${plBadge(l.type, tc)} ${plBadge(l.status, sc)} ${plBadge(l.priority, pc)}
+        ${l.app_area ? `<span style="font-size:12px;color:var(--muted);background:var(--accent);padding:2px 10px;border-radius:20px;">${esc(l.app_area)}</span>` : ''}
+        ${l.phase ? `<span style="font-size:12px;color:var(--primary);font-weight:600;">Phase ${esc(l.phase)}</span>` : ''}
+      </div>
+    </div>
+
+    ${field('Description', l.description)}
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+      ${field('Reported By', l.reported_by)}
+      ${field('Assigned To', l.assigned_to)}
+    </div>
+
+    ${field('Steps to Reproduce', l.steps_to_reproduce)}
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      ${field('Expected Behavior', l.expected_behavior)}
+      ${field('Actual Behavior', l.actual_behavior)}
+    </div>
+
+    ${field('Fix Summary', l.fix_summary)}
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      ${field('Test Notes', l.test_notes)}
+      ${field('QA Result', l.qa_result)}
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      ${field('GitHub PR', l.related_github_pr)}
+      ${field('Commit', l.related_commit)}
+    </div>
+
+    ${field('Related Incident ID', l.related_incident_id)}
+    ${field('Related Tasklet Run', l.related_tasklet_run)}
+
+    ${tags.length ? `<div style="margin-bottom:14px;"><div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Tags</div><div style="display:flex;gap:6px;flex-wrap:wrap;">${tags.map(t=>`<span style="background:var(--accent);color:var(--primary);padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;">${esc(t)}</span>`).join('')}</div></div>` : ''}
+
+    <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:12px;color:var(--muted);">
+      <div>Created: ${plFmtDateTime(l.created_at)}</div>
+      <div>Updated: ${plFmtDateTime(l.updated_at)}</div>
+      <div>Created by: ${esc(l.created_by||'')}</div>
+      <div>Updated by: ${esc(l.updated_by||'')}</div>
+      ${l.closed_at ? `<div style="grid-column:1/-1;">Closed: ${plFmtDateTime(l.closed_at)}</div>` : ''}
+    </div>
+
+    ${currentAdminRole === 'super_admin' ? `<div style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border);text-align:right;"><button onclick="deletePL(${l.id})" style="padding:6px 14px;border-radius:6px;border:1px solid rgba(239,68,68,0.3);background:rgba(239,68,68,0.08);color:var(--error);cursor:pointer;font-size:12px;font-weight:600;">Delete Log</button></div>` : ''}
+  `;
+}
+
+function closePLDetail() {
+  document.getElementById('pl-detail-modal').style.display = 'none';
+  plDetailData = null;
+}
+
+function editPLFromDetail() {
+  if (!plDetailData) return;
+  closePLDetail();
+  openPLForm(plDetailData);
+}
+
+function openPLForm(existing) {
+  const modal = document.getElementById('pl-form-modal');
+  const title = document.getElementById('pl-form-title');
+  const submitBtn = document.getElementById('pl-submit-btn');
+  document.getElementById('pl-form-error').style.display = 'none';
+
+  if (existing) {
+    title.textContent = 'Edit Log Item #' + existing.id;
+    submitBtn.textContent = 'Update Log Item';
+    document.getElementById('pl-f-id').value = existing.id;
+    document.getElementById('pl-f-title').value = existing.title || '';
+    document.getElementById('pl-f-type').value = existing.type || 'Bug';
+    document.getElementById('pl-f-priority').value = existing.priority || 'Medium';
+    document.getElementById('pl-f-status').value = existing.status || 'New';
+    document.getElementById('pl-f-area').value = existing.app_area || 'Other';
+    document.getElementById('pl-f-desc').value = existing.description || '';
+    document.getElementById('pl-f-reportedby').value = existing.reported_by || '';
+    document.getElementById('pl-f-assignedto').value = existing.assigned_to || '';
+    document.getElementById('pl-f-phase').value = existing.phase || '';
+    document.getElementById('pl-f-incidentid').value = existing.related_incident_id || '';
+    document.getElementById('pl-f-steps').value = existing.steps_to_reproduce || '';
+    document.getElementById('pl-f-expected').value = existing.expected_behavior || '';
+    document.getElementById('pl-f-actual').value = existing.actual_behavior || '';
+    document.getElementById('pl-f-pr').value = existing.related_github_pr || '';
+    document.getElementById('pl-f-commit').value = existing.related_commit || '';
+    document.getElementById('pl-f-fixsummary').value = existing.fix_summary || '';
+    document.getElementById('pl-f-testnotes').value = existing.test_notes || '';
+    document.getElementById('pl-f-qaresult').value = existing.qa_result || '';
+    let tags = [];
+    try { tags = JSON.parse(existing.tags_json || '[]'); } catch { if (existing.tags_json) tags = [existing.tags_json]; }
+    document.getElementById('pl-f-tags').value = tags.join(', ');
+  } else {
+    title.textContent = 'Add Log Item';
+    submitBtn.textContent = 'Save Log Item';
+    document.getElementById('pl-f-id').value = '';
+    document.getElementById('pl-f-title').value = '';
+    document.getElementById('pl-f-type').value = 'Bug';
+    document.getElementById('pl-f-priority').value = 'Medium';
+    document.getElementById('pl-f-status').value = 'New';
+    document.getElementById('pl-f-area').value = 'Other';
+    document.getElementById('pl-f-desc').value = '';
+    document.getElementById('pl-f-reportedby').value = '';
+    document.getElementById('pl-f-assignedto').value = '';
+    document.getElementById('pl-f-phase').value = '';
+    document.getElementById('pl-f-incidentid').value = '';
+    document.getElementById('pl-f-steps').value = '';
+    document.getElementById('pl-f-expected').value = '';
+    document.getElementById('pl-f-actual').value = '';
+    document.getElementById('pl-f-pr').value = '';
+    document.getElementById('pl-f-commit').value = '';
+    document.getElementById('pl-f-fixsummary').value = '';
+    document.getElementById('pl-f-testnotes').value = '';
+    document.getElementById('pl-f-qaresult').value = '';
+    document.getElementById('pl-f-tags').value = '';
+  }
+  modal.style.display = 'flex';
+}
+
+function closePLForm() {
+  document.getElementById('pl-form-modal').style.display = 'none';
+}
+
+function plApplyTemplate(tmpl) {
+  if (tmpl === 'bug') {
+    document.getElementById('pl-f-type').value = 'Bug';
+    document.getElementById('pl-f-status').value = 'New';
+    document.getElementById('pl-f-priority').value = 'Medium';
+  } else if (tmpl === 'ux') {
+    document.getElementById('pl-f-type').value = 'UX Feedback';
+    document.getElementById('pl-f-status').value = 'New';
+    document.getElementById('pl-f-priority').value = 'Medium';
+  } else if (tmpl === 'release') {
+    document.getElementById('pl-f-type').value = 'Release';
+    document.getElementById('pl-f-status').value = 'Verified';
+    document.getElementById('pl-f-priority').value = 'Low';
+  }
+}
+
+async function submitPLForm() {
+  const errEl = document.getElementById('pl-form-error');
+  const btn = document.getElementById('pl-submit-btn');
+  errEl.style.display = 'none';
+
+  const title = document.getElementById('pl-f-title').value.trim();
+  if (!title) { errEl.textContent = 'Title is required'; errEl.style.display = 'block'; return; }
+
+  const id = document.getElementById('pl-f-id').value;
+  const tagsRaw = document.getElementById('pl-f-tags').value.trim();
+  const tagsArr = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
+
+  const payload = {
+    title,
+    type: document.getElementById('pl-f-type').value,
+    status: document.getElementById('pl-f-status').value,
+    priority: document.getElementById('pl-f-priority').value,
+    appArea: document.getElementById('pl-f-area').value,
+    description: document.getElementById('pl-f-desc').value.trim() || null,
+    reportedBy: document.getElementById('pl-f-reportedby').value.trim() || null,
+    assignedTo: document.getElementById('pl-f-assignedto').value.trim() || null,
+    phase: document.getElementById('pl-f-phase').value.trim() || null,
+    relatedIncidentId: document.getElementById('pl-f-incidentid').value.trim() || null,
+    stepsToReproduce: document.getElementById('pl-f-steps').value.trim() || null,
+    expectedBehavior: document.getElementById('pl-f-expected').value.trim() || null,
+    actualBehavior: document.getElementById('pl-f-actual').value.trim() || null,
+    relatedGitHubPR: document.getElementById('pl-f-pr').value.trim() || null,
+    relatedCommit: document.getElementById('pl-f-commit').value.trim() || null,
+    fixSummary: document.getElementById('pl-f-fixsummary').value.trim() || null,
+    testNotes: document.getElementById('pl-f-testnotes').value.trim() || null,
+    qaResult: document.getElementById('pl-f-qaresult').value.trim() || null,
+    tagsJson: tagsArr.length ? tagsArr : null,
+  };
+
+  btn.disabled = true;
+  const origText = btn.textContent;
+  btn.textContent = 'Saving...';
+
+  let endpoint = '/admin-product-log-create';
+  if (id) { endpoint = '/admin-product-log-update'; payload.id = parseInt(id); }
+
+  const d = await adminFetch(endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+  btn.disabled = false;
+  btn.textContent = origText;
+
+  if (d.error) {
+    errEl.textContent = d.error;
+    errEl.style.display = 'block';
+    return;
+  }
+
+  closePLForm();
+  loadProductLogs();
+}
+
+async function deletePL(id) {
+  if (!confirm('Delete this product log permanently? This cannot be undone.')) return;
+  const d = await adminFetch('/admin-product-log-delete', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id }),
+  });
+  if (d.error) { alert(d.error); return; }
+  closePLDetail();
+  loadProductLogs();
+}
+</script>
 
 </body>
 </html>
