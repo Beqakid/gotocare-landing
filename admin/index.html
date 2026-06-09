@@ -574,6 +574,9 @@
       <button class="sidebar-item" data-tab="subscriptions" onclick="switchTab('subscriptions')">
         <span class="item-icon">💳</span> Subscriptions
       </button>
+      <button class="sidebar-item" data-tab="plans" onclick="switchTab('plans')">
+        <span class="item-icon">📦</span> Plan Mgmt
+      </button>
 
       <div class="sidebar-section-label">Other</div>
       <button class="sidebar-item" data-tab="overview" onclick="switchTab('overview')">
@@ -1252,7 +1255,7 @@ let currentTab = 'today';
 const ALL_TAB_IDS = [
   'today','requests','overview','clients','caregivers','bookings',
   'verifications','trust','marketplace','pilot','acq','loc',
-  'schedules','invoices','reviews','subscriptions','incidents','settings','team','plogs'
+  'schedules','invoices','reviews','subscriptions','plans','incidents','settings','team','plogs'
 ];
 
 function switchTab(name, _btn) {
@@ -1296,6 +1299,7 @@ function switchTab(name, _btn) {
   else if (name === 'reviews')   loadReviews();
   else if (name === 'invoices')  loadInvoices();
   else if (name === 'subscriptions') loadSubscriptions();
+  else if (name === 'plans') loadPlans();
   else if (name === 'team') loadTeamAccess();
   else if (name === 'incidents') loadIncidents();
   else if (name === 'plogs') loadProductLogs();
@@ -3558,6 +3562,115 @@ async function flagLocation(visitId) {
     </div>
   </div>
 
+  <!-- ===================== PLAN MGMT TAB (Phase 21A) ===================== -->
+  <div id="tab-plans" style="display:none;">
+    <div class="table-wrap">
+      <div class="table-header" style="flex-wrap:wrap;gap:10px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span class="table-title">📦 Subscription Plans</span>
+          <span class="table-count" id="plansCount">—</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <select id="plansAudienceFilter" onchange="loadPlans()" style="padding:6px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--card-bg);color:var(--text);">
+            <option value="">All Audiences</option>
+            <option value="client">Client Plans</option>
+            <option value="caregiver">Caregiver Plans</option>
+          </select>
+          <button class="btn-refresh" onclick="loadPlans()">↻ Refresh</button>
+          <button onclick="openPlanEditor(null)" style="padding:6px 14px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">+ Add Plan</button>
+        </div>
+      </div>
+
+      <!-- Plan cards grid -->
+      <div id="plansGrid" style="margin-top:16px;">
+        <div style="padding:32px;text-align:center;color:var(--muted);font-size:14px;">⏳ Loading plans…</div>
+      </div>
+    </div>
+
+    <!-- Plan Editor Modal -->
+    <div id="planEditorOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;overflow-y:auto;">
+      <div style="background:var(--card-bg);border-radius:16px;max-width:600px;margin:40px auto;padding:28px;position:relative;">
+        <button onclick="closePlanEditor()" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);">&#x2715;</button>
+        <h2 id="planEditorTitle" style="font-size:20px;font-weight:700;color:var(--text);margin:0 0 20px;">Add Plan</h2>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+          <div>
+            <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Audience *</label>
+            <select id="pe-audience" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--card-bg);color:var(--text);">
+              <option value="client">Client</option>
+              <option value="caregiver">Caregiver</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Billing Interval *</label>
+            <select id="pe-interval" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--card-bg);color:var(--text);">
+              <option value="monthly">Monthly</option>
+              <option value="yearly">Yearly</option>
+              <option value="one_time">One-time</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Plan Name *</label>
+            <input id="pe-name" type="text" placeholder="e.g. Family" oninput="autoSlug()" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--card-bg);color:var(--text);box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Slug *</label>
+            <input id="pe-slug" type="text" placeholder="e.g. family" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--card-bg);color:var(--text);box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Price (USD) *</label>
+            <input id="pe-price" type="number" min="0" step="0.01" placeholder="0.00" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--card-bg);color:var(--text);box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Sort Order</label>
+            <input id="pe-sort" type="number" min="0" value="0" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--card-bg);color:var(--text);box-sizing:border-box;">
+          </div>
+        </div>
+
+        <div style="margin-top:14px;">
+          <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Short Description</label>
+          <input id="pe-shortdesc" type="text" placeholder="One-line summary" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--card-bg);color:var(--text);box-sizing:border-box;">
+        </div>
+        <div style="margin-top:14px;">
+          <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Stripe Price ID</label>
+          <input id="pe-stripe-price" type="text" placeholder="price_..." style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--card-bg);color:var(--text);box-sizing:border-box;">
+        </div>
+        <div style="margin-top:14px;">
+          <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">CTA Label</label>
+          <input id="pe-cta" type="text" placeholder="e.g. Choose Plan" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--card-bg);color:var(--text);box-sizing:border-box;">
+        </div>
+        <div style="margin-top:14px;">
+          <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Highlight Label</label>
+          <input id="pe-highlight" type="text" placeholder="e.g. Most Popular" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--card-bg);color:var(--text);box-sizing:border-box;">
+        </div>
+
+        <div style="margin-top:14px;">
+          <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:6px;">Features (one per line)</label>
+          <textarea id="pe-features" rows="5" placeholder="5 contact unlocks/month&#10;Priority matching&#10;Email support" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--card-bg);color:var(--text);box-sizing:border-box;resize:vertical;font-family:inherit;"></textarea>
+        </div>
+
+        <div style="margin-top:14px;display:flex;gap:20px;align-items:center;flex-wrap:wrap;">
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
+            <input type="checkbox" id="pe-active" checked> <span>Active</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
+            <input type="checkbox" id="pe-public" checked> <span>Public (visible in portals)</span>
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;">
+            <input type="checkbox" id="pe-recommended"> <span>Recommended</span>
+          </label>
+        </div>
+
+        <div id="planEditorError" style="display:none;margin-top:14px;padding:10px 14px;background:#FEF2F2;border-radius:8px;color:#991B1B;font-size:13px;"></div>
+
+        <div style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end;">
+          <button onclick="closePlanEditor()" style="padding:8px 18px;border:1px solid var(--border);border-radius:8px;background:none;color:var(--text);font-size:13px;cursor:pointer;">Cancel</button>
+          <button id="planSaveBtn" onclick="savePlan()" style="padding:8px 20px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Save Plan</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ===================== SETTINGS TAB ===================== -->
   <div id="tab-settings" style="display:none;">
     <div class="ops-header">
@@ -4743,6 +4856,236 @@ async function deletePL(id) {
   closePLDetail();
   loadProductLogs();
 }
+
+// ===== PHASE 21A: PLAN MANAGEMENT =====
+const BACKEND_PLANS = 'https://gotocare-original.jjioji.workers.dev/api';
+let currentEditPlanId = null;
+let allPlansCache = [];
+
+async function loadPlans() {
+  const grid = document.getElementById('plansGrid');
+  const countEl = document.getElementById('plansCount');
+  if (grid) grid.innerHTML = '<div style="padding:32px;text-align:center;color:var(--muted);font-size:14px;">⏳ Loading plans…</div>';
+  if (!adminToken) { if (grid) grid.innerHTML = '<div style="padding:32px;text-align:center;color:var(--muted);font-size:14px;">🔐 Admin sign-in required</div>'; return; }
+  try {
+    const aud = document.getElementById('plansAudienceFilter')?.value || '';
+    const url = `${BACKEND_PLANS}/admin-plans?token=${encodeURIComponent(adminToken)}${aud ? '&audience='+aud : ''}`;
+    const r = await fetch(url);
+    const d = await r.json();
+    if (!r.ok || d.error) { if (grid) grid.innerHTML = `<div style="padding:32px;text-align:center;color:var(--muted);">⚠️ ${esc(d.error || 'Could not load plans')}</div>`; return; }
+    allPlansCache = d.plans || [];
+    if (countEl) countEl.textContent = allPlansCache.length;
+    if (allPlansCache.length === 0) {
+      if (grid) grid.innerHTML = '<div style="padding:32px;text-align:center;color:var(--muted);font-size:14px;">No plans yet. Click + Add Plan to create one.</div>';
+      return;
+    }
+    // Group by audience
+    const clientPlans = allPlansCache.filter(p => p.audience === 'client' || p.audience === 'both');
+    const cgPlans = allPlansCache.filter(p => p.audience === 'caregiver' || p.audience === 'both');
+    let html = '';
+    if (clientPlans.length) html += renderPlanGroup('Client Plans', clientPlans, '#315DDF');
+    if (cgPlans.length) html += renderPlanGroup('Caregiver Plans', cgPlans, '#7C5CFF');
+    if (grid) grid.innerHTML = html;
+  } catch(e) {
+    if (grid) grid.innerHTML = `<div style="padding:32px;text-align:center;color:var(--muted);">⚠️ Error: ${esc(e.message)}</div>`;
+  }
+}
+
+function renderPlanGroup(title, plans, accentColor) {
+  const cards = plans.map(p => {
+    const price = p.price_cents ? '$' + (p.price_cents / 100).toFixed(2).replace('.00','') : 'Free';
+    const interval = p.billing_interval === 'monthly' ? '/mo' : p.billing_interval === 'yearly' ? '/yr' : '';
+    const statusBadge = p.is_active ? '<span style="background:#DCFCE7;color:#166534;border-radius:99px;padding:2px 8px;font-size:10px;font-weight:700;">Active</span>' : '<span style="background:#F1F5F9;color:#64748B;border-radius:99px;padding:2px 8px;font-size:10px;font-weight:600;">Inactive</span>';
+    const pubBadge = p.is_public ? '<span style="background:#EEF2FF;color:#4338CA;border-radius:99px;padding:2px 8px;font-size:10px;font-weight:600;">Public</span>' : '<span style="background:#F8FAFC;color:#94A3B8;border-radius:99px;padding:2px 8px;font-size:10px;font-weight:600;">Hidden</span>';
+    const archiveBadge = p.archived_at ? '<span style="background:#FEF2F2;color:#991B1B;border-radius:99px;padding:2px 8px;font-size:10px;font-weight:600;">Archived</span>' : '';
+    const recBadge = p.is_recommended ? '<span style="background:#FFF7ED;color:#9A3412;border-radius:99px;padding:2px 8px;font-size:10px;font-weight:600;">⭐ Recommended</span>' : '';
+    const stripeStatus = p.stripe_price_id ? `<span style="font-size:11px;color:#22C55E;">✓ Stripe: ${esc(p.stripe_price_id.slice(0,20)+'…')}</span>` : '<span style="font-size:11px;color:#F59E0B;">⚠ No Stripe ID</span>';
+    let feats = [];
+    try { feats = JSON.parse(p.features_json || '[]') } catch(_) {}
+    return `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+        <div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
+            <span style="font-size:15px;font-weight:700;color:var(--text);">${esc(p.name)}</span>
+            ${statusBadge} ${pubBadge} ${archiveBadge} ${recBadge}
+          </div>
+          <div style="font-size:22px;font-weight:800;color:${accentColor};">${price}<span style="font-size:13px;color:var(--muted);font-weight:500;">${interval}</span></div>
+          ${p.short_description ? `<div style="font-size:12px;color:var(--muted);margin-top:4px;">${esc(p.short_description)}</div>` : ''}
+          <div style="margin-top:8px;">${stripeStatus}</div>
+          ${feats.length ? `<ul style="margin:8px 0 0;padding-left:16px;font-size:12px;color:var(--muted);">${feats.slice(0,3).map(f=>`<li>${esc(f)}</li>`).join('')}${feats.length>3?`<li style="color:var(--muted);">+${feats.length-3} more</li>`:''}</ul>` : ''}
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;min-width:110px;">
+          <button onclick="openPlanEditor(${p.id})" style="padding:6px 12px;background:var(--primary);color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;">✏️ Edit</button>
+          <button onclick="togglePlanActive(${p.id},${p.is_active?0:1})" style="padding:6px 12px;background:${p.is_active?'#FEF2F2':'#F0FDF4'};color:${p.is_active?'#991B1B':'#166534'};border:1px solid ${p.is_active?'#FECACA':'#BBF7D0'};border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;">${p.is_active?'Deactivate':'Activate'}</button>
+          <button onclick="togglePlanPublic(${p.id},${p.is_public?0:1})" style="padding:6px 12px;background:var(--sidebar-bg);color:var(--text);border:1px solid var(--border);border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;">${p.is_public?'Hide':'Show'}</button>
+          ${!p.archived_at ? `<button onclick="archivePlan(${p.id})" style="padding:6px 12px;background:#F8FAFC;color:#94A3B8;border:1px solid var(--border);border-radius:7px;font-size:12px;cursor:pointer;">Archive</button>` : ''}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  return `<div style="margin-bottom:24px;"><div style="font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);">${title}</div>${cards}</div>`;
+}
+
+function openPlanEditor(planId) {
+  currentEditPlanId = planId;
+  const overlay = document.getElementById('planEditorOverlay');
+  const title = document.getElementById('planEditorTitle');
+  const errEl = document.getElementById('planEditorError');
+  if (errEl) { errEl.style.display = 'none'; errEl.textContent = ''; }
+
+  if (planId) {
+    const plan = allPlansCache.find(p => p.id === planId);
+    if (!plan) return;
+    title.textContent = 'Edit Plan: ' + plan.name;
+    document.getElementById('pe-audience').value = plan.audience || 'client';
+    document.getElementById('pe-interval').value = plan.billing_interval || 'monthly';
+    document.getElementById('pe-name').value = plan.name || '';
+    document.getElementById('pe-slug').value = plan.slug || '';
+    document.getElementById('pe-price').value = plan.price_cents ? (plan.price_cents / 100).toFixed(2) : '0';
+    document.getElementById('pe-sort').value = plan.sort_order || 0;
+    document.getElementById('pe-shortdesc').value = plan.short_description || '';
+    document.getElementById('pe-stripe-price').value = plan.stripe_price_id || '';
+    document.getElementById('pe-cta').value = plan.cta_label || '';
+    document.getElementById('pe-highlight').value = plan.highlight_label || '';
+    let feats = [];
+    try { feats = JSON.parse(plan.features_json || '[]') } catch(_) {}
+    document.getElementById('pe-features').value = feats.join('\n');
+    document.getElementById('pe-active').checked = !!plan.is_active;
+    document.getElementById('pe-public').checked = !!plan.is_public;
+    document.getElementById('pe-recommended').checked = !!plan.is_recommended;
+  } else {
+    title.textContent = 'Add Plan';
+    document.getElementById('pe-audience').value = 'client';
+    document.getElementById('pe-interval').value = 'monthly';
+    document.getElementById('pe-name').value = '';
+    document.getElementById('pe-slug').value = '';
+    document.getElementById('pe-price').value = '';
+    document.getElementById('pe-sort').value = '0';
+    document.getElementById('pe-shortdesc').value = '';
+    document.getElementById('pe-stripe-price').value = '';
+    document.getElementById('pe-cta').value = 'Choose Plan';
+    document.getElementById('pe-highlight').value = '';
+    document.getElementById('pe-features').value = '';
+    document.getElementById('pe-active').checked = true;
+    document.getElementById('pe-public').checked = true;
+    document.getElementById('pe-recommended').checked = false;
+  }
+  overlay.style.display = 'block';
+}
+
+function closePlanEditor() {
+  document.getElementById('planEditorOverlay').style.display = 'none';
+  currentEditPlanId = null;
+}
+
+function autoSlug() {
+  if (!currentEditPlanId) {
+    const name = document.getElementById('pe-name').value;
+    document.getElementById('pe-slug').value = name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  }
+}
+
+async function savePlan() {
+  const btn = document.getElementById('planSaveBtn');
+  const errEl = document.getElementById('planEditorError');
+  errEl.style.display = 'none';
+
+  const audience = document.getElementById('pe-audience').value;
+  const name = document.getElementById('pe-name').value.trim();
+  const slug = document.getElementById('pe-slug').value.trim();
+  const priceRaw = parseFloat(document.getElementById('pe-price').value) || 0;
+  const price_cents = Math.round(priceRaw * 100);
+  const billing_interval = document.getElementById('pe-interval').value;
+  const sort_order = parseInt(document.getElementById('pe-sort').value) || 0;
+  const short_description = document.getElementById('pe-shortdesc').value.trim();
+  const stripe_price_id = document.getElementById('pe-stripe-price').value.trim();
+  const cta_label = document.getElementById('pe-cta').value.trim() || 'Choose Plan';
+  const highlight_label = document.getElementById('pe-highlight').value.trim();
+  const featLines = document.getElementById('pe-features').value.split('\n').map(l=>l.trim()).filter(Boolean);
+  const features_json = JSON.stringify(featLines);
+  const is_active = document.getElementById('pe-active').checked ? 1 : 0;
+  const is_public = document.getElementById('pe-public').checked ? 1 : 0;
+  const is_recommended = document.getElementById('pe-recommended').checked ? 1 : 0;
+
+  if (!audience || !name || !slug) {
+    errEl.textContent = 'Audience, name, and slug are required.';
+    errEl.style.display = 'block'; return;
+  }
+
+  const payload = { token: adminToken, audience, name, slug, short_description, price_cents, billing_interval, sort_order, stripe_price_id, cta_label, highlight_label, features_json, is_active, is_public, is_recommended };
+  if (currentEditPlanId) payload.id = currentEditPlanId;
+
+  btn.textContent = 'Saving…'; btn.disabled = true;
+  try {
+    const method = currentEditPlanId ? 'PUT' : 'POST';
+    const r = await fetch(`${BACKEND_PLANS}/admin-plans`, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    const d = await r.json();
+    if (!r.ok || d.error) {
+      errEl.textContent = 'Could not save subscription plan. ' + (d.error || 'Please try again.');
+      errEl.style.display = 'block';
+    } else {
+      closePlanEditor();
+      loadPlans();
+      showToast('Subscription plan saved.', 'success');
+    }
+  } catch(e) {
+    errEl.textContent = 'Could not save subscription plan. ' + e.message;
+    errEl.style.display = 'block';
+  } finally {
+    btn.textContent = 'Save Plan'; btn.disabled = false;
+  }
+}
+
+async function togglePlanActive(id, newVal) {
+  if (!confirm(newVal ? 'Activate this plan?' : 'Deactivate this plan?')) return;
+  try {
+    const r = await fetch(`${BACKEND_PLANS}/admin-plans`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({token:adminToken,id,is_active:newVal}) });
+    const d = await r.json();
+    if (d.success) { loadPlans(); showToast(newVal ? 'Plan activated.' : 'Plan deactivated.', 'success'); }
+    else showToast('Could not update plan. ' + (d.error||''), 'error');
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+async function togglePlanPublic(id, newVal) {
+  try {
+    const r = await fetch(`${BACKEND_PLANS}/admin-plans`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({token:adminToken,id,is_public:newVal}) });
+    const d = await r.json();
+    if (d.success) { loadPlans(); showToast(newVal ? 'Plan is now public.' : 'Plan hidden from portals.', 'success'); }
+    else showToast('Could not update plan. ' + (d.error||''), 'error');
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+async function archivePlan(id) {
+  if (!confirm('Archive this plan? It will be hidden and cannot be purchased.')) return;
+  try {
+    const r = await fetch(`${BACKEND_PLANS}/admin-plans`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({token:adminToken,id,archived_at:new Date().toISOString().replace('T',' ').slice(0,19),is_active:0,is_public:0}) });
+    const d = await r.json();
+    if (d.success) { loadPlans(); showToast('Plan archived.', 'success'); }
+    else showToast('Could not archive plan. ' + (d.error||''), 'error');
+  } catch(e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+function showToast(msg, type) {
+  let el = document.getElementById('adminToast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'adminToast';
+    el.style.cssText = 'position:fixed;bottom:24px;right:24px;padding:12px 20px;border-radius:10px;font-size:14px;font-weight:600;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.15);transition:opacity .3s;';
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.style.background = type === 'success' ? '#22C55E' : '#EF4444';
+  el.style.color = '#fff';
+  el.style.opacity = '1';
+  el.style.display = 'block';
+  clearTimeout(el._timeout);
+  el._timeout = setTimeout(() => { el.style.opacity = '0'; setTimeout(() => { el.style.display = 'none'; }, 300); }, 3500);
+}
+
 </script>
 
 </body>
