@@ -524,6 +524,7 @@
       Carehia Admin
     </div>
     <div class="header-user">
+      <button onclick="switchTab('kai')" style="padding:6px 14px;background:linear-gradient(135deg,#7C5CFF,#4A90E2);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:0.02em;white-space:nowrap;flex-shrink:0;" title="Open Kai Copilot">✨ Ask Kai</button>
       <div class="topbar-avatar" id="adminInitial">A</div>
       <span id="adminEmail" class="hide-mobile"></span>
     </div>
@@ -612,6 +613,9 @@
       <button class="sidebar-item" data-tab="team" onclick="switchTab('team')" id="sidebar-team-btn" style="display:none">
         <span class="item-icon">👥</span> Team &amp; Access
         <span class="sidebar-badge" id="sb-badge-team" style="display:none"></span>
+      </button>
+      <button class="sidebar-item" data-tab="kai" onclick="switchTab('kai')" id="sidebar-kai-btn">
+        <span class="item-icon">🤖</span> Kai Copilot
       </button>
 
       <div class="sidebar-footer">
@@ -1255,7 +1259,7 @@ let currentTab = 'today';
 const ALL_TAB_IDS = [
   'today','requests','overview','clients','caregivers','bookings',
   'verifications','trust','marketplace','pilot','acq','loc',
-  'schedules','invoices','reviews','subscriptions','plans','incidents','settings','team','plogs'
+  'schedules','invoices','reviews','subscriptions','plans','incidents','settings','team','plogs','kai'
 ];
 
 function switchTab(name, _btn) {
@@ -1303,6 +1307,7 @@ function switchTab(name, _btn) {
   else if (name === 'team') loadTeamAccess();
   else if (name === 'incidents') loadIncidents();
   else if (name === 'plogs') loadProductLogs();
+  else if (name === 'kai')   loadKaiTab();
 }
 
 
@@ -5084,6 +5089,229 @@ function showToast(msg, type) {
   el.style.display = 'block';
   clearTimeout(el._timeout);
   el._timeout = setTimeout(() => { el.style.opacity = '0'; setTimeout(() => { el.style.display = 'none'; }, 300); }, 3500);
+}
+
+
+  <!-- ════════════════════════════════════════════════════════════════════
+       PHASE 21A: KAI COPILOT TAB
+       ════════════════════════════════════════════════════════════════════ -->
+  <div id="tab-kai" style="display:none;">
+    <div style="max-width:780px;margin:0 auto;">
+
+      <!-- Header -->
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:8px;">
+        <div style="width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#7C5CFF,#4A90E2);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;">🤖</div>
+        <div>
+          <h2 style="margin:0;font-size:22px;font-weight:800;color:var(--text);">Carehia Kai</h2>
+          <p style="margin:0;font-size:13px;color:var(--muted);">Admin copilot for Carehia operations — read only</p>
+        </div>
+      </div>
+
+      <!-- Suggested prompts -->
+      <div id="kai-suggested" style="display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 14px;">
+        <button class="kai-chip" onclick="runKaiPrompt('What needs attention today?')">🔍 What needs attention today?</button>
+        <button class="kai-chip" onclick="runKaiPrompt('Show urgent incidents.')">🚨 Show urgent incidents</button>
+        <button class="kai-chip" onclick="runKaiPrompt('What are the launch blockers?')">🚧 Launch blockers</button>
+        <button class="kai-chip" onclick="runKaiPrompt('Which caregivers need Trust Passport review?')">🛡 Caregivers needing review</button>
+        <button class="kai-chip" onclick="runKaiPrompt('Summarize high-priority Product Logs.')">📋 Summarize Product Logs</button>
+        <button class="kai-chip" onclick="runKaiPrompt('Which users are suspended or blocked?')">⚠️ Suspended/blocked users</button>
+        <button class="kai-chip" onclick="runKaiPrompt('What should I review next?')">✅ What should I review next?</button>
+      </div>
+
+      <!-- Input area -->
+      <div style="display:flex;gap:10px;margin-bottom:18px;">
+        <textarea id="kai-input" rows="2" placeholder="Ask Kai about caregivers, incidents, Trust Passport, product logs, subscriptions, or launch readiness…"
+          style="flex:1;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);font-size:14px;resize:vertical;font-family:inherit;line-height:1.5;"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendKai();}"></textarea>
+        <button id="kai-send-btn" onclick="sendKai()" style="padding:0 20px;background:linear-gradient(135deg,#7C5CFF,#4A90E2);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;flex-shrink:0;align-self:stretch;">Send</button>
+      </div>
+
+      <!-- Response area -->
+      <div id="kai-response-area" style="display:none;">
+        <!-- Source chips -->
+        <div id="kai-sources" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;"></div>
+        <!-- Answer card -->
+        <div id="kai-answer-card" style="background:var(--card-bg,var(--sidebar-bg));border:1.5px solid var(--border);border-radius:14px;padding:18px 20px;font-size:14px;line-height:1.75;color:var(--text);white-space:pre-wrap;word-break:break-word;"></div>
+        <!-- Suggested nav links -->
+        <div id="kai-nav-links" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;"></div>
+      </div>
+
+      <!-- Loading state -->
+      <div id="kai-loading" style="display:none;text-align:center;padding:32px 0;">
+        <div style="font-size:28px;animation:kai-spin 1.2s linear infinite;display:inline-block;">🤖</div>
+        <p style="color:var(--muted);font-size:13px;margin:10px 0 0;">Kai is thinking…</p>
+      </div>
+
+      <!-- Error state -->
+      <div id="kai-error" style="display:none;background:#FEF2F2;border:1px solid #FECACA;border-radius:10px;padding:14px 16px;color:#EF4444;font-size:13px;margin-top:10px;"></div>
+
+      <!-- History (last 5 exchanges) -->
+      <div id="kai-history" style="margin-top:24px;"></div>
+    </div>
+  </div>
+// ═════════════════════════════════════════════════════════════════════════
+// PHASE 21A — KAI COPILOT
+// ═════════════════════════════════════════════════════════════════════════
+(function() {
+  // Inject Kai CSS
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes kai-spin { to { transform: rotate(360deg); } }
+    .kai-chip {
+      padding: 7px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+      white-space: nowrap;
+    }
+    .kai-chip:hover { background: rgba(124,92,255,0.1); border-color: #7C5CFF; color: #7C5CFF; }
+    .kai-source-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: rgba(124,92,255,0.12);
+      color: #7C5CFF;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .kai-nav-btn {
+      padding: 7px 14px;
+      border: 1.5px solid #7C5CFF;
+      border-radius: 8px;
+      background: rgba(124,92,255,0.08);
+      color: #7C5CFF;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .kai-nav-btn:hover { background: rgba(124,92,255,0.18); }
+    .kai-history-item {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      background: var(--bg);
+    }
+    .kai-history-q { font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 6px; }
+    .kai-history-a { font-size: 13px; color: var(--text); line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
+  `;
+  document.head.appendChild(style);
+})();
+
+const KAI_BACKEND = 'https://gotocare-original.jjioji.workers.dev/api';
+let kaiHistory = [];
+let kaiCurrentPageCtx = '';
+
+function loadKaiTab() {
+  // Reset to clean state when opening tab
+  document.getElementById('kai-error').style.display = 'none';
+  document.getElementById('kai-loading').style.display = 'none';
+  // Set page context from current tab (previous tab before kai)
+  kaiCurrentPageCtx = '';
+  renderKaiHistory();
+}
+
+function runKaiPrompt(prompt) {
+  const input = document.getElementById('kai-input');
+  if (input) input.value = prompt;
+  sendKai();
+}
+
+async function sendKai() {
+  const input = document.getElementById('kai-input');
+  const prompt = (input?.value || '').trim();
+  if (!prompt) return;
+
+  const sendBtn = document.getElementById('kai-send-btn');
+  const loadingEl = document.getElementById('kai-loading');
+  const errorEl = document.getElementById('kai-error');
+  const responseArea = document.getElementById('kai-response-area');
+
+  // UI: loading state
+  if (sendBtn) sendBtn.disabled = true;
+  if (loadingEl) loadingEl.style.display = 'block';
+  if (errorEl) errorEl.style.display = 'none';
+  if (responseArea) responseArea.style.display = 'none';
+
+  try {
+    const res = await fetch(KAI_BACKEND + '/admin-kai', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        token: adminToken,
+        prompt: prompt,
+        pageContext: kaiCurrentPageCtx
+      })
+    });
+
+    const data = await res.json();
+    if (loadingEl) loadingEl.style.display = 'none';
+
+    if (!res.ok || data.error) {
+      const msg = data.error || 'I could not load that admin data right now. Please try again.';
+      if (errorEl) { errorEl.textContent = msg; errorEl.style.display = 'block'; }
+      if (sendBtn) sendBtn.disabled = false;
+      return;
+    }
+
+    // Render source chips
+    const sourcesEl = document.getElementById('kai-sources');
+    if (sourcesEl) {
+      const sourceIcons = {
+        'Incidents': '🚨', 'Product Logs': '📋', 'Trust Review': '🛡',
+        'Caregivers': '👤', 'Clients': '🏠', 'Subscriptions': '💳', 'Safety Status': '⚠️'
+      };
+      sourcesEl.innerHTML = (data.sourceAreasUsed || []).map(s =>
+        `<span class="kai-source-chip">${sourceIcons[s] || '📊'} ${esc(s)}</span>`
+      ).join('');
+    }
+
+    // Render answer
+    const answerCard = document.getElementById('kai-answer-card');
+    if (answerCard) answerCard.textContent = data.answer || 'No response generated.';
+
+    // Render nav links
+    const navLinks = document.getElementById('kai-nav-links');
+    if (navLinks) {
+      navLinks.innerHTML = (data.suggestedLinks || []).map(l =>
+        `<button class="kai-nav-btn" onclick="switchTab('${esc(l.tab)}')">${esc(l.label)} →</button>`
+      ).join('');
+    }
+
+    if (responseArea) responseArea.style.display = 'block';
+
+    // Add to history (keep last 5)
+    kaiHistory.unshift({ prompt, answer: data.answer, sources: data.sourceAreasUsed || [] });
+    if (kaiHistory.length > 5) kaiHistory.length = 5;
+    if (input) input.value = '';
+    renderKaiHistory();
+
+  } catch(e) {
+    if (loadingEl) loadingEl.style.display = 'none';
+    if (errorEl) { errorEl.textContent = 'I could not load that admin data right now. Please try again.'; errorEl.style.display = 'block'; }
+  }
+
+  if (sendBtn) sendBtn.disabled = false;
+}
+
+function renderKaiHistory() {
+  const histEl = document.getElementById('kai-history');
+  if (!histEl) return;
+  if (!kaiHistory.length) { histEl.innerHTML = ''; return; }
+  const items = kaiHistory.slice(1).map(h => `
+    <div class="kai-history-item">
+      <div class="kai-history-q">🗂 ${esc(h.prompt)}</div>
+      <div class="kai-history-a">${esc(h.answer)}</div>
+    </div>
+  `).join('');
+  histEl.innerHTML = items ? `<p style="font-size:12px;color:var(--muted);font-weight:700;margin:0 0 10px;">RECENT HISTORY</p>${items}` : '';
 }
 
 </script>
