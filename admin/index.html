@@ -4328,7 +4328,7 @@ async function revokeInvite(inviteId) {
             <th>Updated</th>
             <th style="width:60px">Action</th>
           </tr></thead>
-          <tbody id="pl-table-body">
+          <tbody id="pl-table-body" data-kai-target="product-log-row">
             <tr><td colspan="10" style="color:var(--muted);text-align:center;padding:32px;">Loading product logs...</td></tr>
           </tbody>
         </table>
@@ -5704,6 +5704,8 @@ const KAI_WALKTHROUGHS = {
 const KAI_GUIDE_ID_FALLBACKS = {
   'trust-review-decision': 'trustDetailModal',
   'incident-status-select': 'incidentDetailModal',
+  'product-log-row': 'pl-table-body',
+  'incident-row': 'incidentsBody',
 };
 
 function canAdminUseGuide(walkthroughId) {
