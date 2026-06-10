@@ -490,6 +490,43 @@
     .admin-body { height:calc(100vh - 56px); }
   }
 
+
+/* ===================== PHASE 22C — KAI GUIDED WALKTHROUGH STYLES ===================== */
+.kai-guide-btn {
+  transition: opacity 0.15s, transform 0.1s;
+}
+.kai-guide-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+#kai-guide-card {
+  animation: kaiCardSlideIn 0.3s cubic-bezier(.4,0,.2,1);
+}
+@keyframes kaiCardSlideIn {
+  from { opacity: 0; transform: translateY(20px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+#kai-guide-back-btn,
+#kai-guide-next-btn,
+#kai-guide-done-btn {
+  transition: opacity 0.15s, box-shadow 0.15s;
+}
+#kai-guide-next-btn:hover,
+#kai-guide-done-btn:hover {
+  box-shadow: 0 4px 14px rgba(124,92,255,0.35);
+}
+#kai-guide-back-btn:hover {
+  background: #F5F3FF !important;
+}
+#kai-highlight-ring {
+  animation: kaiRingPulse 2.2s ease-in-out infinite;
+}
+@keyframes kaiRingPulse {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(124,92,255,0.20), 0 0 20px rgba(124,92,255,0.30); }
+  50%       { box-shadow: 0 0 0 7px rgba(124,92,255,0.12), 0 0 32px rgba(124,92,255,0.50); }
+}
+/* ===================== END PHASE 22C ===================== */
+
 </style>
 </head>
 <body>
@@ -556,7 +593,7 @@
       </button>
 
       <div class="sidebar-section-label">Trust &amp; Quality</div>
-      <button class="sidebar-item" data-tab="trust" onclick="switchTab('trust')" id="trust-tab-btn">
+      <button class="sidebar-item" data-tab="trust" onclick="switchTab('trust')" id="trust-tab-btn" data-kai-target="trust-review-menu">
         <span class="item-icon">🛡️</span> Trust Review
         <span class="sidebar-badge yellow" id="sb-badge-trust" style="display:none"></span>
       </button>
@@ -575,7 +612,7 @@
       <button class="sidebar-item" data-tab="subscriptions" onclick="switchTab('subscriptions')">
         <span class="item-icon">💳</span> Subscriptions
       </button>
-      <button class="sidebar-item" data-tab="plans" onclick="switchTab('plans')">
+      <button class="sidebar-item" data-tab="plans" onclick="switchTab('plans')" data-kai-target="subscriptions-menu">
         <span class="item-icon">📦</span> Plan Mgmt
       </button>
 
@@ -598,10 +635,10 @@
       <button class="sidebar-item" data-tab="acq" onclick="switchTab('acq')" id="acq-tab-btn">
         <span class="item-icon">📣</span> Acquisition
       </button>
-      <button class="sidebar-item" data-tab="incidents" onclick="switchTab('incidents')" id="incidents-tab-btn">
+      <button class="sidebar-item" data-tab="incidents" onclick="switchTab('incidents')" id="incidents-tab-btn" data-kai-target="incidents-menu">
         <span>🚨</span><span class="sidebar-label">Incidents</span>
       </button>
-      <button class="sidebar-item" data-tab="plogs" onclick="switchTab('plogs')" id="plogs-tab-btn">
+      <button class="sidebar-item" data-tab="plogs" onclick="switchTab('plogs')" id="plogs-tab-btn" data-kai-target="product-logs-menu">
         <span class="item-icon">📝</span> Product Logs
         <span class="sidebar-badge" id="sb-badge-plogs" style="display:none"></span>
       </button>
@@ -850,7 +887,7 @@
               <th class="hide-mobile">Last Updated</th>
               <th>Actions</th>
             </tr></thead>
-            <tbody id="trustBody">
+            <tbody id="trustBody" data-kai-target="trust-review-row">
               <tr class="loading-row"><td colspan="8">⏳ Loading…</td></tr>
             </tbody>
           </table>
@@ -951,7 +988,7 @@
 </div><!-- /appShell -->
 
 <!-- ===== TRUST DETAIL MODAL ===== -->
-<div id="trustDetailModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;overflow-y:auto;padding:20px 16px">
+<div id="trustDetailModal" data-kai-target="trust-review-detail" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;overflow-y:auto;padding:20px 16px">
   <div style="max-width:860px;margin:0 auto;background:var(--card);border-radius:16px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,0.5)">
     <!-- Header -->
     <div style="padding:20px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--card2)">
@@ -1002,12 +1039,12 @@
     <!-- Caregiver-facing note -->
     <div style="margin-bottom:20px">
       <label style="font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;display:block;margin-bottom:6px">Message to Caregiver <span style="font-weight:400;text-transform:none">(shown on their Trust Passport)</span></label>
-      <textarea id="trustCaregiverNote" placeholder="What should the caregiver do next?…" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;min-height:64px;resize:vertical;box-sizing:border-box"></textarea>
+      <textarea id="trustCaregiverNote" data-kai-target="trust-review-note" placeholder="What should the caregiver do next?…" style="width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:var(--bg);color:var(--text);font-size:13px;min-height:64px;resize:vertical;box-sizing:border-box"></textarea>
     </div>
 
     <div style="display:flex;gap:10px">
       <button onclick="closeTrustActionModal()" style="flex:1;padding:11px;border-radius:8px;border:1px solid var(--border);background:none;color:var(--text);cursor:pointer;font-size:14px;font-weight:600">Cancel</button>
-      <button id="trustActionConfirmBtn" onclick="submitTrustAction()" style="flex:2;padding:11px;border-radius:8px;border:none;color:#fff;cursor:pointer;font-size:14px;font-weight:700"></button>
+      <button id="trustActionConfirmBtn" data-kai-target="trust-review-save-button" onclick="submitTrustAction()" style="flex:2;padding:11px;border-radius:8px;border:none;color:#fff;cursor:pointer;font-size:14px;font-weight:700"></button>
     
     <!-- ===================== PILOT LAUNCH DASHBOARD ===================== -->
     <div id="tab-pilot" style="display:none">
@@ -1350,7 +1387,7 @@ async function loadIncidents(filter, btn) {
         <td><span style="background:${uColor}20;color:${uColor};padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700">${esc(i.urgency||'medium')}</span></td>
         <td><span style="background:${statusColor[i.status]||'#94A3B8'}20;color:${statusColor[i.status]||'#94A3B8'};padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700">${esc(i.status||'new')}</span></td>
         <td style="font-size:11px;color:var(--muted)">${esc(i.created_at?.substring(0,10)||'—')}</td>
-        <td><button onclick="openIncidentDetail(${i.id})" style="padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--text);cursor:pointer;font-size:11px">View →</button></td>
+        <td><button data-kai-target="incident-row-view" onclick="openIncidentDetail(${i.id})" style="padding:4px 10px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--text);cursor:pointer;font-size:11px">View →</button></td>
       </tr>
     `;}).join('');
   } catch(e) { tbody.innerHTML = `<tr class="loading-row"><td colspan="8">⚠️ ${esc(String(e))}</td></tr>`; }
@@ -1386,18 +1423,18 @@ async function openIncidentDetail(id) {
       </div>
       <div style="margin-bottom:16px">
         <label style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;display:block;margin-bottom:6px">Update Status</label>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <div data-kai-target="incident-status-select" style="display:flex;gap:8px;flex-wrap:wrap">
           ${['new','triage','investigating','waiting_on_user','action_taken','escalated','closed'].map(s=>`<button onclick="updateIncidentStatus(${inc.id},'${s}')" style="padding:5px 12px;border-radius:8px;border:1px solid var(--border);background:${inc.status===s?'var(--primary)':'none'};color:${inc.status===s?'#fff':'var(--text)'};font-size:11px;font-weight:600;cursor:pointer">${s.replace(/_/g,' ')}</button>`).join('')}
         </div>
       </div>
       <div style="margin-bottom:16px">
         <label style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;display:block;margin-bottom:4px">Internal Notes <span style="font-weight:400;font-size:10px">(admin only)</span></label>
-        <textarea id="incidentInternalNotes" rows="3" style="width:100%;border:1px solid var(--border);border-radius:8px;padding:10px;font-size:13px;font-family:inherit;background:#fff;color:var(--text)">${esc(inc.internal_notes||'')}</textarea>
+        <textarea id="incidentInternalNotes" data-kai-target="incident-internal-note" rows="3" style="width:100%;border:1px solid var(--border);border-radius:8px;padding:10px;font-size:13px;font-family:inherit;background:#fff;color:var(--text)">${esc(inc.internal_notes||'')}</textarea>
         <label style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;display:block;margin:10px 0 4px">User-Facing Note <span style="font-weight:400;font-size:10px">(visible to reporter)</span></label>
         <textarea id="incidentUserNote" rows="2" placeholder="Optional message to reporter..." style="width:100%;border:1px solid var(--border);border-radius:8px;padding:10px;font-size:13px;font-family:inherit;background:#fff;color:var(--text)">${esc(inc.user_facing_note||'')}</textarea>
         <label style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;display:block;margin:8px 0 4px">Assign to Admin</label>
         <input type="text" id="incidentAssign" value="${esc(inc.assigned_admin||'')}" placeholder="Admin email" style="width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 12px;font-size:13px;background:#fff;color:var(--text)"/>
-        <button onclick="saveIncidentNotes(${inc.id})" style="margin-top:8px;padding:8px 16px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">Save Notes</button>
+        <button data-kai-target="incident-save-button" onclick="saveIncidentNotes(${inc.id})" style="margin-top:8px;padding:8px 16px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">Save Notes</button>
       </div>
       ${logs.length?`<div><label style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;display:block;margin-bottom:6px">Audit Trail</label><div style="background:var(--bg);border:1px solid var(--border);border-radius:10px;max-height:160px;overflow-y:auto">${logs.map(l=>`<div style="padding:8px 12px;border-bottom:1px solid var(--border);font-size:11px"><span style="color:var(--primary);font-weight:600">${esc(l.action||'')}</span> <span style="color:var(--muted)">by ${esc(l.actor_email||'system')} · ${esc((l.created_at||'').substring(0,16))}</span>${l.new_value?` <span style="color:var(--text)">→ ${esc(l.new_value)}</span>`:''}</div>`).join('')}</div></div>`:''}
     `;
@@ -3594,13 +3631,13 @@ async function flagLocation(visitId) {
       </div>
 
       <!-- Plan cards grid -->
-      <div id="plansGrid" style="margin-top:16px;">
+      <div id="plansGrid" data-kai-target="subscription-plan-row" style="margin-top:16px;">
         <div style="padding:32px;text-align:center;color:var(--muted);font-size:14px;">⏳ Loading plans…</div>
       </div>
     </div>
 
     <!-- Plan Editor Modal -->
-    <div id="planEditorOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;overflow-y:auto;">
+    <div id="planEditorOverlay" data-kai-target="subscription-edit-panel" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;overflow-y:auto;">
       <div style="background:var(--card-bg);border-radius:16px;max-width:600px;margin:40px auto;padding:28px;position:relative;">
         <button onclick="closePlanEditor()" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);">&#x2715;</button>
         <h2 id="planEditorTitle" style="font-size:20px;font-weight:700;color:var(--text);margin:0 0 20px;">Add Plan</h2>
@@ -3645,7 +3682,7 @@ async function flagLocation(visitId) {
         </div>
         <div style="margin-top:14px;">
           <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Stripe Price ID</label>
-          <input id="pe-stripe-price" type="text" placeholder="price_..." style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--card-bg);color:var(--text);box-sizing:border-box;">
+          <input id="pe-stripe-price" type="text" placeholder="price_..." data-kai-target="subscription-stripe-price-id" style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:var(--card-bg);color:var(--text);box-sizing:border-box;">
         </div>
         <div style="margin-top:14px;">
           <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">CTA Label</label>
@@ -3677,7 +3714,7 @@ async function flagLocation(visitId) {
 
         <div style="margin-top:20px;display:flex;gap:10px;justify-content:flex-end;">
           <button onclick="closePlanEditor()" style="padding:8px 18px;border:1px solid var(--border);border-radius:8px;background:none;color:var(--text);font-size:13px;cursor:pointer;">Cancel</button>
-          <button id="planSaveBtn" onclick="savePlan()" style="padding:8px 20px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Save Plan</button>
+          <button id="planSaveBtn" onclick="savePlan()" data-kai-target="subscription-save-button" style="padding:8px 20px;background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Save Plan</button>
         </div>
       </div>
     </div>
@@ -4175,7 +4212,7 @@ async function revokeInvite(inviteId) {
           <th>#</th><th>Reporter</th><th>Name / Email</th><th>Category</th>
           <th>Urgency</th><th>Status</th><th>Submitted</th><th>Action</th>
         </tr></thead>
-        <tbody id="incidentsBody">
+        <tbody id="incidentsBody" data-kai-target="incident-row">
           <tr class="loading-row"><td colspan="8">Select Incidents tab to load…</td></tr>
         </tbody>
       </table>
@@ -4184,7 +4221,7 @@ async function revokeInvite(inviteId) {
 </div>
 
 <!-- PHASE 15D: Incident Detail Modal -->
-<div id="incidentDetailModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:9999;align-items:center;justify-content:center;padding:20px">
+<div id="incidentDetailModal" data-kai-target="incident-detail-panel" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);z-index:9999;align-items:center;justify-content:center;padding:20px">
   <div style="background:var(--card);border-radius:16px;width:100%;max-width:620px;max-height:85vh;overflow-y:auto;padding:24px;position:relative">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;position:sticky;top:0;background:var(--card);padding-bottom:12px;border-bottom:1px solid var(--border)">
       <h3 style="font-size:18px;font-weight:800;color:var(--text)">Incident Detail</h3>
@@ -4348,7 +4385,7 @@ async function revokeInvite(inviteId) {
       </div>
       <div>
         <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">Status *</label>
-        <select id="pl-f-status" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;box-sizing:border-box;">
+        <select id="pl-f-status" data-kai-target="product-log-status" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;box-sizing:border-box;">
           <option value="New" selected>New</option>
           <option value="In Review">In Review</option>
           <option value="In Progress">In Progress</option>
@@ -4448,7 +4485,7 @@ async function revokeInvite(inviteId) {
         </div>
         <div>
           <label style="font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:4px;">QA Result</label>
-          <textarea id="pl-f-qaresult" rows="2" placeholder="Pass / Fail / Needs Retest" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;box-sizing:border-box;resize:vertical;font-family:inherit;"></textarea>
+          <textarea id="pl-f-qaresult" data-kai-target="product-log-qa-note" rows="2" placeholder="Pass / Fail / Needs Retest" style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;box-sizing:border-box;resize:vertical;font-family:inherit;"></textarea>
         </div>
       </div>
     </div>
@@ -4463,7 +4500,7 @@ async function revokeInvite(inviteId) {
 
     <div style="display:flex;gap:10px;justify-content:flex-end;">
       <button onclick="closePLForm()" style="padding:10px 20px;border:1px solid var(--border);border-radius:8px;background:none;color:var(--text);font-size:14px;cursor:pointer;font-weight:600;">Cancel</button>
-      <button onclick="submitPLForm()" id="pl-submit-btn" style="padding:10px 24px;border:none;border-radius:8px;background:var(--primary);color:#fff;font-size:14px;cursor:pointer;font-weight:600;">Save Log Item</button>
+      <button onclick="submitPLForm()" id="pl-submit-btn" data-kai-target="product-log-save-button" style="padding:10px 24px;border:none;border-radius:8px;background:var(--primary);color:#fff;font-size:14px;cursor:pointer;font-weight:600;">Save Log Item</button>
     </div>
   </div>
 </div>
@@ -4914,7 +4951,7 @@ function renderPlanGroup(title, plans, accentColor) {
     const stripeStatus = p.stripe_price_id ? `<span style="font-size:11px;color:#22C55E;">✓ Stripe: ${esc(p.stripe_price_id.slice(0,20)+'…')}</span>` : '<span style="font-size:11px;color:#F59E0B;">⚠ No Stripe ID</span>';
     let feats = [];
     try { feats = JSON.parse(p.features_json || '[]') } catch(_) {}
-    return `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;">
+    return `<div data-kai-target="subscription-plan-row" style="background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;">
         <div>
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
@@ -4927,7 +4964,7 @@ function renderPlanGroup(title, plans, accentColor) {
           ${feats.length ? `<ul style="margin:8px 0 0;padding-left:16px;font-size:12px;color:var(--muted);">${feats.slice(0,3).map(f=>`<li>${esc(f)}</li>`).join('')}${feats.length>3?`<li style="color:var(--muted);">+${feats.length-3} more</li>`:''}</ul>` : ''}
         </div>
         <div style="display:flex;flex-direction:column;gap:6px;min-width:110px;">
-          <button onclick="openPlanEditor(${p.id})" style="padding:6px 12px;background:var(--primary);color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;">✏️ Edit</button>
+          <button data-kai-target="subscription-edit-button" onclick="openPlanEditor(${p.id})" style="padding:6px 12px;background:var(--primary);color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;">✏️ Edit</button>
           <button onclick="togglePlanActive(${p.id},${p.is_active?0:1})" style="padding:6px 12px;background:${p.is_active?'#FEF2F2':'#F0FDF4'};color:${p.is_active?'#991B1B':'#166534'};border:1px solid ${p.is_active?'#FECACA':'#BBF7D0'};border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;">${p.is_active?'Deactivate':'Activate'}</button>
           <button onclick="togglePlanPublic(${p.id},${p.is_public?0:1})" style="padding:6px 12px;background:var(--sidebar-bg);color:var(--text);border:1px solid var(--border);border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;">${p.is_public?'Hide':'Show'}</button>
           ${!p.archived_at ? `<button onclick="archivePlan(${p.id})" style="padding:6px 12px;background:#F8FAFC;color:#94A3B8;border:1px solid var(--border);border-radius:7px;font-size:12px;cursor:pointer;">Archive</button>` : ''}
@@ -5247,6 +5284,19 @@ function loadKaiTab() {
   kaiCurrentItemType = '';
   kaiCurrentItemId = '';
   renderKaiHistory();
+  // Phase 22C: restore active guide from sessionStorage if page was refreshed mid-guide
+  try {
+    const saved = sessionStorage.getItem('carehia_kai_active_guide');
+    if (saved && !kaiActiveGuide) {
+      const state = JSON.parse(saved);
+      if (state && state.id && KAI_WALKTHROUGHS[state.id]) {
+        kaiActiveGuide = state.id;
+        kaiGuideStepIndex = state.stepIndex || 0;
+        kaiGuideHistory = state.history || [];
+        setTimeout(() => renderKaiGuideStep(), 400);
+      }
+    }
+  } catch(_) {}
 }
 
 function runKaiPrompt(prompt) {
@@ -5380,12 +5430,25 @@ function renderKaiSuggestedActions(actions, data) {
     '#clients': 'clients',
   };
 
+  const KAI_ACTION_WALKTHROUGH_MAP = {
+    'incident_investigate':       'review-incident',
+    'incident_assign':            'review-incident',
+    'product_log_retest':         'review-product-log',
+    'product_log_review':         'review-product-log',
+    'plan_hide_until_connected':  'fix-plan-stripe-id',
+    'plan_review_recommended':    'fix-plan-stripe-id',
+    'trust_request_id':           'review-trust-passport',
+    'trust_request_background':   'review-trust-passport',
+  };
+
   list.innerHTML = actions.map((action, idx) => {
     const rc = RISK_COLORS[action.riskLevel] || RISK_COLORS['Low'];
     const itemLabel = ITEM_LABELS[action.relatedItemType] || '🔗 Open';
     const tabKey = TAB_MAP[action.suggestedLink] || 'incidents';
     const noteId = 'kai-draft-note-' + idx;
     const canPerform = action.canUserPerform !== false;
+    const wid = KAI_ACTION_WALKTHROUGH_MAP[action.type] || null;
+    const canGuide = wid && canPerform;
 
     return `<div class="kai-action-card" style="background:${rc.bg};border:1.5px solid ${rc.border};border-radius:12px;padding:16px 18px;">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px;">
@@ -5404,6 +5467,7 @@ function renderKaiSuggestedActions(actions, data) {
       </div>` : ''}
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
         <button onclick="switchTab('${tabKey}')" class="kai-open-btn" style="padding:6px 14px;border-radius:8px;border:1.5px solid ${rc.badge};background:#fff;color:${rc.text};font-size:12px;font-weight:700;cursor:pointer;">${itemLabel} →</button>
+        ${canGuide ? `<button onclick="startKaiGuide('${wid}')" class="kai-guide-btn" style="padding:6px 14px;border-radius:8px;border:none;background:linear-gradient(135deg,#7C5CFF,#4A90E2);color:#fff;font-size:12px;font-weight:700;cursor:pointer;">🧭 Guide Me</button>` : ''}
         ${!canPerform ? '<span style="font-size:11px;color:var(--muted);font-style:italic;">You may not have permission to perform this action.</span>' : ''}
       </div>
     </div>`;
@@ -5442,7 +5506,439 @@ function renderKaiHistory() {
   histEl.innerHTML = items ? `<p style="font-size:12px;color:var(--muted);font-weight:700;margin:0 0 10px;">RECENT HISTORY</p>${items}` : '';
 }
 
+
+// ===================== PHASE 22C — KAI GUIDED WALKTHROUGH ENGINE =====================
+
+// Guide state
+let kaiActiveGuide = null;   // walkthrough ID string
+let kaiGuideStepIndex = 0;
+let kaiGuideHistory = [];    // step index history (for Back)
+
+// Walkthrough definitions
+const KAI_WALKTHROUGHS = {
+  'fix-plan-stripe-id': {
+    name: 'Fix Missing Stripe Price ID',
+    requiredRoles: ['super_admin', 'finance_admin', 'admin_manager'],
+    steps: [
+      {
+        tab: 'plans',
+        target: 'subscriptions-menu',
+        title: 'Open Plan Management',
+        instruction: 'Navigate to Plan Mgmt in the sidebar. This is where you manage all Carehia subscription plans.',
+        safetyNote: 'This plan is live but checkout is not connected. No purchases can be completed until a Stripe Price ID is added.',
+        autoNavigate: true
+      },
+      {
+        tab: 'plans',
+        target: 'subscription-plan-row',
+        title: 'Find the Affected Plan',
+        instruction: 'Locate the plan with a yellow "No Stripe ID" badge. Plans missing a Stripe Price ID cannot process payments.',
+      },
+      {
+        tab: 'plans',
+        target: 'subscription-edit-button',
+        title: 'Open Plan Editor',
+        instruction: 'Click the Edit button on the affected plan card to open the plan editor.',
+        expectedAction: 'Click Edit on the plan marked with the yellow Stripe warning badge.'
+      },
+      {
+        tab: 'plans',
+        target: 'subscription-stripe-price-id',
+        title: 'Enter the Stripe Price ID',
+        instruction: 'Paste the correct Stripe Price ID (starts with price_...) from your Stripe dashboard into this field.',
+        safetyNote: 'Never use a Stripe test price ID in production. Verify the correct price ID in your Stripe dashboard before saving.',
+        expectedAction: 'Paste the price_... ID from Stripe Dashboard > Products.'
+      },
+      {
+        tab: 'plans',
+        target: 'subscription-save-button',
+        title: 'Save the Plan',
+        instruction: 'Review all plan details carefully, then click Save Plan. The plan will now be connected to Stripe checkout.',
+        expectedAction: 'Double-check the plan name, price, and Stripe ID before saving.'
+      }
+    ]
+  },
+
+  'review-product-log': {
+    name: 'Review High-Priority Product Log',
+    requiredRoles: ['super_admin', 'admin_manager', 'verification_reviewer', 'support_agent', 'finance_admin'],
+    steps: [
+      {
+        tab: 'plogs',
+        target: 'product-logs-menu',
+        title: 'Open Product Logs',
+        instruction: 'Navigate to Product Logs in the sidebar to view all tracked bugs, features, and QA notes.',
+        autoNavigate: true
+      },
+      {
+        tab: 'plogs',
+        target: 'product-log-row',
+        title: 'Find the High-Priority Item',
+        instruction: 'Look for items marked Critical or High priority with status "In Progress" or "Needs Retest". These may affect launch readiness.',
+      },
+      {
+        tab: 'plogs',
+        target: 'product-log-status',
+        title: 'Review and Update Status',
+        instruction: 'Open the product log item and review its current status. Click the row to expand details, then click Edit to update the status.',
+        expectedAction: 'Change status to Needs Retest, Verified, or Closed as appropriate.'
+      },
+      {
+        tab: 'plogs',
+        target: 'product-log-qa-note',
+        title: 'Add a QA Result Note',
+        instruction: 'Fill in the QA Result field with your test outcome (Pass / Fail / Needs Retest). A clear QA note helps the team understand the current state.',
+        safetyNote: 'This item may affect launch readiness. Review the latest test notes carefully before closing.'
+      },
+      {
+        tab: 'plogs',
+        target: 'product-log-save-button',
+        title: 'Save the Log Item',
+        instruction: 'Review your changes, then click Save Log Item to commit the update. The log will show the new status and your QA note.',
+        expectedAction: 'Confirm status and QA note are accurate before saving.'
+      }
+    ]
+  },
+
+  'review-incident': {
+    name: 'Review Urgent Incident',
+    requiredRoles: ['super_admin', 'admin_manager', 'support_agent'],
+    steps: [
+      {
+        tab: 'incidents',
+        target: 'incidents-menu',
+        title: 'Open Incident Queue',
+        instruction: 'Navigate to Incidents in the sidebar to view all trust and safety reports.',
+        autoNavigate: true
+      },
+      {
+        tab: 'incidents',
+        target: 'incident-row',
+        title: 'Find the Urgent Incident',
+        instruction: 'Look for incidents highlighted in red (Emergency) or orange (High). Emergency incidents have a red left border. Click "View" to open details.',
+      },
+      {
+        tab: 'incidents',
+        target: 'incident-detail-panel',
+        title: 'Review Incident Summary',
+        instruction: 'Read the full incident description carefully. Note the urgency level, category, and any related user IDs. Do not take action before reviewing all details.',
+        safetyNote: 'Safety incidents should be reviewed before any user status changes are made. Read the full description first.'
+      },
+      {
+        tab: 'incidents',
+        target: 'incident-status-select',
+        title: 'Update Incident Status',
+        instruction: 'Choose the appropriate next status using the status buttons inside the incident detail panel. Move from "New" to "Triage" or "Investigating" as appropriate.',
+        expectedAction: 'Click one of the status buttons: Triage, Investigating, Action Taken, or Escalated.'
+      },
+      {
+        tab: 'incidents',
+        target: 'incident-internal-note',
+        title: 'Add Internal Notes',
+        instruction: 'Write a concise internal note documenting your review findings. These notes are admin-only and not visible to the reporter.',
+        expectedAction: 'Example: "Reviewed — caregiver contacted. Monitoring situation."'
+      },
+      {
+        tab: 'incidents',
+        target: 'incident-save-button',
+        title: 'Save Your Notes',
+        instruction: 'Click Save Notes to commit your status update and internal note. Kai cannot save for you — this action is yours to confirm.',
+        safetyNote: 'Never close an incident without documenting the outcome in the internal notes.'
+      }
+    ]
+  },
+
+  'review-trust-passport': {
+    name: 'Review Trust Passport Proof',
+    requiredRoles: ['super_admin', 'admin_manager', 'verification_reviewer'],
+    steps: [
+      {
+        tab: 'trust',
+        target: 'trust-review-menu',
+        title: 'Open Trust Review Queue',
+        instruction: 'Navigate to Trust Review in the sidebar to see caregivers awaiting document verification.',
+        autoNavigate: true
+      },
+      {
+        tab: 'trust',
+        target: 'trust-review-row',
+        title: 'Find the Caregiver',
+        instruction: 'Look for caregivers with a "Pending" or "Needs Quick Fix" badge. Filter by "Needs Review" using the chips at the top. Click "Review" to open the caregiver's Trust Passport.',
+      },
+      {
+        tab: 'trust',
+        target: 'trust-review-detail',
+        title: 'Review Submitted Proof',
+        instruction: 'Open the caregiver Trust Passport detail view. Check submitted documents in the Modules tab. Verify government ID, background check status, and any supporting documents.',
+        safetyNote: 'Never approve a document that is unclear, expired, or does not match Carehia verification standards.'
+      },
+      {
+        tab: 'trust',
+        target: 'trust-review-decision',
+        title: 'Choose a Decision',
+        instruction: 'Select the appropriate action for each pending module. Choose Approve if the proof is clear and valid, or "Needs Quick Fix" if the caregiver should resubmit.',
+        expectedAction: 'Click the Approve or "Needs Quick Fix" button for each pending document module.'
+      },
+      {
+        tab: 'trust',
+        target: 'trust-review-note',
+        title: 'Add a Reviewer Note',
+        instruction: 'Write a helpful note explaining your decision. For "Needs Quick Fix", describe exactly what the caregiver must correct. These notes are sent to the caregiver.',
+        expectedAction: 'Example: "Please resubmit your government ID — the document is partially cut off."'
+      },
+      {
+        tab: 'trust',
+        target: 'trust-review-save-button',
+        title: 'Submit Your Decision',
+        instruction: 'Review your decision and note, then click Submit to finalize. The caregiver will be notified of your review outcome automatically.',
+        safetyNote: 'Approve only if the proof is clear and matches Carehia requirements. When in doubt, request a quick fix.'
+      }
+    ]
+  }
+};
+
+// RBAC: trust review decision area (targets Trust Action modal trigger area in detail view)
+// data-kai-target="trust-review-decision" — we highlight trustDetailModal since actions are inside
+// The highlight function checks data-kai-target and falls back to trustDetailModal
+
+const KAI_GUIDE_ID_FALLBACKS = {
+  'trust-review-decision': 'trustDetailModal',
+  'incident-status-select': 'incidentDetailModal',
+};
+
+function canAdminUseGuide(walkthroughId) {
+  const wt = KAI_WALKTHROUGHS[walkthroughId];
+  if (!wt) return false;
+  if (!currentAdminRole) return false;
+  if (currentAdminRole === 'super_admin') return true;
+  return wt.requiredRoles.includes(currentAdminRole);
+}
+
+function startKaiGuide(walkthroughId) {
+  const wt = KAI_WALKTHROUGHS[walkthroughId];
+  if (!wt) { alert('Walkthrough not found: ' + walkthroughId); return; }
+  if (!canAdminUseGuide(walkthroughId)) {
+    alert('You may not have permission to perform this action. Please ask a Super Admin, Admin Manager, or Finance Admin.');
+    return;
+  }
+  kaiActiveGuide = walkthroughId;
+  kaiGuideStepIndex = 0;
+  kaiGuideHistory = [];
+  // Save to sessionStorage for refresh recovery
+  try {
+    sessionStorage.setItem('carehia_kai_active_guide', JSON.stringify({ id: walkthroughId, stepIndex: 0, history: [] }));
+  } catch(_) {}
+  document.getElementById('kai-guide-overlay').style.display = 'block';
+  document.getElementById('kai-guide-backdrop').style.pointerEvents = 'all';
+  renderKaiGuideStep();
+}
+
+function renderKaiGuideStep() {
+  if (!kaiActiveGuide) return;
+  const wt = KAI_WALKTHROUGHS[kaiActiveGuide];
+  if (!wt) { exitKaiGuide(); return; }
+  const step = wt.steps[kaiGuideStepIndex];
+  if (!step) { exitKaiGuide(); return; }
+  const total = wt.steps.length;
+  const stepNum = kaiGuideStepIndex + 1;
+  const isLast = kaiGuideStepIndex >= total - 1;
+  const isFirst = kaiGuideStepIndex === 0;
+
+  // Auto-navigate to tab if needed
+  if (step.tab && step.autoNavigate) {
+    switchTab(step.tab);
+  }
+
+  // Update card content
+  document.getElementById('kai-guide-title').textContent = step.title || 'Walkthrough';
+  document.getElementById('kai-guide-step-counter').textContent = 'Step ' + stepNum + ' of ' + total;
+  document.getElementById('kai-guide-walkthrough-name').textContent = wt.name;
+  document.getElementById('kai-guide-instruction').textContent = step.instruction || '';
+
+  // Progress bar
+  document.getElementById('kai-guide-progress-bar').style.width = ((stepNum / total) * 100) + '%';
+
+  // Safety note
+  const safetyEl = document.getElementById('kai-guide-safety');
+  const safetyTxt = document.getElementById('kai-guide-safety-text');
+  if (step.safetyNote) { safetyEl.style.display = 'block'; safetyTxt.textContent = step.safetyNote; }
+  else { safetyEl.style.display = 'none'; }
+
+  // Expected action
+  const expEl = document.getElementById('kai-guide-expected');
+  const expTxt = document.getElementById('kai-guide-expected-text');
+  if (step.expectedAction) { expEl.style.display = 'block'; expTxt.textContent = step.expectedAction; }
+  else { expEl.style.display = 'none'; }
+
+  // Missing target (reset first)
+  document.getElementById('kai-guide-missing').style.display = 'none';
+
+  // Nav buttons
+  document.getElementById('kai-guide-back-btn').style.display = isFirst ? 'none' : 'flex';
+  document.getElementById('kai-guide-next-btn').style.display = isLast ? 'none' : 'flex';
+  document.getElementById('kai-guide-done-btn').style.display = isLast ? 'flex' : 'none';
+
+  // Highlight target
+  setTimeout(() => highlightKaiTarget(step.target, step.tab), 200);
+
+  // Save state
+  try {
+    sessionStorage.setItem('carehia_kai_active_guide', JSON.stringify({ id: kaiActiveGuide, stepIndex: kaiGuideStepIndex, history: kaiGuideHistory }));
+  } catch(_) {}
+}
+
+function highlightKaiTarget(targetName, tab) {
+  const ring = document.getElementById('kai-highlight-ring');
+  const missingEl = document.getElementById('kai-guide-missing');
+  const missingLink = document.getElementById('kai-guide-missing-link');
+  if (!ring) return;
+
+  // Find the element — try data-kai-target first, then ID fallbacks
+  let el = document.querySelector('[data-kai-target="' + targetName + '"]');
+  if (!el && KAI_GUIDE_ID_FALLBACKS[targetName]) {
+    el = document.getElementById(KAI_GUIDE_ID_FALLBACKS[targetName]);
+  }
+
+  if (!el) {
+    // Element not found - show fallback
+    ring.style.display = 'none';
+    missingEl.style.display = 'block';
+    if (tab && missingLink) {
+      missingLink.textContent = 'Navigate to the correct page.';
+      missingLink.onclick = () => { switchTab(tab); setTimeout(() => highlightKaiTarget(targetName, tab), 400); };
+    }
+    return;
+  }
+
+  missingEl.style.display = 'none';
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+  setTimeout(() => {
+    const rect = el.getBoundingClientRect();
+    const pad = 6;
+    ring.style.display = 'block';
+    ring.style.top = (rect.top - pad + window.scrollY) + 'px';
+    ring.style.left = (rect.left - pad) + 'px';
+    ring.style.width = (rect.width + pad * 2) + 'px';
+    ring.style.height = (rect.height + pad * 2) + 'px';
+  }, 150);
+}
+
+function clearKaiHighlight() {
+  const ring = document.getElementById('kai-highlight-ring');
+  if (ring) ring.style.display = 'none';
+}
+
+function kaiGuideNext() {
+  if (!kaiActiveGuide) return;
+  const wt = KAI_WALKTHROUGHS[kaiActiveGuide];
+  if (!wt) return;
+  if (kaiGuideStepIndex < wt.steps.length - 1) {
+    kaiGuideHistory.push(kaiGuideStepIndex);
+    kaiGuideStepIndex++;
+    renderKaiGuideStep();
+  } else {
+    exitKaiGuide();
+  }
+}
+
+function kaiGuideBack() {
+  if (!kaiActiveGuide || kaiGuideHistory.length === 0) return;
+  kaiGuideStepIndex = kaiGuideHistory.pop();
+  renderKaiGuideStep();
+}
+
+function exitKaiGuide() {
+  kaiActiveGuide = null;
+  kaiGuideStepIndex = 0;
+  kaiGuideHistory = [];
+  clearKaiHighlight();
+  const overlay = document.getElementById('kai-guide-overlay');
+  if (overlay) overlay.style.display = 'none';
+  try { sessionStorage.removeItem('carehia_kai_active_guide'); } catch(_) {}
+}
+
+// Keyboard: Escape exits guide
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && kaiActiveGuide) { exitKaiGuide(); }
+});
+
+// On tab switch: re-highlight if guide is active
+const _origSwitchTab = typeof switchTab === 'function' ? switchTab : null;
+// Wrap switchTab to re-run highlight after tab switch (if guide is active)
+(function() {
+  const _sw = window.switchTab;
+  window.switchTab = function(tab) {
+    if (typeof _sw === 'function') _sw(tab);
+    if (kaiActiveGuide) {
+      const wt = KAI_WALKTHROUGHS[kaiActiveGuide];
+      if (wt) {
+        const step = wt.steps[kaiGuideStepIndex];
+        if (step) setTimeout(() => highlightKaiTarget(step.target, step.tab), 350);
+      }
+    }
+  };
+})();
+// ===================== END PHASE 22C =====================
+
 </script>
 
+
+<!-- ===================== KAI GUIDE OVERLAY (Phase 22C) ===================== -->
+<div id="kai-guide-overlay" style="display:none;position:fixed;inset:0;z-index:19000;pointer-events:none;">
+  <!-- Highlight ring - positions over target element -->
+  <div id="kai-highlight-ring" style="display:none;position:fixed;border:3px solid #7C5CFF;border-radius:10px;box-shadow:0 0 0 4px rgba(124,92,255,0.25),0 0 24px rgba(124,92,255,0.4);pointer-events:none;transition:all 0.35s cubic-bezier(.4,0,.2,1);z-index:19001;"></div>
+  <!-- Semi-transparent backdrop (allows clicks on target) -->
+  <div id="kai-guide-backdrop" style="position:fixed;inset:0;background:rgba(10,10,30,0.45);z-index:18999;pointer-events:all;" onclick="exitKaiGuide()"></div>
+  <!-- Instruction card -->
+  <div id="kai-guide-card" style="position:fixed;bottom:24px;right:24px;width:340px;max-width:calc(100vw - 32px);background:#fff;border-radius:16px;box-shadow:0 12px 48px rgba(0,0,0,0.28),0 0 0 1.5px rgba(124,92,255,0.25);z-index:19002;overflow:hidden;pointer-events:all;" role="dialog" aria-modal="true" aria-label="Kai Guided Walkthrough">
+    <!-- Card header -->
+    <div style="background:linear-gradient(135deg,#7C5CFF,#4A90E2);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-size:18px;">🧭</span>
+        <span style="font-size:13px;font-weight:700;color:#fff;" id="kai-guide-title">Guided Walkthrough</span>
+      </div>
+      <button onclick="exitKaiGuide()" style="background:rgba(255,255,255,0.2);border:none;color:#fff;border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;" title="Exit guide (Esc)" aria-label="Exit guide">&#x2715;</button>
+    </div>
+    <!-- Progress bar -->
+    <div style="background:#EDE9FE;height:4px;">
+      <div id="kai-guide-progress-bar" style="height:100%;background:linear-gradient(90deg,#7C5CFF,#4A90E2);transition:width 0.4s ease;width:0%;"></div>
+    </div>
+    <!-- Step counter -->
+    <div style="padding:10px 16px 0;display:flex;align-items:center;justify-content:space-between;">
+      <span id="kai-guide-step-counter" style="font-size:11px;font-weight:700;color:#7C5CFF;text-transform:uppercase;letter-spacing:0.05em;"></span>
+      <span id="kai-guide-walkthrough-name" style="font-size:10px;color:#94A3B8;"></span>
+    </div>
+    <!-- Content -->
+    <div style="padding:10px 16px 14px;">
+      <p id="kai-guide-instruction" style="font-size:13px;line-height:1.65;color:#1E293B;margin:0 0 8px;"></p>
+      <div id="kai-guide-safety" style="display:none;background:#FFF7ED;border:1px solid #FED7AA;border-radius:8px;padding:8px 10px;margin-bottom:8px;">
+        <span style="font-size:11px;font-weight:700;color:#C2410C;">&#x26A0; Note: </span>
+        <span id="kai-guide-safety-text" style="font-size:11px;color:#7C3C0A;line-height:1.5;"></span>
+      </div>
+      <div id="kai-guide-expected" style="display:none;background:#F0FDF4;border:1px solid #BBF7D0;border-radius:8px;padding:6px 10px;margin-bottom:8px;">
+        <span style="font-size:11px;font-weight:600;color:#166534;">Expected: </span>
+        <span id="kai-guide-expected-text" style="font-size:11px;color:#166534;line-height:1.5;"></span>
+      </div>
+      <div id="kai-guide-missing" style="display:none;background:#FEF2F2;border:1px solid #FECACA;border-radius:8px;padding:8px 10px;margin-bottom:8px;">
+        <span style="font-size:11px;font-weight:700;color:#991B1B;">&#x1F50D; Element not found. </span>
+        <span style="font-size:11px;color:#7F1D1D;">Please make sure you are on the correct page. </span>
+        <span id="kai-guide-missing-link" style="font-size:11px;color:#7C5CFF;cursor:pointer;text-decoration:underline;"></span>
+      </div>
+    </div>
+    <!-- Navigation buttons -->
+    <div style="padding:0 16px 16px;display:flex;gap:8px;">
+      <button id="kai-guide-back-btn" onclick="kaiGuideBack()" style="flex:1;padding:9px 0;border-radius:8px;border:1.5px solid #7C5CFF;background:#fff;color:#7C5CFF;font-size:12px;font-weight:700;cursor:pointer;display:none;">&#x2190; Back</button>
+      <button id="kai-guide-next-btn" onclick="kaiGuideNext()" style="flex:2;padding:9px 0;border-radius:8px;border:none;background:linear-gradient(135deg,#7C5CFF,#4A90E2);color:#fff;font-size:12px;font-weight:700;cursor:pointer;">Next &#x2192;</button>
+      <button id="kai-guide-done-btn" onclick="exitKaiGuide()" style="flex:2;padding:9px 0;border-radius:8px;border:none;background:linear-gradient(135deg,#22C55E,#16A34A);color:#fff;font-size:12px;font-weight:700;cursor:pointer;display:none;">&#x2713; Done</button>
+    </div>
+    <!-- Footer -->
+    <div style="padding:8px 16px;background:#F8FAFC;border-top:1px solid #E2E8F0;text-align:center;">
+      <span style="font-size:10px;color:#94A3B8;">Kai guides — you confirm. Press </span>
+      <kbd style="font-size:10px;background:#E2E8F0;border-radius:4px;padding:1px 5px;color:#475569;">Esc</kbd>
+      <span style="font-size:10px;color:#94A3B8;"> to exit anytime.</span>
+    </div>
+  </div>
+</div>
 </body>
 </html>
