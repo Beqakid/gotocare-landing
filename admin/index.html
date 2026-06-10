@@ -5142,6 +5142,14 @@ function showToast(msg, type) {
         <div id="kai-answer-card" style="background:var(--card-bg,var(--sidebar-bg));border:1.5px solid var(--border);border-radius:14px;padding:18px 20px;font-size:14px;line-height:1.75;color:var(--text);white-space:pre-wrap;word-break:break-word;"></div>
         <!-- Suggested nav links -->
         <div id="kai-nav-links" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;"></div>
+        <!-- Phase 22B: Suggested Action Cards -->
+        <div id="kai-actions-area" style="display:none;margin-top:20px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+            <span style="font-size:14px;font-weight:700;color:var(--text);">⚡ Suggested Actions</span>
+            <span style="font-size:11px;color:var(--muted);font-style:italic;">Review and confirm manually using admin controls</span>
+          </div>
+          <div id="kai-actions-list" style="display:flex;flex-direction:column;gap:10px;"></div>
+        </div>
       </div>
 
       <!-- Loading state -->
@@ -5209,6 +5217,12 @@ function showToast(msg, type) {
     }
     .kai-history-q { font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 6px; }
     .kai-history-a { font-size: 13px; color: var(--text); line-height: 1.6; white-space: pre-wrap; word-break: break-word; }
+    /* Phase 22B: Suggested Action Cards */
+    .kai-action-card { transition: box-shadow 0.15s; }
+    .kai-action-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+    .kai-copy-btn:hover { opacity: 0.85; }
+    .kai-open-btn:hover { opacity: 0.85; }
+    .kai-risk-badge { display: inline-block; vertical-align: middle; }
   `;
   document.head.appendChild(style);
 })();
@@ -5216,13 +5230,22 @@ function showToast(msg, type) {
 const KAI_BACKEND = 'https://gotocare-original.jjioji.workers.dev/api';
 let kaiHistory = [];
 let kaiCurrentPageCtx = '';
+let kaiCurrentItemType = ''; // Phase 22B: page-aware item type
+let kaiCurrentItemId = '';   // Phase 22B: page-aware item id
 
 function loadKaiTab() {
   // Reset to clean state when opening tab
   document.getElementById('kai-error').style.display = 'none';
   document.getElementById('kai-loading').style.display = 'none';
+  // Phase 22B: reset actions area on open
+  const actionsArea = document.getElementById('kai-actions-area');
+  if (actionsArea) actionsArea.style.display = 'none';
+  const responseArea = document.getElementById('kai-response-area');
+  if (responseArea) responseArea.style.display = 'none';
   // Set page context from current tab (previous tab before kai)
   kaiCurrentPageCtx = '';
+  kaiCurrentItemType = '';
+  kaiCurrentItemId = '';
   renderKaiHistory();
 }
 
@@ -5255,7 +5278,9 @@ async function sendKai() {
       body: JSON.stringify({
         token: adminToken,
         prompt: prompt,
-        pageContext: kaiCurrentPageCtx
+        pageContext: kaiCurrentPageCtx,
+        itemType: kaiCurrentItemType,
+        itemId: kaiCurrentItemId
       })
     });
 
@@ -5302,6 +5327,9 @@ async function sendKai() {
       ).join('');
     }
 
+    // Phase 22B: Render suggested action cards
+    renderKaiSuggestedActions(data.suggestedActions || [], data);
+
     if (responseArea) responseArea.style.display = 'block';
 
     // Add to history (keep last 5)
@@ -5316,6 +5344,89 @@ async function sendKai() {
   }
 
   if (sendBtn) sendBtn.disabled = false;
+}
+
+// ── Phase 22B: Render suggested action cards ──────────────────────────────
+function renderKaiSuggestedActions(actions, data) {
+  const area = document.getElementById('kai-actions-area');
+  const list = document.getElementById('kai-actions-list');
+  if (!area || !list) return;
+  if (!actions || !actions.length) {
+    area.style.display = 'none';
+    return;
+  }
+
+  const RISK_COLORS = {
+    'High':   { bg: '#FEF2F2', border: '#FECACA', badge: '#EF4444', text: '#991B1B' },
+    'Medium': { bg: '#FFFBEB', border: '#FDE68A', badge: '#F59E0B', text: '#92400E' },
+    'Low':    { bg: '#F0FDF4', border: '#BBF7D0', badge: '#22C55E', text: '#166534' },
+  };
+
+  const ITEM_LABELS = {
+    'incident': '🚨 Open Incident',
+    'product_log': '📋 Open Product Log',
+    'caregiver': '👤 Open Caregiver',
+    'subscription_plan': '💳 Open Plan',
+    'user': '👥 Open Users',
+    'trust_review': '🛡 Open Trust Review',
+  };
+
+  const TAB_MAP = {
+    '#incidents': 'incidents',
+    '#product-logs': 'plogs',
+    '#trust-review': 'trust',
+    '#subscription-plans': 'plans',
+    '#caregivers': 'caregivers',
+    '#clients': 'clients',
+  };
+
+  list.innerHTML = actions.map((action, idx) => {
+    const rc = RISK_COLORS[action.riskLevel] || RISK_COLORS['Low'];
+    const itemLabel = ITEM_LABELS[action.relatedItemType] || '🔗 Open';
+    const tabKey = TAB_MAP[action.suggestedLink] || 'incidents';
+    const noteId = 'kai-draft-note-' + idx;
+    const canPerform = action.canUserPerform !== false;
+
+    return `<div class="kai-action-card" style="background:${rc.bg};border:1.5px solid ${rc.border};border-radius:12px;padding:16px 18px;">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px;">
+        <div>
+          <span class="kai-risk-badge" style="background:${rc.badge};color:#fff;font-size:10px;font-weight:800;padding:2px 8px;border-radius:10px;letter-spacing:0.5px;margin-right:8px;">${esc(action.riskLevel)} RISK</span>
+          <span style="font-size:13px;font-weight:700;color:${rc.text};">${esc(action.label)}</span>
+        </div>
+        <span style="font-size:10px;color:var(--muted);white-space:nowrap;padding-top:2px;">${esc(action.type || '')}</span>
+      </div>
+      <p style="font-size:12px;color:var(--text);line-height:1.6;margin:0 0 10px;">${esc(action.reason)}</p>
+      ${action.draftNote ? `
+      <div style="margin-bottom:10px;">
+        <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:4px;">DRAFT NOTE / MESSAGE</div>
+        <textarea id="${noteId}" style="width:100%;box-sizing:border-box;border:1px solid ${rc.border};border-radius:8px;padding:8px 10px;font-size:12px;color:var(--text);background:#fff;line-height:1.6;resize:vertical;min-height:56px;font-family:inherit;">${esc(action.draftNote)}</textarea>
+        <button onclick="copyKaiNote('${noteId}')" class="kai-copy-btn" style="margin-top:4px;padding:4px 12px;border:1px solid ${rc.border};border-radius:6px;background:#fff;color:${rc.text};font-size:11px;font-weight:700;cursor:pointer;">📋 Copy Note</button>
+      </div>` : ''}
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <button onclick="switchTab('${tabKey}')" class="kai-open-btn" style="padding:6px 14px;border-radius:8px;border:1.5px solid ${rc.badge};background:#fff;color:${rc.text};font-size:12px;font-weight:700;cursor:pointer;">${itemLabel} →</button>
+        ${!canPerform ? '<span style="font-size:11px;color:var(--muted);font-style:italic;">You may not have permission to perform this action.</span>' : ''}
+      </div>
+    </div>`;
+  }).join('');
+
+  area.style.display = 'block';
+}
+
+function copyKaiNote(noteId) {
+  const el = document.getElementById(noteId);
+  if (!el) return;
+  el.select();
+  el.setSelectionRange(0, 99999);
+  try {
+    navigator.clipboard.writeText(el.value).then(() => {
+      const btn = el.nextElementSibling;
+      if (btn) { btn.textContent = '✅ Copied!'; setTimeout(() => { btn.textContent = '📋 Copy Note'; }, 2000); }
+    });
+  } catch(_) {
+    document.execCommand('copy');
+    const btn = el.nextElementSibling;
+    if (btn) { btn.textContent = '✅ Copied!'; setTimeout(() => { btn.textContent = '📋 Copy Note'; }, 2000); }
+  }
 }
 
 function renderKaiHistory() {
