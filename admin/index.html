@@ -1281,6 +1281,13 @@ function switchTab(name, _btn) {
     if (panel && !mainContent.contains(panel)) mainContent.appendChild(panel);
   }
 
+  // Track previous tab for Kai page context
+  if (name === 'kai' && currentTab && currentTab !== 'kai') {
+    kaiCurrentPageCtx = `Navigated from admin tab: ${currentTab}`;
+  } else if (name !== 'kai') {
+    kaiCurrentPageCtx = '';
+  }
+
   currentTab = name;
 
   // Close sidebar on mobile after navigation
@@ -5115,6 +5122,7 @@ function showToast(msg, type) {
         <button class="kai-chip" onclick="runKaiPrompt('Which caregivers need Trust Passport review?')">🛡 Caregivers needing review</button>
         <button class="kai-chip" onclick="runKaiPrompt('Summarize high-priority Product Logs.')">📋 Summarize Product Logs</button>
         <button class="kai-chip" onclick="runKaiPrompt('Which users are suspended or blocked?')">⚠️ Suspended/blocked users</button>
+        <button class="kai-chip" onclick="runKaiPrompt('Show subscription plan issues.')">💳 Subscription plan issues</button>
         <button class="kai-chip" onclick="runKaiPrompt('What should I review next?')">✅ What should I review next?</button>
       </div>
 
@@ -5273,9 +5281,18 @@ async function sendKai() {
       ).join('');
     }
 
-    // Render answer
+    // Render answer (support **bold** and newlines)
     const answerCard = document.getElementById('kai-answer-card');
-    if (answerCard) answerCard.textContent = data.answer || 'No response generated.';
+    if (answerCard) {
+      const raw = (data.answer || 'No response generated.');
+      // Escape HTML then convert markdown-like formatting
+      const escaped = raw
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>')
+        .replace(/
+/g,'<br>');
+      answerCard.innerHTML = escaped;
+    }
 
     // Render nav links
     const navLinks = document.getElementById('kai-nav-links');
