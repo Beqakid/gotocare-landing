@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta name="referrer" content="no-referrer">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Accept Admin Invite — Carehia</title>
@@ -79,8 +80,9 @@
 
   <script>
     const API = 'https://carehia-admin.jjioji.workers.dev';
-    const params = new URLSearchParams(location.search);
-    const rawToken = params.get('t') || '';
+    const fragment = new URLSearchParams(location.hash.slice(1));
+    const rawToken = fragment.get('t') || '';
+    if (location.hash) history.replaceState(null, '', location.pathname + location.search);
     const ROLE_LABELS = {
       super_admin: 'Super Admin', admin_manager: 'Admin Manager',
       verification_reviewer: 'Verification Reviewer', support_agent: 'Support Agent',
@@ -90,7 +92,7 @@
     async function verifyInvite() {
       if (!rawToken) { showError('No invite token found in the link. Please check the URL and try again.'); return; }
       try {
-        const res = await fetch(`${API}/admin-invite-verify?t=${encodeURIComponent(rawToken)}`);
+        const res = await fetch(`${API}/admin-invite-verify`, { headers: { 'Authorization': `Bearer ${rawToken}` } });
         const data = await res.json();
         if (!data.valid) { showError(data.error || 'Invalid invite link.'); return; }
         document.getElementById('info-name').textContent = data.name || '—';
@@ -122,8 +124,8 @@
       btn.disabled = true; btn.textContent = 'Activating…';
       try {
         const res = await fetch(`${API}/admin-invite-accept`, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ rawToken, password: pw1 })
+          method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${rawToken}` },
+          body: JSON.stringify({ password: pw1 })
         });
         const data = await res.json();
         if (data.error) { errEl.textContent = data.error; errEl.style.display = ''; btn.disabled = false; btn.textContent = 'Activate Account'; return; }

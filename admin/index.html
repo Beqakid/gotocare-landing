@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta name="referrer" content="no-referrer">
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Carehia Admin</title>
@@ -1188,12 +1189,16 @@ function hasPerm(perm) {
 
 
 // ===== ADMIN FETCH HELPER (Phase 33) =====
+function adminRequest(url, options = {}, token = adminToken) {
+  if (!token) return Promise.reject(new Error('Admin authentication required'));
+  const headers = { ...(options.headers || {}), 'Authorization': `Bearer ${token}` };
+  return fetch(url, { ...options, headers });
+}
+
 async function adminFetch(path, options = {}) {
   try {
-    const sep = path.includes('?') ? '&' : '?';
-    const url = `${API}${path}${sep}token=${encodeURIComponent(adminToken)}`;
-    const headers = { ...(options.headers || {}) };
-    const res = await fetch(url, { ...options, headers });
+    const url = `${API}${path}`;
+    const res = await adminRequest(url, options);
     if (res.status === 401 || res.status === 403) {
       console.warn('Admin access denied:', path);
       return { _unauthorized: true };
@@ -1237,7 +1242,7 @@ async function doLogin() {
     const d = await r.json();
     if (!d.sessionToken) { showErr(d.error || 'Invalid credentials.'); btn.disabled=false; btn.textContent='Sign In'; return; }
     // Verify admin
-    const ac = await fetch(`${API}/admin-check?token=${d.sessionToken}`);
+    const ac = await adminRequest(`${API}/admin-check`, {}, d.sessionToken);
     const ad = await ac.json();
     if (!ad.admin) { showErr('This account does not have admin access.'); btn.disabled=false; btn.textContent='Sign In'; return; }
     adminToken = d.sessionToken;
@@ -1283,7 +1288,7 @@ function showApp() {
 
 // Auto-login if token saved
 if (adminToken) {
-  fetch(`${API}/admin-check?token=${adminToken}`)
+  adminRequest(`${API}/admin-check`)
     .then(r => r.json())
     .then(d => { if(d.admin){ adminName=d.name; adminEmail=d.email; showApp(); } else { localStorage.removeItem('carehia_admin_token'); } })
     .catch(()=>{});
@@ -1367,7 +1372,7 @@ async function loadIncidents(filter, btn) {
   tbody.innerHTML = '<tr class="loading-row"><td colspan="8">⏳ Loading incidents…</td></tr>';
   const BACKEND = 'https://gotocare-original.jjioji.workers.dev/api';
   try {
-    const r = await fetch(`${BACKEND}/admin-incidents?token=${adminToken}&filter=${currentIncidentFilter}`);
+    const r = await adminRequest(`${BACKEND}/admin-incidents?filter=${currentIncidentFilter}`);
     const d = await r.json();
     if (!r.ok) { tbody.innerHTML = `<tr class="loading-row"><td colspan="8">⚠️ ${esc(d.error||'Error loading incidents')}</td></tr>`; return; }
     const rows = d.incidents || [];
@@ -1402,7 +1407,7 @@ async function openIncidentDetail(id) {
   modal.style.display = 'flex';
   body.innerHTML = '<p style="text-align:center;color:var(--muted);padding:40px">⏳ Loading…</p>';
   try {
-    const r = await fetch(`${BACKEND}/admin-incident-detail?token=${adminToken}&id=${id}`);
+    const r = await adminRequest(`${BACKEND}/admin-incident-detail?id=${id}`);
     const d = await r.json();
     if (!r.ok) { body.innerHTML = `<p style="color:var(--error)">⚠️ ${esc(d.error||'Error')}</p>`; return; }
     const inc = d.incident;
@@ -1444,7 +1449,7 @@ async function openIncidentDetail(id) {
 async function updateIncidentStatus(id, status) {
   const BACKEND = 'https://gotocare-original.jjioji.workers.dev/api';
   try {
-    await fetch(`${BACKEND}/admin-incident-action?token=${adminToken}`, {
+    await adminRequest(`${BACKEND}/admin-incident-action`, {
       method: 'POST', headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ id, new_status: status })
     });
@@ -1459,7 +1464,7 @@ async function saveIncidentNotes(id) {
   const assigned = document.getElementById('incidentAssign')?.value || '';
   try {
     const userNote = document.getElementById('incidentUserNote')?.value || '';
-    await fetch(`${BACKEND}/admin-incident-action?token=${adminToken}`, {
+    await adminRequest(`${BACKEND}/admin-incident-action`, {
       method: 'POST', headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ id, internal_notes: notes, user_facing_note: userNote, assigned_admin: assigned })
     });
@@ -1488,7 +1493,7 @@ async function loadRequests(filter, btn) {
   const cols = 8;
   document.getElementById('requestsBody').innerHTML = `<tr class="loading-row"><td colspan="${cols}">⏳ Loading…</td></tr>`;
   try {
-    const d = await adminFetch(`/admin-requests?token=${adminToken}&filter=${f}`);
+    const d = await adminFetch(`/admin-requests?filter=${f}`);
     if (d._unauthorized) { doLogout(); return; }
     if (d._error) { document.getElementById('requestsBody').innerHTML = `<tr class="loading-row"><td colspan="${cols}">⚠️ ${esc(d._error)}</td></tr>`; return; }
     const rows = d.requests || [];
@@ -1529,7 +1534,7 @@ async function loadReviews(filter, btn) {
   if (btn) setFilterTabActive('reviewFilterTabs', btn);
   document.getElementById('reviewsBody').innerHTML = '<tr class="loading-row"><td colspan="7">⏳ Loading…</td></tr>';
   try {
-    const d = await adminFetch(`/admin-reviews?token=${adminToken}&filter=${f}`);
+    const d = await adminFetch(`/admin-reviews?filter=${f}`);
     if (d._unauthorized) { doLogout(); return; }
     if (d._error) { document.getElementById('reviewsBody').innerHTML = `<tr class="loading-row"><td colspan="7">⚠️ ${esc(d._error)}</td></tr>`; return; }
     const rows = d.reviews || [];
@@ -1564,7 +1569,7 @@ async function loadInvoices(filter, btn) {
   if (btn) setFilterTabActive('invoiceFilterTabs', btn);
   document.getElementById('invoicesBody').innerHTML = '<tr class="loading-row"><td colspan="7">⏳ Loading…</td></tr>';
   try {
-    const d = await adminFetch(`/admin-invoices?token=${adminToken}&filter=${f}`);
+    const d = await adminFetch(`/admin-invoices?filter=${f}`);
     if (d._unauthorized) { doLogout(); return; }
     if (d._error) { document.getElementById('invoicesBody').innerHTML = `<tr class="loading-row"><td colspan="7">⚠️ ${esc(d._error)}</td></tr>`; return; }
     const rows = d.invoices || [];
@@ -1603,7 +1608,7 @@ async function loadInvoices(filter, btn) {
 async function loadSubscriptions() {
   document.getElementById('subsBody').innerHTML = '<tr class="loading-row"><td colspan="7">⏳ Loading…</td></tr>';
   try {
-    const d = await adminFetch(`/admin-subscriptions?token=${adminToken}`);
+    const d = await adminFetch(`/admin-subscriptions`);
     if (d._unauthorized) { doLogout(); return; }
     if (d._error) { document.getElementById('subsBody').innerHTML = `<tr class="loading-row"><td colspan="7">⚠️ ${esc(d._error)}</td></tr>`; return; }
     const rows = d.subscriptions || [];
@@ -1651,8 +1656,8 @@ async function loadTodayOps() {
   try {
     // Phase 33: Load stats + operations aggregator in parallel
     const [statsData, opsData] = await Promise.all([
-      adminFetch(`/admin-stats?token=${adminToken}`),
-      adminFetch(`/admin-operations?token=${adminToken}`),
+      adminFetch(`/admin-stats`),
+      adminFetch(`/admin-operations`),
     ]);
 
     if (statsData._unauthorized || opsData._unauthorized) { doLogout(); return; }
@@ -1708,7 +1713,7 @@ async function loadTodayOps() {
 
     // Load location flags count
     try {
-      const lr = await fetch(`${API}/admin-location-review?token=${adminToken}&status=needs_review&limit=100`);
+      const lr = await adminRequest(`${API}/admin-location-review?status=needs_review&limit=100`);
       if (lr.ok) {
         const ld = await lr.json();
         const locCount = Array.isArray(ld.logs) ? ld.logs.length : (Array.isArray(ld) ? ld.length : 0);
@@ -1779,7 +1784,7 @@ async function loadSchedulesView(status) {
   tbody.innerHTML = '<tr><td colspan="9" class="loading-row">Loading…</td></tr>';
 
   try {
-    const r = await fetch(`${API}/admin-location-review?token=${adminToken}&status=${status}&limit=100`);
+    const r = await adminRequest(`${API}/admin-location-review?status=${status}&limit=100`);
     if (!r.ok) throw new Error(r.status);
     const d = await r.json();
     const logs = Array.isArray(d.logs) ? d.logs : (Array.isArray(d) ? d : []);
@@ -1845,7 +1850,7 @@ async function schedFlag(id) {
 // ===== OVERVIEW =====
 async function loadOverview() {
   try {
-    const r = await fetch(`${API}/admin-stats?token=${adminToken}`);
+    const r = await adminRequest(`${API}/admin-stats`);
     const d = await r.json();
     if(d.error) { doLogout(); return; }
     const grid = document.getElementById('statsGrid');
@@ -1905,7 +1910,7 @@ async function loadOverview() {
 async function loadClients() {
   document.getElementById('clientsBody').innerHTML = '<tr class="loading-row"><td colspan="8">⏳ Loading…</td></tr>';
   try {
-    const d = await adminFetch(`/admin-clients-detail?token=${adminToken}`);
+    const d = await adminFetch(`/admin-clients-detail`);
     if (d._unauthorized) { doLogout(); return; }
     if (d._error) { document.getElementById('clientsBody').innerHTML = `<tr class="loading-row"><td colspan="8">⚠️ ${esc(d._error)}</td></tr>`; return; }
     const rows = d.clients || [];
@@ -1933,7 +1938,7 @@ async function loadCaregivers(filter) {
   const cols = 9;
   document.getElementById('caregiversBody').innerHTML = `<tr class="loading-row"><td colspan="${cols}">⏳ Loading…</td></tr>`;
   try {
-    const d = await adminFetch(`/admin-caregivers-detail?token=${adminToken}&filter=${f}`);
+    const d = await adminFetch(`/admin-caregivers-detail?filter=${f}`);
     if (d._unauthorized) { doLogout(); return; }
     if (d._error) { document.getElementById('caregiversBody').innerHTML = `<tr class="loading-row"><td colspan="${cols}">⚠️ ${esc(d._error)}</td></tr>`; return; }
     const rows = d.caregivers || [];
@@ -1968,7 +1973,7 @@ async function loadCaregivers(filter) {
 async function loadBookings() {
   document.getElementById('bookingsBody').innerHTML = '<tr class="loading-row"><td colspan="7">⏳ Loading…</td></tr>';
   try {
-    const r = await fetch(`${API}/admin-bookings?token=${adminToken}`);
+    const r = await adminRequest(`${API}/admin-bookings`);
     const d = await r.json();
     if(d.error) { doLogout(); return; }
     const rows = d.bookings || [];
@@ -2013,7 +2018,7 @@ async function loadVerifications() {
   const status = document.getElementById('verifStatusFilter').value;
   document.getElementById('verifBody').innerHTML = '<tr class="loading-row"><td colspan="8">⏳ Loading…</td></tr>';
   try {
-    const r = await fetch(`${API}/admin-verification-queue?token=${adminToken}&status=${status}`);
+    const r = await adminRequest(`${API}/admin-verification-queue?status=${status}`);
     const d = await r.json();
     verifAllRows = d.verifications || [];
     // Status badges
@@ -2064,7 +2069,7 @@ async function viewVerifDetail(caregiverId) {
   document.getElementById('verifDetailPanel').style.display = 'block';
   document.getElementById('verifDetailContent').innerHTML = '⏳ Loading…';
   try {
-    const r = await fetch(`${API}/admin-verification-detail?token=${adminToken}&caregiverId=${caregiverId}`);
+    const r = await adminRequest(`${API}/admin-verification-detail?caregiverId=${caregiverId}`);
     const d = await r.json();
     const cg = d.caregiver || {};
     const trust = d.trust || {};
@@ -2131,7 +2136,7 @@ async function submitVerifAction() {
   btn.textContent = 'Saving…';
   btn.disabled = true;
   try {
-    const r = await fetch(`${API}/admin-verification-action?token=${adminToken}`, {
+    const r = await adminRequest(`${API}/admin-verification-action`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ verificationId, action, notes })
@@ -2193,7 +2198,7 @@ const ALL_MODULES = ['basic_profile','contact_verification','selfie_intro','care
 async function loadTrustQueue() {
   document.getElementById('trustBody').innerHTML = '<tr class="loading-row"><td colspan="8">⏳ Loading…</td></tr>';
   try {
-    const r = await fetch(`${API}/admin-trust-queue?token=${adminToken}&filter=${currentTrustFilter}`);
+    const r = await adminRequest(`${API}/admin-trust-queue?filter=${currentTrustFilter}`);
     const d = await r.json();
     if (d.error) { doLogout(); return; }
     trustAllRows = d.caregivers || [];
@@ -2267,7 +2272,7 @@ async function openTrustDetail(caregiverId) {
   document.getElementById('trustDetailSummary').innerHTML = '';
   document.getElementById('trustDetailContent').innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)">⏳ Loading trust data…</div>';
   try {
-    const r = await fetch(`${API}/admin-trust-detail?token=${adminToken}&caregiverId=${caregiverId}`);
+    const r = await adminRequest(`${API}/admin-trust-detail?caregiverId=${caregiverId}`);
     const d = await r.json();
     if (d.error) { alert('Error: ' + d.error); return; }
     trustDetailData = { ...d, caregiverId };
@@ -2544,7 +2549,7 @@ async function submitTrustAction() {
   btn.disabled = true;
 
   try {
-    const r = await fetch(`${API}/admin-trust-action?token=${adminToken}`, {
+    const r = await adminRequest(`${API}/admin-trust-action`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -2579,7 +2584,7 @@ let mktData = null;
 async function loadMarketplace() {
   document.getElementById('mktStatsGrid').innerHTML = '<div class="stat-card"><div class="stat-icon">⏳</div><div class="stat-val">—</div><div class="stat-label">Loading…</div></div>';
   try {
-    const r = await fetch(`${API}/admin-marketplace?token=${adminToken}`);
+    const r = await adminRequest(`${API}/admin-marketplace`);
     const d = await r.json();
     if (d.error) { if (d.error === 'Unauthorized') doLogout(); return; }
     mktData = d;
@@ -2747,7 +2752,7 @@ async function loadPilot() {
   ].map(id => document.getElementById(id));
 
   try {
-    const res = await fetch(`${API}/admin-pilot-launch?token=${adminToken}`);
+    const res = await adminRequest(`${API}/admin-pilot-launch`);
     const d = await res.json();
     if (!d.success) { s.innerHTML='<div style="color:#EF4444">Error loading data</div>'; return; }
     pilotLoaded = true;
@@ -2958,7 +2963,7 @@ async function loadPilot() {
   async function loadAcquisitionData() {
     if (!authToken) return;
     try {
-      const r = await fetch(ADMIN_API + '/admin-acquisition?token=' + authToken);
+      const r = await adminRequest(ADMIN_API + '/admin-acquisition');
       const d = await r.json();
       if (!d.summary) return;
       const s = d.summary;
@@ -3087,7 +3092,7 @@ async function loadPilot() {
     const note = document.getElementById('invite-note').value.trim();
     if (!code) { alert('Please enter an invite code'); return; }
     try {
-      const r = await fetch(ADMIN_API + '/admin-create-invite?token=' + authToken, {
+      const r = await adminRequest(ADMIN_API + '/admin-create-invite', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code, campaign, target_region: region || null, note: note || null })
@@ -3118,7 +3123,7 @@ async function loadLocationReview(filterStatus = 'all') {
   if (!container) return;
   container.innerHTML = '<div style="color:#94a3b8;font-size:13px;text-align:center;padding:20px 0;">Loading…</div>';
   try {
-    const r = await fetch(`${ADMIN_API}/admin-location-review?token=${authToken}&status=${filterStatus}&limit=100`);
+    const r = await adminRequest(`${ADMIN_API}/admin-location-review?status=${filterStatus}&limit=100`);
     const d = await r.json();
     if (d.error && d.error === 'Unauthorized') { doLogout(); return; }
     if (badge) badge.textContent = d.needsReviewCount || 0;
@@ -4600,7 +4605,7 @@ async function loadProductLogs() {
   const tbody = document.getElementById('pl-table-body');
   tbody.innerHTML = '<tr><td colspan="10" style="color:var(--muted);text-align:center;padding:32px;">Loading...</td></tr>';
 
-  const params = new URLSearchParams({ token: adminToken });
+  const params = new URLSearchParams();
   const type = document.getElementById('pl-filter-type').value;
   const status = document.getElementById('pl-filter-status').value;
   const priority = document.getElementById('pl-filter-priority').value;
@@ -4614,7 +4619,7 @@ async function loadProductLogs() {
   if (plCurrentView !== 'all') params.set('view', plCurrentView);
 
   try {
-    const d = await adminFetch(`/admin-product-logs?${params}`);
+    const d = await adminFetch(`/admin-product-logs${params.toString() ? '?' + params : ''}`);
     if (d.error) { tbody.innerHTML = `<tr><td colspan="10" style="color:var(--error);text-align:center;padding:32px;">${esc(d.error)}</td></tr>`; return; }
 
     // Update summary badges
@@ -4675,7 +4680,7 @@ async function openPLDetail(id) {
   body.innerHTML = '<div style="color:var(--muted);text-align:center;padding:24px;">Loading...</div>';
   modal.style.display = 'flex';
 
-  const d = await adminFetch(`/admin-product-log-detail?token=${adminToken}&id=${id}`);
+  const d = await adminFetch(`/admin-product-log-detail?id=${id}`);
   if (d.error) { body.innerHTML = `<div style="color:var(--error);text-align:center;padding:24px;">${esc(d.error)}</div>`; return; }
   plDetailData = d.log;
   const canEditInDetail = currentAdminPermissions.includes('*') || !['read_only_auditor'].includes(currentAdminRole);
@@ -4918,7 +4923,7 @@ async function loadPlans() {
   if (!adminToken) { if (grid) grid.innerHTML = '<div style="padding:32px;text-align:center;color:var(--muted);font-size:14px;">🔐 Admin sign-in required</div>'; return; }
   try {
     const aud = document.getElementById('plansAudienceFilter')?.value || '';
-    const url = `${BACKEND_PLANS}/admin-plans?token=${encodeURIComponent(adminToken)}${aud ? '&audience='+aud : ''}`;
+    const url = `${BACKEND_PLANS}/admin-plans${aud ? '?audience='+encodeURIComponent(aud) : ''}`;
     const r = await fetch(url);
     const d = await r.json();
     if (!r.ok || d.error) { if (grid) grid.innerHTML = `<div style="padding:32px;text-align:center;color:var(--muted);">⚠️ ${esc(d.error || 'Could not load plans')}</div>`; return; }
