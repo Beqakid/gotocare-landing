@@ -1148,6 +1148,21 @@
 <script>
 const API = 'https://carehia-admin.jjioji.workers.dev';
 let adminToken = localStorage.getItem('carehia_admin_token') || '';
+async function openAdminDocument(r2Key) {
+  if (!adminToken) { alert('Admin authentication is required.'); return; }
+  try {
+    const endpoint = `${API.replace('carehia-admin', 'gotocare-original')}/api/admin-doc-view?r2Key=${encodeURIComponent(r2Key)}`;
+    const response = await fetch(endpoint, { headers: { Authorization: `Bearer ${adminToken}` } });
+    if (!response.ok) throw new Error('Document request was denied.');
+    const blobUrl = URL.createObjectURL(await response.blob());
+    const viewer = window.open(blobUrl, '_blank', 'noopener');
+    if (!viewer) URL.revokeObjectURL(blobUrl);
+    else window.setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
+  } catch (error) {
+    alert(error instanceof Error ? error.message : 'Unable to open document.');
+  }
+}
+
 let adminName = localStorage.getItem('carehia_admin_name') || '';
 let adminEmail = localStorage.getItem('carehia_admin_email') || '';
 let currentAdminRole = localStorage.getItem('carehia_admin_role') || 'super_admin';
@@ -2045,7 +2060,7 @@ function renderVerifTable(rows) {
       <td style="font-size:12px">${v.caregiver_email || '—'}</td>
       <td style="font-size:12px">${v.city||''} ${v.state||''}</td>
       <td>${DOC_LABELS[v.doc_type] || v.doc_type}</td>
-      <td>${v.r2_key ? `<a href="${API.replace('carehia-admin','gotocare-original')}/api/admin-doc-view?adminToken=${adminToken}&r2Key=${encodeURIComponent(v.r2_key)}" target="_blank" style="color:var(--primary);font-size:12px">📎 View</a>` : v.consent_given ? '✅ Consent' : '—'}</td>
+      <td>${v.r2_key ? `<button type="button" onclick="openAdminDocument(decodeURIComponent('${encodeURIComponent(v.r2_key)}'))" style="color:var(--primary);font-size:12px">📎 View</button>` : v.consent_given ? '✅ Consent' : '—'}</td>
       <td><span style="padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;${STATUS_STYLE[v.status]||''}">${v.status}</span></td>
       <td style="font-size:12px">${v.submitted_at ? new Date(v.submitted_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—'}</td>
       <td style="white-space:nowrap">
@@ -2101,7 +2116,7 @@ async function viewVerifDetail(caregiverId) {
             <div>
               <span style="font-weight:600;font-size:13px">${DOC_LABELS[v.doc_type]||v.doc_type}</span>
               <span style="margin-left:8px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;background:${v.status==='approved'?'rgba(34,197,94,0.15)':v.status==='rejected'?'rgba(239,68,68,0.15)':'rgba(245,158,11,0.15)'};color:${v.status==='approved'?'#22C55E':v.status==='rejected'?'#EF4444':'#F59E0B'}">${v.status}</span>
-              ${v.r2_key ? `<a href="${API.replace('carehia-admin','gotocare-original')}/api/admin-doc-view?adminToken=${adminToken}&r2Key=${encodeURIComponent(v.r2_key)}" target="_blank" style="margin-left:8px;color:var(--primary);font-size:12px">📎 View Doc</a>` : v.consent_given ? '<span style="margin-left:8px;color:#22C55E;font-size:12px">✅ Consent given</span>' : ''}
+              ${v.r2_key ? `<button type="button" onclick="openAdminDocument(decodeURIComponent('${encodeURIComponent(v.r2_key)}'))" style="margin-left:8px;color:var(--primary);font-size:12px">📎 View Doc</button>` : v.consent_given ? '<span style="margin-left:8px;color:#22C55E;font-size:12px">✅ Consent given</span>' : ''}
               ${v.rejection_reason ? `<p style="margin:4px 0 0;font-size:12px;color:#EF4444">Rejected: ${v.rejection_reason}</p>` : ''}
             </div>
             ${v.status==='pending' ? `<div style="display:flex;gap:6px">
@@ -2420,7 +2435,7 @@ function renderTrustDetailDocs(d) {
       </div>
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         <span style="padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:${v.status==='approved'?'rgba(34,197,94,0.15)':v.status==='rejected'?'rgba(239,68,68,0.15)':'rgba(245,158,11,0.15)'};color:${v.status==='approved'?'#4ade80':v.status==='rejected'?'#f87171':'#fbbf24'}">${esc(v.status||'pending')}</span>
-        ${v.r2_key ? `<a href="${API.replace('carehia-admin','gotocare-original')}/api/admin-doc-view?adminToken=${adminToken}&r2Key=${encodeURIComponent(v.r2_key)}" target="_blank" style="color:var(--primary);font-size:12px;text-decoration:none">📎 View File</a>` : ''}
+        ${v.r2_key ? `<button type="button" onclick="openAdminDocument(decodeURIComponent('${encodeURIComponent(v.r2_key)}'))" style="color:var(--primary);font-size:12px;text-decoration:none">📎 View File</button>` : ''}
       </div>
     </div>
   `).join('');
