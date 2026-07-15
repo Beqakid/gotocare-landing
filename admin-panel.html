@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta name="referrer" content="no-referrer">
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Carehia Admin</title>
@@ -623,8 +624,29 @@
 <script>
 const API = 'https://carehia-admin.jjioji.workers.dev';
 let adminToken = localStorage.getItem('carehia_admin_token') || '';
+async function openAdminDocument(r2Key) {
+  if (!adminToken) { alert('Admin authentication is required.'); return; }
+  try {
+    const endpoint = `${API.replace('carehia-admin', 'gotocare-original')}/api/admin-doc-view?r2Key=${encodeURIComponent(r2Key)}`;
+    const response = await fetch(endpoint, { headers: { Authorization: `Bearer ${adminToken}` } });
+    if (!response.ok) throw new Error('Document request was denied.');
+    const blobUrl = URL.createObjectURL(await response.blob());
+    const viewer = window.open(blobUrl, '_blank', 'noopener');
+    if (!viewer) URL.revokeObjectURL(blobUrl);
+    else window.setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
+  } catch (error) {
+    alert(error instanceof Error ? error.message : 'Unable to open document.');
+  }
+}
+
 let adminName = localStorage.getItem('carehia_admin_name') || '';
 let adminEmail = localStorage.getItem('carehia_admin_email') || '';
+
+function adminRequest(url, options = {}, token = adminToken) {
+  if (!token) return Promise.reject(new Error('Admin authentication required'));
+  const headers = { ...(options.headers || {}), 'Authorization': `Bearer ${token}` };
+  return fetch(url, { ...options, headers });
+}
 
 // ===== AUTH =====
 async function doLogin() {
@@ -644,7 +666,7 @@ async function doLogin() {
     const d = await r.json();
     if (!d.sessionToken) { showErr(d.error || 'Invalid credentials.'); btn.disabled=false; btn.textContent='Sign In'; return; }
     // Verify admin
-    const ac = await fetch(`${API}/admin-check?token=${d.sessionToken}`);
+    const ac = await adminRequest(`${API}/admin-check`, {}, d.sessionToken);
     const ad = await ac.json();
     if (!ad.admin) { showErr('This account does not have admin access.'); btn.disabled=false; btn.textContent='Sign In'; return; }
     adminToken = d.sessionToken;
@@ -685,7 +707,7 @@ function showApp() {
 
 // Auto-login if token saved
 if (adminToken) {
-  fetch(`${API}/admin-check?token=${adminToken}`)
+  adminRequest(`${API}/admin-check`)
     .then(r => r.json())
     .then(d => { if(d.admin){ adminName=d.name; adminEmail=d.email; showApp(); } else { localStorage.removeItem('carehia_admin_token'); } })
     .catch(()=>{});
@@ -712,7 +734,7 @@ function switchTab(name, btn) {
 // ===== OVERVIEW =====
 async function loadOverview() {
   try {
-    const r = await fetch(`${API}/admin-stats?token=${adminToken}`);
+    const r = await adminRequest(`${API}/admin-stats`);
     const d = await r.json();
     if(d.error) { doLogout(); return; }
     const grid = document.getElementById('statsGrid');
@@ -772,7 +794,7 @@ async function loadOverview() {
 async function loadClients() {
   document.getElementById('clientsBody').innerHTML = '<tr class="loading-row"><td colspan="6">⏳ Loading…</td></tr>';
   try {
-    const r = await fetch(`${API}/admin-clients?token=${adminToken}`);
+    const r = await adminRequest(`${API}/admin-clients`);
     const d = await r.json();
     if(d.error) { doLogout(); return; }
     const rows = d.clients || [];
@@ -794,7 +816,7 @@ async function loadClients() {
 async function loadCaregivers() {
   document.getElementById('caregiversBody').innerHTML = '<tr class="loading-row"><td colspan="6">⏳ Loading…</td></tr>';
   try {
-    const r = await fetch(`${API}/admin-caregivers?token=${adminToken}`);
+    const r = await adminRequest(`${API}/admin-caregivers`);
     const d = await r.json();
     if(d.error) { doLogout(); return; }
     const rows = d.caregivers || [];
@@ -816,7 +838,7 @@ async function loadCaregivers() {
 async function loadBookings() {
   document.getElementById('bookingsBody').innerHTML = '<tr class="loading-row"><td colspan="7">⏳ Loading…</td></tr>';
   try {
-    const r = await fetch(`${API}/admin-bookings?token=${adminToken}`);
+    const r = await adminRequest(`${API}/admin-bookings`);
     const d = await r.json();
     if(d.error) { doLogout(); return; }
     const rows = d.bookings || [];
@@ -861,7 +883,7 @@ async function loadVerifications() {
   const status = document.getElementById('verifStatusFilter').value;
   document.getElementById('verifBody').innerHTML = '<tr class="loading-row"><td colspan="8">⏳ Loading…</td></tr>';
   try {
-    const r = await fetch(`${API}/admin-verification-queue?token=${adminToken}&status=${status}`);
+    const r = await adminRequest(`${API}/admin-verification-queue?status=${status}`);
     const d = await r.json();
     verifAllRows = d.verifications || [];
     // Status badges
@@ -888,7 +910,7 @@ function renderVerifTable(rows) {
       <td style="font-size:12px">${v.caregiver_email || '—'}</td>
       <td style="font-size:12px">${v.city||''} ${v.state||''}</td>
       <td>${DOC_LABELS[v.doc_type] || v.doc_type}</td>
-      <td>${v.r2_key ? `<a href="${API.replace('carehia-admin','gotocare-original')}/api/admin-doc-view?adminToken=${adminToken}&r2Key=${encodeURIComponent(v.r2_key)}" target="_blank" style="color:var(--primary);font-size:12px">📎 View</a>` : v.consent_given ? '✅ Consent' : '—'}</td>
+      <td>${v.r2_key ? `<button type="button" onclick="openAdminDocument(decodeURIComponent('${encodeURIComponent(v.r2_key)}'))" style="color:var(--primary);font-size:12px">📎 View</button>` : v.consent_given ? '✅ Consent' : '—'}</td>
       <td><span style="padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;${STATUS_STYLE[v.status]||''}">${v.status}</span></td>
       <td style="font-size:12px">${v.submitted_at ? new Date(v.submitted_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '—'}</td>
       <td style="white-space:nowrap">
@@ -912,7 +934,7 @@ async function viewVerifDetail(caregiverId) {
   document.getElementById('verifDetailPanel').style.display = 'block';
   document.getElementById('verifDetailContent').innerHTML = '⏳ Loading…';
   try {
-    const r = await fetch(`${API}/admin-verification-detail?token=${adminToken}&caregiverId=${caregiverId}`);
+    const r = await adminRequest(`${API}/admin-verification-detail?caregiverId=${caregiverId}`);
     const d = await r.json();
     const cg = d.caregiver || {};
     const trust = d.trust || {};
@@ -944,7 +966,7 @@ async function viewVerifDetail(caregiverId) {
             <div>
               <span style="font-weight:600;font-size:13px">${DOC_LABELS[v.doc_type]||v.doc_type}</span>
               <span style="margin-left:8px;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;background:${v.status==='approved'?'rgba(34,197,94,0.15)':v.status==='rejected'?'rgba(239,68,68,0.15)':'rgba(245,158,11,0.15)'};color:${v.status==='approved'?'#22C55E':v.status==='rejected'?'#EF4444':'#F59E0B'}">${v.status}</span>
-              ${v.r2_key ? `<a href="${API.replace('carehia-admin','gotocare-original')}/api/admin-doc-view?adminToken=${adminToken}&r2Key=${encodeURIComponent(v.r2_key)}" target="_blank" style="margin-left:8px;color:var(--primary);font-size:12px">📎 View Doc</a>` : v.consent_given ? '<span style="margin-left:8px;color:#22C55E;font-size:12px">✅ Consent given</span>' : ''}
+              ${v.r2_key ? `<button type="button" onclick="openAdminDocument(decodeURIComponent('${encodeURIComponent(v.r2_key)}'))" style="margin-left:8px;color:var(--primary);font-size:12px">📎 View Doc</button>` : v.consent_given ? '<span style="margin-left:8px;color:#22C55E;font-size:12px">✅ Consent given</span>' : ''}
               ${v.rejection_reason ? `<p style="margin:4px 0 0;font-size:12px;color:#EF4444">Rejected: ${v.rejection_reason}</p>` : ''}
             </div>
             ${v.status==='pending' ? `<div style="display:flex;gap:6px">
@@ -979,7 +1001,7 @@ async function submitVerifAction() {
   btn.textContent = 'Saving…';
   btn.disabled = true;
   try {
-    const r = await fetch(`${API}/admin-verification-action?token=${adminToken}`, {
+    const r = await adminRequest(`${API}/admin-verification-action`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ verificationId, action, notes })
@@ -1041,7 +1063,7 @@ const ALL_MODULES = ['basic_profile','contact_verification','selfie_intro','care
 async function loadTrustQueue() {
   document.getElementById('trustBody').innerHTML = '<tr class="loading-row"><td colspan="8">⏳ Loading…</td></tr>';
   try {
-    const r = await fetch(`${API}/admin-trust-queue?token=${adminToken}&filter=${currentTrustFilter}`);
+    const r = await adminRequest(`${API}/admin-trust-queue?filter=${currentTrustFilter}`);
     const d = await r.json();
     if (d.error) { doLogout(); return; }
     trustAllRows = d.caregivers || [];
@@ -1115,7 +1137,7 @@ async function openTrustDetail(caregiverId) {
   document.getElementById('trustDetailSummary').innerHTML = '';
   document.getElementById('trustDetailContent').innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)">⏳ Loading trust data…</div>';
   try {
-    const r = await fetch(`${API}/admin-trust-detail?token=${adminToken}&caregiverId=${caregiverId}`);
+    const r = await adminRequest(`${API}/admin-trust-detail?caregiverId=${caregiverId}`);
     const d = await r.json();
     if (d.error) { alert('Error: ' + d.error); return; }
     trustDetailData = { ...d, caregiverId };
@@ -1263,7 +1285,7 @@ function renderTrustDetailDocs(d) {
       </div>
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
         <span style="padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;background:${v.status==='approved'?'rgba(34,197,94,0.15)':v.status==='rejected'?'rgba(239,68,68,0.15)':'rgba(245,158,11,0.15)'};color:${v.status==='approved'?'#4ade80':v.status==='rejected'?'#f87171':'#fbbf24'}">${esc(v.status||'pending')}</span>
-        ${v.r2_key ? `<a href="${API.replace('carehia-admin','gotocare-original')}/api/admin-doc-view?adminToken=${adminToken}&r2Key=${encodeURIComponent(v.r2_key)}" target="_blank" style="color:var(--primary);font-size:12px;text-decoration:none">📎 View File</a>` : ''}
+        ${v.r2_key ? `<button type="button" onclick="openAdminDocument(decodeURIComponent('${encodeURIComponent(v.r2_key)}'))" style="color:var(--primary);font-size:12px;text-decoration:none">📎 View File</button>` : ''}
       </div>
     </div>
   `).join('');
@@ -1392,7 +1414,7 @@ async function submitTrustAction() {
   btn.disabled = true;
 
   try {
-    const r = await fetch(`${API}/admin-trust-action?token=${adminToken}`, {
+    const r = await adminRequest(`${API}/admin-trust-action`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

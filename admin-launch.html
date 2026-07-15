@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta name="referrer" content="no-referrer">
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Carehia Launch Dashboard</title>
@@ -133,13 +134,19 @@
       loadAll()
     }
 
+    function adminRequest(url, options = {}) {
+      if (!adminKey) return Promise.reject(new Error('Admin authentication required'))
+      const headers = { ...(options.headers || {}), 'Authorization': `Bearer ${adminKey}` }
+      return fetch(url, { ...options, headers })
+    }
+
     async function loadAll() {
       await Promise.all([loadLaunchMetrics(), loadFirst20()])
     }
 
     async function loadLaunchMetrics() {
       try {
-        const r = await fetch(`${API}/admin-launch-metrics?key=${encodeURIComponent(adminKey)}`)
+        const r = await adminRequest(`${API}/admin-launch-metrics`)
         if (r.status === 401) { alert('Invalid admin key'); return }
         const data = await r.json()
         document.getElementById('last-updated').textContent = 'Last updated: ' + new Date(data.generated_at).toLocaleTimeString()
@@ -185,7 +192,7 @@
 
     async function loadFirst20() {
       try {
-        const r = await fetch(`${API}/admin-first-20?key=${encodeURIComponent(adminKey)}`)
+        const r = await adminRequest(`${API}/admin-first-20`)
         const data = await r.json()
 
         // Milestones
@@ -232,12 +239,7 @@
 
     // Init
     const saved = localStorage.getItem('carehia_admin_key')
-    const urlKey = new URLSearchParams(location.search).get('key')
-    if (urlKey) {
-      adminKey = urlKey
-      document.getElementById('main').style.display = 'block'
-      loadAll()
-    } else if (saved) {
+    if (saved) {
       adminKey = saved
       document.getElementById('main').style.display = 'block'
       loadAll()
